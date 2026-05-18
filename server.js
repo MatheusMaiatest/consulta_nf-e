@@ -1,4 +1,4 @@
-﻿const express  = require('express');
+const express  = require('express');
 const mysql    = require('mysql2/promise');
 const path     = require('path');
 
@@ -139,7 +139,11 @@ app.get('/api/notas', async (req, res) => {
     conn.release();
 
     // Ordena por data desc
-    notas.sort((a, b) => (b.dataemissao || '').localeCompare(a.dataemissao || ''));
+    notas.sort((a, b) => {
+      const da = a.dataemissao ? new Date(a.dataemissao).getTime() : 0;
+      const db = b.dataemissao ? new Date(b.dataemissao).getTime() : 0;
+      return db - da;
+    });
 
     res.json({
       notas,
@@ -211,7 +215,7 @@ function montarNota(r) {
     numero:             r.numero,
     serie:              r.serie,
     chaveacesso:        r.chaveacesso,
-    dataemissao:        r.dataemissao,
+    dataemissao:        r.dataemissao ? new Date(r.dataemissao).toISOString() : null,
     situacao:           r.situacao,
     cliente:            r.contato_nome,
     cpf:                r.contato_numerodocumento,
