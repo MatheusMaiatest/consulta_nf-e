@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
@@ -196,9 +196,8 @@ document.querySelectorAll('.tchip').forEach(function(c){
   };
 });
 
-// ── Buscar notas paginado (fetch direto na API) ────────────
+// ── Buscar notas paginado ──────────────────────────────────
 var _buscarFrom='', _buscarTo='', _buscarOffset=0, _buscarTotal=0, _buscarAtivo=false;
-var API_BASE = '';  // vazio = mesmo dominio (Railway serve tudo junto)
 G('btnBuscar').onclick=buscar;
 
 function buscar(){
@@ -211,31 +210,34 @@ function buscar(){
   buscarPagina();
 }
 
-async function buscarPagina(){
+function buscarPagina(){
   if(!_buscarAtivo) return;
-  try{
-    var url=API_BASE+'/api/notas?from='+_buscarFrom+'&to='+_buscarTo+'&offset='+_buscarOffset;
-    var resp=await fetch(url);
-    var d=await resp.json();
-    if(d.error){setStatus('❌ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
-    var novas=d.notas||[];
-    allNotas=allNotas.concat(novas);
-    if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
-    var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
-    setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
-    applyFilters();
-    if(d.hasMore){
-      _buscarOffset+=novas.length;
-      buscarPagina();
-    } else {
-      loading(false);
-      _buscarAtivo=false;
-      setStatus('✅ '+allNotas.length+' notas carregadas.');
-    }
-  }catch(e){
-    setStatus('❌ '+e.message,'err');
-    loading(false); _buscarAtivo=false;
-  }
+  google.script.run
+    .withSuccessHandler(function(json){
+      var d=JSON.parse(json);
+      if(d.error){setStatus('❌ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
+      var novas=d.notas||[];
+      allNotas=allNotas.concat(novas);
+      if(d.offset===0 && d.total>0) _buscarTotal=d.total;
+      var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
+      setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
+      applyFilters();
+      if(novas.length===200){
+        // ainda tem mais paginas
+        _buscarOffset+=novas.length;
+        buscarPagina();
+      } else {
+        // terminou
+        loading(false);
+        _buscarAtivo=false;
+        setStatus('✅ '+allNotas.length+' notas carregadas.');
+      }
+    })
+    .withFailureHandler(function(err){
+      setStatus('❌ '+err.message,'err');
+      loading(false); _buscarAtivo=false;
+    })
+    .apiBuscarPagina(_buscarFrom, _buscarTo, _buscarOffset);
 }
 
 // ── Busca rápida ───────────────────────────────────────────
