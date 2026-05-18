@@ -93,8 +93,21 @@ app.get('/api/notas', async (req, res) => {
 
     if (limE > 0) {
       const [rows] = await conn.execute(
-        `SELECT ${CAMPOS}, 'ecommerce' AS origem FROM \`bling_nfe_saida_detalhes_ecommerce\`
-         WHERE dataemissao BETWEEN ? AND ? ORDER BY dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
+        `SELECT n.id, n.numero, n.serie, n.chaveacesso, n.dataemissao, n.situacao,
+                n.contato_nome, n.contato_numerodocumento, n.contato_email, n.contato_telefone,
+                n.contato_endereco_endereco, n.contato_endereco_numero, n.contato_endereco_bairro,
+                n.contato_endereco_municipio, n.contato_endereco_uf, n.contato_endereco_cep,
+                n.contato_endereco_complemento,
+                n.transporte_transportador_nome, n.transporte_transportador_numerodocumento,
+                n.transporte_freteporconta,
+                n.x_total_icmstot_vnf, n.x_total_icmstot_vprod,
+                n.x_total_icmstot_vdesc, n.x_total_icmstot_vfrete,
+                n.linkdanfe, n.linkpdf, n.xml,
+                'ecommerce' AS origem,
+                p.numeropedidocompra, p.numero AS numeropedido
+         FROM \`bling_nfe_saida_detalhes_ecommerce\` n
+         LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.id
+         WHERE n.dataemissao BETWEEN ? AND ? ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
         [d1, d2]
       );
       notas = notas.concat(rows.map(r => montarNota(r)));
@@ -102,8 +115,21 @@ app.get('/api/notas', async (req, res) => {
 
     if (limD > 0) {
       const [rows] = await conn.execute(
-        `SELECT ${CAMPOS}, 'distribuidor' AS origem FROM \`bling_nfe_saida_detalhes_distribuicao\`
-         WHERE dataemissao BETWEEN ? AND ? ORDER BY dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
+        `SELECT n.id, n.numero, n.serie, n.chaveacesso, n.dataemissao, n.situacao,
+                n.contato_nome, n.contato_numerodocumento, n.contato_email, n.contato_telefone,
+                n.contato_endereco_endereco, n.contato_endereco_numero, n.contato_endereco_bairro,
+                n.contato_endereco_municipio, n.contato_endereco_uf, n.contato_endereco_cep,
+                n.contato_endereco_complemento,
+                n.transporte_transportador_nome, n.transporte_transportador_numerodocumento,
+                n.transporte_freteporconta,
+                n.x_total_icmstot_vnf, n.x_total_icmstot_vprod,
+                n.x_total_icmstot_vdesc, n.x_total_icmstot_vfrete,
+                n.linkdanfe, n.linkpdf, n.xml,
+                'distribuidor' AS origem,
+                p.numeropedidocompra, p.numero AS numeropedido
+         FROM \`bling_nfe_saida_detalhes_distribuicao\` n
+         LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.id
+         WHERE n.dataemissao BETWEEN ? AND ? ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
         [d1, d2]
       );
       notas = notas.concat(rows.map(r => montarNota(r)));
@@ -283,6 +309,8 @@ function montarNota(r) {
     linkdanfe:          r.linkdanfe,
     linkpdf:            r.linkpdf,
     xmlUrl:             r.xml,
+    numeropedidocompra: r.numeropedidocompra || null,
+    numeropedido:       r.numeropedido       || null,
     pesoBruto:          null,
     pesoLiquido:        null,
     qtdVolumes:         null
