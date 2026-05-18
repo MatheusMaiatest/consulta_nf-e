@@ -75,13 +75,13 @@ app.get('/api/notas', async (req, res) => {
       n.transporte_freteporconta,
       n.x_total_icmstot_vnf, n.x_total_icmstot_vprod,
       n.x_total_icmstot_vdesc, n.x_total_icmstot_vfrete,
-      n.linkdanfe, n.linkpdf, n.xml,
-      p.numero AS numeropedido
+      n.linkdanfe, n.linkpdf, n.xml
     `;
 
     if (limE > 0) {
+      // Vínculo 1: notafiscal_id = n.id (notas com pedido já sincronizado)
       const [rows] = await conn.execute(
-        `SELECT ${COLS}, 'ecommerce' AS origem
+        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido, 'ecommerce' AS origem
          FROM \`bling_nfe_saida_detalhes_ecommerce\` n
          LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.id
          WHERE n.dataemissao BETWEEN ? AND ?
@@ -93,7 +93,7 @@ app.get('/api/notas', async (req, res) => {
 
     if (limD > 0) {
       const [rows] = await conn.execute(
-        `SELECT ${COLS}, 'distribuidor' AS origem
+        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido, 'distribuidor' AS origem
          FROM \`bling_nfe_saida_detalhes_distribuicao\` n
          LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.id
          WHERE n.dataemissao BETWEEN ? AND ?
@@ -101,6 +101,53 @@ app.get('/api/notas', async (req, res) => {
         [d1, d2]
       );
       notas = notas.concat(rows.map(r => montarNota(r)));
+    }
+
+    // Vínculo 2: para notas sem pedido, busca pelo CPF do contato
+    const semPedido = notas.filter(n => !n.numeropedido && n.cpf);
+    if (semPedido.length > 0) {
+      const cpfsEco  = [...new Set(semPedido.filter(n => n.origem === 'ecommerce').map(n => n.cpf))];
+      const cpfsDist = [...new Set(semPedido.filter(n => n.origem === 'distribuidor').map(n => n.cpf))];
+
+      const cpfPedidoMap = {};
+
+      if (cpfsEco.length > 0) {
+        const ph = cpfsEco.map(() => '?').join(',');
+        // Pega o pedido mais recente por CPF que ainda não tem NF vinculada
+        const [rowsCpf] = await conn.execute(
+          `SELECT contato_numerodocumento, numero
+           FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+           WHERE contato_numerodocumento IN (${ph})
+             AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
+           ORDER BY id DESC`, cpfsEco
+        ).catch(() => [[]]);
+        // Pega só o mais recente por CPF
+        rowsCpf.forEach(r => {
+          if (!cpfPedidoMap[r.contato_numerodocumento])
+            cpfPedidoMap[r.contato_numerodocumento] = r.numero;
+        });
+      }
+
+      if (cpfsDist.length > 0) {
+        const ph = cpfsDist.map(() => '?').join(',');
+        const [rowsCpf] = await conn.execute(
+          `SELECT contato_numerodocumento, numero
+           FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+           WHERE contato_numerodocumento IN (${ph})
+             AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
+           ORDER BY id DESC`, cpfsDist
+        ).catch(() => [[]]);
+        rowsCpf.forEach(r => {
+          if (!cpfPedidoMap[r.contato_numerodocumento])
+            cpfPedidoMap[r.contato_numerodocumento] = r.numero;
+        });
+      }
+
+      // Aplica o vínculo por CPF nas notas sem pedido
+      notas.forEach(n => {
+        if (!n.numeropedido && n.cpf && cpfPedidoMap[n.cpf])
+          n.numeropedido = cpfPedidoMap[n.cpf];
+      });
     }
 
     // Pesos pelos IDs desta página
