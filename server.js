@@ -81,7 +81,12 @@ app.get('/api/notas', async (req, res) => {
     if (limE > 0) {
       // Vínculo 1: notafiscal_id = n.id (notas com pedido já sincronizado)
       const [rows] = await conn.execute(
-        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido, 'ecommerce' AS origem
+        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido,
+                COALESCE(p.situacao_nome, '') AS pedido_situacao,
+                COALESCE(p.numeroloja, '')    AS pedido_numeroloja,
+                '' AS pedido_observacoes,
+                '' AS pedido_observacoesinternas,
+                'ecommerce' AS origem
          FROM \`bling_nfe_saida_detalhes_ecommerce\` n
          LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.id
          WHERE n.dataemissao BETWEEN ? AND ?
@@ -93,7 +98,12 @@ app.get('/api/notas', async (req, res) => {
 
     if (limD > 0) {
       const [rows] = await conn.execute(
-        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido, 'distribuidor' AS origem
+        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido,
+                COALESCE(p.situacao_nome, '')       AS pedido_situacao,
+                COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
+                COALESCE(p.observacoes, '')          AS pedido_observacoes,
+                COALESCE(p.observacoesinternas, '')  AS pedido_observacoesinternas,
+                'distribuidor' AS origem
          FROM \`bling_nfe_saida_detalhes_distribuicao\` n
          LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.id
          WHERE n.dataemissao BETWEEN ? AND ?
@@ -113,25 +123,26 @@ app.get('/api/notas', async (req, res) => {
 
       if (cpfsEco.length > 0) {
         const ph = cpfsEco.map(() => '?').join(',');
-        // Pega o pedido mais recente por CPF que ainda não tem NF vinculada
         const [rowsCpf] = await conn.execute(
-          `SELECT contato_numerodocumento, numero
+          `SELECT contato_numerodocumento, numero, situacao_nome, numeroloja,
+                  '' AS observacoes, '' AS observacoesinternas
            FROM \`bling_pedidos_venda_detalhes_ecommerce\`
            WHERE contato_numerodocumento IN (${ph})
              AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
            ORDER BY id DESC`, cpfsEco
         ).catch(() => [[]]);
-        // Pega só o mais recente por CPF
         rowsCpf.forEach(r => {
           if (!cpfPedidoMap[r.contato_numerodocumento])
-            cpfPedidoMap[r.contato_numerodocumento] = r.numero;
+            cpfPedidoMap[r.contato_numerodocumento] = r;
         });
       }
 
       if (cpfsDist.length > 0) {
         const ph = cpfsDist.map(() => '?').join(',');
         const [rowsCpf] = await conn.execute(
-          `SELECT contato_numerodocumento, numero
+          `SELECT contato_numerodocumento, numero, situacao_nome, numeroloja,
+                  COALESCE(observacoes,'') AS observacoes,
+                  COALESCE(observacoesinternas,'') AS observacoesinternas
            FROM \`bling_pedidos_venda_detalhes_distribuicao\`
            WHERE contato_numerodocumento IN (${ph})
              AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
@@ -139,14 +150,19 @@ app.get('/api/notas', async (req, res) => {
         ).catch(() => [[]]);
         rowsCpf.forEach(r => {
           if (!cpfPedidoMap[r.contato_numerodocumento])
-            cpfPedidoMap[r.contato_numerodocumento] = r.numero;
+            cpfPedidoMap[r.contato_numerodocumento] = r;
         });
       }
 
-      // Aplica o vínculo por CPF nas notas sem pedido
       notas.forEach(n => {
-        if (!n.numeropedido && n.cpf && cpfPedidoMap[n.cpf])
-          n.numeropedido = cpfPedidoMap[n.cpf];
+        if (!n.numeropedido && n.cpf && cpfPedidoMap[n.cpf]) {
+          const p = cpfPedidoMap[n.cpf];
+          n.numeropedido            = p.numero            || null;
+          n.pedido_situacao         = p.situacao_nome     || null;
+          n.pedido_numeroloja       = p.numeroloja        || null;
+          n.pedido_observacoes      = p.observacoes       || null;
+          n.pedido_observacoesinternas = p.observacoesinternas || null;
+        }
       });
     }
 
@@ -263,7 +279,13 @@ function montarNota(r) {
     linkdanfe:          r.linkdanfe,
     linkpdf:            r.linkpdf,
     xmlUrl:             r.xml,
-    numeropedido:       r.numeropedido || null,
+    numeropedido:       r.numeropedido       || null,
+    pedido_situacao:    r.pedido_situacao    || null,
+    numeropedido:       r.numeropedido      || null,
+    pedido_situacao:    r.pedido_situacao   || null,
+    pedido_numeroloja:  r.pedido_numeroloja || null,
+    pedido_observacoes: r.pedido_observacoes && r.pedido_observacoes.trim() ? r.pedido_observacoes.trim() : null,
+    pedido_observacoesinternas: r.pedido_observacoesinternas && r.pedido_observacoesinternas.trim() ? r.pedido_observacoesinternas.trim() : null,
     pesoBruto:          null,
     pesoLiquido:        null,
     qtdVolumes:         null
