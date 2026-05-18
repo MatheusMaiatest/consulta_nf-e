@@ -159,7 +159,53 @@ app.get('/api/notas', async (req, res) => {
   }
 });
 
-// ── GET /api/produtos ─────────────────────────────────────
+// ── GET /api/produtos-lista ───────────────────────────────
+// Retorna lista de produtos únicos das notas do período (via XML parsing seria lento,
+// então usa os nomes das notas já carregadas — endpoint separado busca do banco de produtos)
+// ?from=...&to=...
+app.get('/api/produtos-lista', async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.json({ error: 'Parâmetros from e to obrigatórios.' });
+  const d1 = from + ' 00:00:00';
+  const d2 = to   + ' 23:59:59';
+  try {
+    const conn = await pool.getConnection();
+    // Busca XMLs das notas do período para extrair produtos únicos
+    const [rowsE] = await conn.execute(
+      'SELECT xml FROM `bling_nfe_saida_detalhes_ecommerce` WHERE dataemissao BETWEEN ? AND ? AND xml IS NOT NULL AND xml != ""',
+      [d1, d2]
+    );
+    const [rowsD] = await conn.execute(
+      'SELECT xml FROM `bling_nfe_saida_detalhes_distribuicao` WHERE dataemissao BETWEEN ? AND ? AND xml IS NOT NULL AND xml != ""',
+      [d1, d2]
+    );
+    conn.release();
+
+    // Coleta URLs únicas de XML e busca produtos em paralelo (máx 20 XMLs para não travar)
+    const urls = [...rowsE, ...rowsD].map(r => r.xml).filter(Boolean).slice(0, 20);
+    const fetch = (await import('node-fetch')).default;
+    const prodMap = {};
+
+    await Promise.all(urls.map(async url => {
+      try {
+        const r = await fetch(url, { timeout: 8000 });
+        if (!r.ok) return;
+        const xml = await r.text();
+        parseXmlProdutos(xml).forEach(p => {
+          const key = p.codigo || p.nome;
+          if (key && !prodMap[key]) prodMap[key] = { codigo: p.codigo, nome: p.nome };
+        });
+      } catch(e) {}
+    }));
+
+    const produtos = Object.values(prodMap).sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+    res.json({ produtos, total: produtos.length });
+  } catch(err) {
+    res.json({ error: err.message });
+  }
+});
+
+
 // ?xmlUrl=https://...
 app.get('/api/produtos', async (req, res) => {
   const { xmlUrl } = req.query;
