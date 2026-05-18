@@ -196,8 +196,9 @@ document.querySelectorAll('.tchip').forEach(function(c){
   };
 });
 
-// ── Buscar notas paginado ──────────────────────────────────
+// ── Buscar notas paginado (fetch direto na API) ────────────
 var _buscarFrom='', _buscarTo='', _buscarOffset=0, _buscarTotal=0, _buscarAtivo=false;
+var API_BASE = '';  // vazio = mesmo dominio (Railway serve tudo junto)
 G('btnBuscar').onclick=buscar;
 
 function buscar(){
@@ -210,34 +211,31 @@ function buscar(){
   buscarPagina();
 }
 
-function buscarPagina(){
+async function buscarPagina(){
   if(!_buscarAtivo) return;
-  google.script.run
-    .withSuccessHandler(function(json){
-      var d=JSON.parse(json);
-      if(d.error){setStatus('❌ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
-      var novas=d.notas||[];
-      allNotas=allNotas.concat(novas);
-      if(d.offset===0 && d.total>0) _buscarTotal=d.total;
-      var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
-      setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
-      applyFilters();
-      if(novas.length===200){
-        // ainda tem mais paginas
-        _buscarOffset+=novas.length;
-        buscarPagina();
-      } else {
-        // terminou
-        loading(false);
-        _buscarAtivo=false;
-        setStatus('✅ '+allNotas.length+' notas carregadas.');
-      }
-    })
-    .withFailureHandler(function(err){
-      setStatus('❌ '+err.message,'err');
-      loading(false); _buscarAtivo=false;
-    })
-    .apiBuscarPagina(_buscarFrom, _buscarTo, _buscarOffset);
+  try{
+    var url=API_BASE+'/api/notas?from='+_buscarFrom+'&to='+_buscarTo+'&offset='+_buscarOffset;
+    var resp=await fetch(url);
+    var d=await resp.json();
+    if(d.error){setStatus('❌ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
+    var novas=d.notas||[];
+    allNotas=allNotas.concat(novas);
+    if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
+    var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
+    setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
+    applyFilters();
+    if(d.hasMore){
+      _buscarOffset+=novas.length;
+      buscarPagina();
+    } else {
+      loading(false);
+      _buscarAtivo=false;
+      setStatus('✅ '+allNotas.length+' notas carregadas.');
+    }
+  }catch(e){
+    setStatus('❌ '+e.message,'err');
+    loading(false); _buscarAtivo=false;
+  }
 }
 
 // ── Busca rápida ───────────────────────────────────────────
@@ -259,28 +257,64 @@ function applyFilters(){
   renderCards();
 }
 
-// ── Render cards ───────────────────────────────────────────
+// ── Render cards com lazy load ─────────────────────────────
+var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
+
 function renderCards(){
   var grp=document.querySelector('input[name=grp]:checked').value||'nf';
   var cols=getCols();
   var grid=G('grid');
   grid.innerHTML='';
+  _renderIdx=0;
+
+  // Desconecta observer anterior
+  if(_renderObs){_renderObs.disconnect();_renderObs=null;}
+
   if(!filteredNotas.length){
     grid.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma nota encontrada.</p></div>';
     return;
   }
+
+  // Monta lista plana de itens a renderizar (headers + notas)
+  _renderList=[];
   var groups=groupNotas(filteredNotas,grp);
-  groups.forEach(function(g,gi){
-    if(groups.length>1){
-      var h=document.createElement('div');
-      h.className='grp-hdr'; h.textContent=g.label; grid.appendChild(h);
-    }
-    g.notas.forEach(function(n,i){
-      var c=buildCard(n,cols);
-      c.style.animationDelay=(gi*10+i)*.03+'s';
-      grid.appendChild(c);
-    });
+  groups.forEach(function(g){
+    if(groups.length>1) _renderList.push({type:'hdr',label:g.label});
+    g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
   });
+
+  // Renderiza primeiro lote
+  renderLote(cols, grid);
+
+  // Sentinel para carregar mais ao rolar
+  var sentinel=document.createElement('div');
+  sentinel.style.height='1px';
+  grid.appendChild(sentinel);
+  _renderObs=new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting) renderLote(cols, grid);
+  },{rootMargin:'200px'});
+  _renderObs.observe(sentinel);
+}
+
+function renderLote(cols, grid){
+  var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
+  var frag=document.createDocumentFragment();
+  for(var i=_renderIdx;i<fim;i++){
+    var item=_renderList[i];
+    if(item.type==='hdr'){
+      var h=document.createElement('div');
+      h.className='grp-hdr'; h.textContent=item.label; frag.appendChild(h);
+    } else {
+      frag.appendChild(buildCard(item.nota,cols));
+    }
+  }
+  // Insere antes do sentinel
+  var sentinel=grid.lastElementChild;
+  grid.insertBefore(frag, sentinel);
+  _renderIdx=fim;
+  if(_renderIdx>=_renderList.length && _renderObs){
+    _renderObs.disconnect(); _renderObs=null;
+  }
 }
 
 function buildCard(n,cols){
@@ -350,27 +384,23 @@ function abrirModal(n){
   carregarProdutos(n);
 }
 
-function carregarProdutos(n){
+async function carregarProdutos(n){
   var lista=G('plist');
   if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML não disponível.</div>';return;}
-  google.script.run
-    .withSuccessHandler(function(json){
-      var d=JSON.parse(json);
-      if(d.error){lista.innerHTML='<div class="pload">❌ '+d.error+'</div>';return;}
-      var ps=d.produtos||[];
-      if(!ps.length){lista.innerHTML='<div class="pload">Nenhum produto no XML.</div>';return;}
-      lista.innerHTML=ps.map(function(p){
-        return '<div class="pitem">'+
-          '<span class="pnome">'+esc(p.nome||p.codigo||'—')+'</span>'+
-          '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
-          '<span class="pval">'+brl(p.valor)+'</span>'+
-        '</div>';
-      }).join('');
-    })
-    .withFailureHandler(function(err){
-      lista.innerHTML='<div class="pload">❌ '+err.message+'</div>';
-    })
-    .apiBuscarProdutos(n.xmlUrl);
+  try{
+    var resp=await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
+    var d=await resp.json();
+    if(d.error){lista.innerHTML='<div class="pload">❌ '+d.error+'</div>';return;}
+    var ps=d.produtos||[];
+    if(!ps.length){lista.innerHTML='<div class="pload">Nenhum produto no XML.</div>';return;}
+    lista.innerHTML=ps.map(function(p){
+      return '<div class="pitem">'+
+        '<span class="pnome">'+esc(p.nome||p.codigo||'—')+'</span>'+
+        '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
+        '<span class="pval">'+brl(p.valor)+'</span>'+
+      '</div>';
+    }).join('');
+  }catch(e){lista.innerHTML='<div class="pload">❌ '+e.message+'</div>';}
 }
 
 G('mclose').onclick=fecharModal;
