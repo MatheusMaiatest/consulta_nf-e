@@ -125,6 +125,13 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 .btn-filtrar-prod{width:100%;padding:9px;background:var(--bgc);color:var(--ts);border:1px solid var(--bdr);border-radius:var(--rs);font-size:.82rem;cursor:pointer;transition:all var(--t);text-align:left;display:flex;align-items:center;gap:8px}
 .btn-filtrar-prod:hover{border-color:var(--ac);color:var(--ac)}
 .btn-filtrar-prod.ativo{border-color:var(--ac);background:var(--acg);color:var(--ach)}
+/* Filtros adicionais */
+.filtros-extra{display:flex;flex-direction:column;gap:6px}
+.btn-filtro-extra{width:100%;padding:9px 12px;background:var(--bgc);color:var(--ts);border:1px solid var(--bdr);border-radius:var(--rs);font-size:.82rem;cursor:pointer;transition:all var(--t);text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.btn-filtro-extra:hover{border-color:var(--ac);color:var(--ac)}
+.btn-filtro-extra.ativo{border-color:var(--ac);background:var(--acg);color:var(--ach)}
+.btn-filtro-extra .fex-count{font-size:.7rem;background:var(--ac);color:#fff;border-radius:10px;padding:1px 7px;display:none}
+.btn-filtro-extra.ativo .fex-count{display:inline}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
@@ -184,6 +191,27 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
       <button class="btn-filtrar-prod" id="btnFiltrarProd">🔎 Selecionar produtos... <span id="prodFiltroCount"></span></button>
       <div id="prodFiltroChip"></div>
     </div>
+    <div class="psec">
+      <span class="plabel">🔎 Filtros Avançados</span>
+      <div class="filtros-extra">
+        <button class="btn-filtro-extra" data-filtro="numero" id="btnFiltroNumero">
+          <span>🔢 Número NF</span><span class="fex-count" id="cntNumero">0</span>
+        </button>
+        <button class="btn-filtro-extra" data-filtro="cliente" id="btnFiltroCliente">
+          <span>👤 Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
+        </button>
+        <button class="btn-filtro-extra" data-filtro="cpf" id="btnFiltroCpf">
+          <span>🪪 CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
+        </button>
+        <button class="btn-filtro-extra" data-filtro="telefone" id="btnFiltroTelefone">
+          <span>📞 Telefone</span><span class="fex-count" id="cntTelefone">0</span>
+        </button>
+        <button class="btn-filtro-extra" data-filtro="email" id="btnFiltroEmail">
+          <span>✉️ E-mail</span><span class="fex-count" id="cntEmail">0</span>
+        </button>
+      </div>
+      <div id="filtrosChips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+    </div>
     <button class="btn-primary" id="btnBuscar">🔍 Buscar Notas</button>
     <div class="statusbar" id="status">Aguardando busca...</div>
   </aside>
@@ -197,6 +225,26 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
     </div>
   </main>
 </div>
+<!-- MODAL GENÉRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
+<div class="pmod-overlay" id="fexOverlay">
+  <div class="pmod">
+    <div class="pmod-head">
+      <h3 id="fexTitulo">Filtro</h3>
+      <input type="text" class="pmod-search" id="fexSearch" placeholder="Buscar..."/>
+      <button class="pmod-close" id="fexClose">✕</button>
+    </div>
+    <div class="pmod-actions">
+      <button id="fexSelAll">Selecionar todos</button>
+      <button id="fexClear">Limpar</button>
+    </div>
+    <div class="pmod-list" id="fexList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Faça uma busca primeiro.</div></div>
+    <div class="pmod-foot">
+      <span class="pmod-sel-count" id="fexSelCount">0 selecionados</span>
+      <button class="btn-aplicar" id="fexAplicar">Aplicar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL FILTRO PRODUTOS -->
 <div class="pmod-overlay" id="pmodOverlay">
   <div class="pmod">
@@ -481,6 +529,169 @@ function di(l,v){return'<div class="di"><label>'+l+'</label><span>'+esc(String(v
 function diV(l,v){return'<div class="di"><label>'+l+'</label><span class="vd">'+v+'</span></div>';}
 function setStatus(m,t){var s=G('status');s.textContent=m;s.style.color=t==='err'?'var(--err)':t==='warn'?'var(--warn)':'var(--tm)';}
 function loading(on){G('loverlay').classList.toggle('on',on);}
+// ── FILTROS AVANÇADOS (numero, cliente, cpf, telefone, email) ──
+var _fexConfig = {
+  numero:   { titulo:'🔢 Número NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
+  cliente:  { titulo:'👤 Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
+  cpf:      { titulo:'🪪 CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
+  telefone: { titulo:'📞 Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
+  email:    { titulo:'✉️ E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
+};
+
+// Mapa de seleções: { numero: Set, cliente: Set, ... }
+var _fexSel = { numero:new Set(), cliente:new Set(), cpf:new Set(), telefone:new Set(), email:new Set() };
+var _fexAtual = null; // qual filtro está aberto agora
+
+// Abre modal para o filtro clicado
+Object.keys(_fexConfig).forEach(function(key){
+  var cfg = _fexConfig[key];
+  G(cfg.btnId).onclick = function(){ abrirFex(key); };
+});
+
+G('fexClose').onclick  = function(){ G('fexOverlay').classList.remove('open'); };
+G('fexOverlay').onclick = function(e){ if(e.target===G('fexOverlay')) G('fexOverlay').classList.remove('open'); };
+G('fexSearch').oninput  = function(){ renderFexList(this.value.toLowerCase().trim()); };
+
+G('fexSelAll').onclick = function(){
+  _fexValores(_fexAtual).forEach(function(v){ _fexSel[_fexAtual].add(v); });
+  renderFexList(G('fexSearch').value.toLowerCase().trim());
+  atualizarFexCount();
+};
+
+G('fexClear').onclick = function(){
+  _fexSel[_fexAtual].clear();
+  renderFexList(G('fexSearch').value.toLowerCase().trim());
+  atualizarFexCount();
+};
+
+G('fexAplicar').onclick = function(){
+  G('fexOverlay').classList.remove('open');
+  atualizarFexBotoes();
+  atualizarFexChips();
+  applyFilters();
+};
+
+function abrirFex(key){
+  _fexAtual = key;
+  var cfg = _fexConfig[key];
+  G('fexTitulo').textContent = cfg.titulo;
+  G('fexSearch').value = '';
+  if(allNotas.length === 0){
+    G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">⚠️ Faça uma busca primeiro.</div>';
+    G('fexOverlay').classList.add('open');
+    return;
+  }
+  renderFexList('');
+  atualizarFexCount();
+  G('fexOverlay').classList.add('open');
+}
+
+function _fexValores(key){
+  var campo = _fexConfig[key].campo;
+  var vals = {};
+  allNotas.forEach(function(n){
+    var v = (n[campo]||'').toString().trim();
+    if(v) vals[v] = true;
+  });
+  return Object.keys(vals).sort();
+}
+
+function renderFexList(filtro){
+  var lista = G('fexList');
+  var vals = _fexValores(_fexAtual);
+  if(filtro) vals = vals.filter(function(v){ return v.toLowerCase().indexOf(filtro) >= 0; });
+  if(!vals.length){
+    lista.innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Nenhum valor encontrado.</div>';
+    return;
+  }
+  var frag = document.createDocumentFragment();
+  vals.forEach(function(v){
+    var item = document.createElement('div');
+    item.className = 'pmod-item';
+    var chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = _fexSel[_fexAtual].has(v);
+    chk.onchange = function(){
+      if(this.checked) _fexSel[_fexAtual].add(v);
+      else _fexSel[_fexAtual].delete(v);
+      atualizarFexCount();
+    };
+    var lbl = document.createElement('label');
+    lbl.textContent = v;
+    lbl.onclick = function(){ chk.click(); };
+    item.appendChild(chk); item.appendChild(lbl);
+    frag.appendChild(item);
+  });
+  lista.innerHTML = '';
+  lista.appendChild(frag);
+}
+
+function atualizarFexCount(){
+  if(!_fexAtual) return;
+  G('fexSelCount').textContent = _fexSel[_fexAtual].size + ' selecionado' + (_fexSel[_fexAtual].size !== 1 ? 's' : '');
+}
+
+function atualizarFexBotoes(){
+  Object.keys(_fexConfig).forEach(function(key){
+    var cfg = _fexConfig[key];
+    var n = _fexSel[key].size;
+    var btn = G(cfg.btnId);
+    var cnt = G(cfg.cntId);
+    cnt.textContent = n;
+    if(n > 0){ btn.classList.add('ativo'); cnt.style.display='inline'; }
+    else      { btn.classList.remove('ativo'); cnt.style.display='none'; }
+  });
+}
+
+function atualizarFexChips(){
+  var chips = G('filtrosChips');
+  chips.innerHTML = '';
+  Object.keys(_fexConfig).forEach(function(key){
+    var cfg = _fexConfig[key];
+    if(_fexSel[key].size > 0){
+      var chip = document.createElement('div');
+      chip.className = 'filtro-chip';
+      chip.innerHTML = cfg.titulo.replace(/[^\w\s]/g,'').trim() + ': ' + _fexSel[key].size +
+        ' <button onclick="limparFex(\''+key+'\')">✕</button>';
+      chips.appendChild(chip);
+    }
+  });
+}
+
+function limparFex(key){
+  _fexSel[key].clear();
+  atualizarFexBotoes();
+  atualizarFexChips();
+  applyFilters();
+}
+
+// Sobrescreve applyFilters para incluir filtros avançados
+var _applyFiltersBase = applyFilters;
+applyFilters = function(){
+  var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
+
+  filteredNotas = allNotas.filter(function(n){
+    if(!activeOrigens.has(n.origem)) return false;
+    if(activeSearch){
+      var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
+      if(h.indexOf(activeSearch) < 0) return false;
+    }
+    // Filtros avançados — AND entre filtros, OR dentro de cada filtro
+    if(temFex){
+      var ok = Object.keys(_fexSel).every(function(key){
+        if(_fexSel[key].size === 0) return true; // filtro não aplicado = passa
+        var campo = _fexConfig[key].campo;
+        var val = (n[campo]||'').toString().trim();
+        return _fexSel[key].has(val);
+      });
+      if(!ok) return false;
+    }
+    return true;
+  });
+
+  G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
+  renderCards();
+};
 
 // ── FILTRO POR PRODUTOS ────────────────────────────────────
 var _todosProdutos=[], _prodSelecionados=new Set(), _prodFiltroAtivo=false;
