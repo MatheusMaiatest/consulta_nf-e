@@ -428,7 +428,7 @@ function buildCard(n,cols){
   d.innerHTML=
     (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
     (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+'</div>':'')+
+    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+'</div>':'')+(n.numeropedido?'<div class="cnumero" style="color:var(--ac)">🛒 Pedido: '+esc(n.numeropedido)+'</div>':'')+
     (n.numeropedidocompra?'<div class="cnumero" style="color:var(--ac)">🛒 Pedido: '+esc(n.numeropedidocompra)+'</div>':'')+
     (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
     '<div class="cmeta">'+
@@ -462,7 +462,7 @@ function abrirModal(n){
     '<div class="msub">NF '+esc(n.numero||'—')+' · '+fmtDate(n.dataemissao)+'</div>';
   G('mbody').innerHTML=
     '<div class="dsec"><h3>📄 Dados da Nota</h3><div class="dgrid">'+
-      di('Número',n.numero)+di('Série',n.serie)+di('Data Emissão',fmtDate(n.dataemissao))+di('Pedido Compra',n.numeropedidocompra||'—')+di('Pedido Bling',n.numeropedido||'—')+
+      di('Número',n.numero)+di('Série',n.serie)+di('Data Emissão',fmtDate(n.dataemissao))+di('Nº Pedido',n.numeropedido||'—')+di('Pedido Compra',n.numeropedidocompra||'—')+di('Pedido Bling',n.numeropedido||'—')+
       diV('Valor Total',brl(n.valor))+di('Valor Produtos',brl(n.valorProdutos))+
       di('Desconto',brl(n.desconto))+di('Frete',brl(n.frete))+
       '<div class="di"><label>Chave Acesso</label><span style="font-size:.7rem;word-break:break-all">'+esc(n.chaveacesso||'—')+'</span></div>'+
