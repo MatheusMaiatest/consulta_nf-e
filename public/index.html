@@ -142,6 +142,23 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 .sit-Aberto,.sit-Em\ andamento{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid #ff9800}
 .sit-default{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
 .obs-box{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:.82rem;color:var(--tp);line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow-y:auto}
+.card-sit-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-left:4px}
+.card-sit-badge.ok{background:rgba(76,175,80,.15);color:#4caf50;border:1px solid rgba(76,175,80,.4)}
+.card-sit-badge.err{background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.4)}
+.card-sit-badge.warn{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.4)}
+.card-sit-badge.info{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
+.btn-ver-pedido{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--acg);border:1px solid var(--ac);color:var(--ach);border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t);margin-top:10px;width:100%}
+.btn-ver-pedido:hover{background:var(--ac);color:#fff}
+.pedido-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:350;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
+.pedido-overlay.open{opacity:1;pointer-events:all}
+.pedido-modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);width:90%;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;transform:scale(.94) translateY(12px);transition:transform var(--t);box-shadow:var(--sh)}
+.pedido-overlay.open .pedido-modal{transform:scale(1) translateY(0)}
+.pedido-modal-close{position:absolute;top:12px;right:12px;background:var(--bgc);border:1px solid var(--bdr);color:var(--tp);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all var(--t);z-index:1}
+.pedido-modal-close:hover{background:var(--err);border-color:var(--err);color:#fff}
+.pedido-modal-head{padding:20px 20px 14px;border-bottom:1px solid var(--bdr)}
+.pedido-modal-head h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+.pedido-modal-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:16px}
+.obs-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px;font-weight:700}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
@@ -438,7 +455,7 @@ function buildCard(n,cols){
   d.innerHTML=
     (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
     (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+'</div>':'')+(n.numeropedido?'<div class="cnumero" style="color:var(--ac)">🛒 Pedido: '+esc(n.numeropedido)+(n.pedido_situacao?' · <span style="color:'+(n.pedido_situacao==='Finalizado'||n.pedido_situacao==='Atendido'?'var(--ok)':n.pedido_situacao==='Cancelado'?'var(--err)':'var(--warn)')+'">'+ esc(n.pedido_situacao)+'</span>':'')+'</div>':'')+
+    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+'</div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+'</div>':'')+
     (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
     '<div class="cmeta">'+
       (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
@@ -880,6 +897,72 @@ async function filtrarNotasPorProdutos(){
   renderCards();
   setStatus('✅ '+filteredNotas.length+' notas com os produtos selecionados.');
 }
+
+// ── Helper badge situação no card ──────────────────────────
+function sitBadgeCard(sit){
+  if(!sit) return '';
+  var cls='info';
+  if(sit==='Finalizado'||sit==='Atendido') cls='ok';
+  else if(sit==='Cancelado') cls='err';
+  else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
+  return '<span class="card-sit-badge '+cls+'">'+esc(sit)+'</span>';
+}
+
+// ── Sub-modal pedido ───────────────────────────────────────
+var currentNota = null;
+
+var _abrirModalOrig = abrirModal;
+abrirModal = function(n){
+  currentNota = n;
+  _abrirModalOrig(n);
+};
+
+function abrirModalPedido(e, n){
+  e.stopPropagation();
+  if(!n) return;
+  var sit = n.pedido_situacao || '';
+  var cls = 'info';
+  if(sit==='Finalizado'||sit==='Atendido') cls='ok';
+  else if(sit==='Cancelado') cls='err';
+  else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
+
+  G('pedidoHead').innerHTML =
+    '<h3>🛒 Pedido de Venda</h3>'+
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+      (n.numeropedido ? '<span style="font-size:.95rem;font-weight:700;color:var(--ac)">#'+esc(n.numeropedido)+'</span>' : '')+
+      (sit ? '<span class="card-sit-badge '+cls+'" style="font-size:.75rem;padding:3px 12px">'+esc(sit)+'</span>' : '')+
+    '</div>';
+
+  var body = '<div class="dgrid">';
+  if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
+  if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
+  if(sit)                 body += '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
+  body += '</div>';
+
+  if(n.pedido_observacoes){
+    body += '<div><div class="obs-label">📝 Observações</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>';
+  }
+  if(n.pedido_observacoesinternas){
+    body += '<div><div class="obs-label">🔒 Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div></div>';
+  }
+  if(!n.pedido_observacoes && !n.pedido_observacoesinternas){
+    body += '<div style="color:var(--tm);font-size:.82rem">Sem observações registradas.</div>';
+  }
+
+  G('pedidoBody').innerHTML = body;
+  G('pedidoOverlay').classList.add('open');
+}
+
+G('pedidoClose').onclick = function(){ G('pedidoOverlay').classList.remove('open'); };
+G('pedidoOverlay').onclick = function(e){ if(e.target===G('pedidoOverlay')) G('pedidoOverlay').classList.remove('open'); };
 </script>
+<!-- SUB-MODAL PEDIDO DE VENDA -->
+<div class="pedido-overlay" id="pedidoOverlay">
+  <div class="pedido-modal">
+    <button class="pedido-modal-close" id="pedidoClose">✕</button>
+    <div class="pedido-modal-head" id="pedidoHead"></div>
+    <div class="pedido-modal-body" id="pedidoBody"></div>
+  </div>
+</div>
 </body>
 </html>
