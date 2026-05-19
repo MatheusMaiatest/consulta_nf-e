@@ -513,6 +513,10 @@ function abrirModal(n){
     '</div>' : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">Nenhum pedido vinculado a esta nota.</div>')+
     (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observações</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
     (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
+  '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
+    '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Pedido Bling</button>'+
+    (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">🛒 Obs. Cliente (Tray)</button>' : '')+
+  '</div>'+
   '</div>'+
   '<div class="dsec"><h3>📦 Produtos</h3><div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div></div>'+
     '<div class="dsec"><h3>🔗 Links</h3><div class="dgrid">'+
@@ -939,15 +943,20 @@ function abrirModalPedido(e, n){
   if(sit)                 body += '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
   body += '</div>';
 
+  body += '<div><div class="obs-label">📝 Observações</div>';
   if(n.pedido_observacoes){
-    body += '<div><div class="obs-label">📝 Observações</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>';
+    body += '<div class="obs-box">'+esc(n.pedido_observacoes)+'</div>';
+  } else {
+    body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observações.</div>';
   }
+  body += '</div>';
+  body += '<div><div class="obs-label">🔒 Observações Internas</div>';
   if(n.pedido_observacoesinternas){
-    body += '<div><div class="obs-label">🔒 Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div></div>';
+    body += '<div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div>';
+  } else {
+    body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observações internas.</div>';
   }
-  if(!n.pedido_observacoes && !n.pedido_observacoesinternas){
-    body += '<div style="color:var(--tm);font-size:.82rem">Sem observações registradas.</div>';
-  }
+  body += '</div>';
 
   G('pedidoBody').innerHTML = body;
   G('pedidoOverlay').classList.add('open');
@@ -955,13 +964,39 @@ function abrirModalPedido(e, n){
 
 G('pedidoClose').onclick = function(){ G('pedidoOverlay').classList.remove('open'); };
 G('pedidoOverlay').onclick = function(e){ if(e.target===G('pedidoOverlay')) G('pedidoOverlay').classList.remove('open'); };
+
+function abrirModalTray(e, n){
+  e.stopPropagation();
+  if(!n) return;
+  G('trayHead').innerHTML = '<h3>🛒 Observação do Cliente (Tray)</h3>'+
+    (n.numeropedido ? '<div style="font-size:.8rem;color:var(--tm);margin-top:4px">Pedido #'+esc(n.numeropedido)+'</div>' : '')+
+    (n.pedido_numeroloja ? '<div style="font-size:.8rem;color:var(--tm)">Loja: '+esc(n.pedido_numeroloja)+'</div>' : '');
+  var body = '';
+  if(n.tray_customer_note){
+    body += '<div><div class="obs-label">📝 Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
+  } else {
+    body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observação do cliente neste pedido.</div>';
+  }
+  G('trayBody').innerHTML = body;
+  G('trayOverlay').classList.add('open');
+}
+G('trayClose').onclick = function(){ G('trayOverlay').classList.remove('open'); };
+G('trayOverlay').onclick = function(e){ if(e.target===G('trayOverlay')) G('trayOverlay').classList.remove('open'); };
 </script>
-<!-- SUB-MODAL PEDIDO DE VENDA -->
+<!-- SUB-MODAL BLING (pedido de venda) -->
 <div class="pedido-overlay" id="pedidoOverlay">
   <div class="pedido-modal">
     <button class="pedido-modal-close" id="pedidoClose">✕</button>
     <div class="pedido-modal-head" id="pedidoHead"></div>
     <div class="pedido-modal-body" id="pedidoBody"></div>
+  </div>
+</div>
+<!-- SUB-MODAL TRAY (obs do cliente) -->
+<div class="pedido-overlay" id="trayOverlay">
+  <div class="pedido-modal">
+    <button class="pedido-modal-close" id="trayClose">✕</button>
+    <div class="pedido-modal-head" id="trayHead"></div>
+    <div class="pedido-modal-body" id="trayBody"></div>
   </div>
 </div>
 </body>
