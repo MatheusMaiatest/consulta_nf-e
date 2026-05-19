@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // ── /api/notas ────────────────────────────────────────────
 app.get('/api/notas', async (req, res) => {
@@ -79,14 +79,14 @@ app.get('/api/notas', async (req, res) => {
     `;
 
     if (limE > 0) {
-      // Vínculo 1: notafiscal_id = n.id (notas com pedido já sincronizado)
       const [rows] = await conn.execute(
-        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido,
+        `SELECT ${COLS},
+                COALESCE(p.numero, '')        AS numeropedido,
                 COALESCE(p.situacao_nome, '') AS pedido_situacao,
                 COALESCE(p.numeroloja, '')    AS pedido_numeroloja,
-                '' AS pedido_observacoes,
-                '' AS pedido_observacoesinternas,
-                'ecommerce' AS origem
+                ''                            AS pedido_observacoes,
+                ''                            AS pedido_observacoesinternas,
+                'ecommerce'                   AS origem
          FROM \`bling_nfe_saida_detalhes_ecommerce\` n
          LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.id
          WHERE n.dataemissao BETWEEN ? AND ?
@@ -98,12 +98,13 @@ app.get('/api/notas', async (req, res) => {
 
     if (limD > 0) {
       const [rows] = await conn.execute(
-        `SELECT ${COLS}, COALESCE(p.numero, '') AS numeropedido,
-                COALESCE(p.situacao_nome, '')       AS pedido_situacao,
+        `SELECT ${COLS},
+                COALESCE(p.numero, '')               AS numeropedido,
+                COALESCE(p.situacao_nome, '')        AS pedido_situacao,
                 COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
                 COALESCE(p.observacoes, '')          AS pedido_observacoes,
                 COALESCE(p.observacoesinternas, '')  AS pedido_observacoesinternas,
-                'distribuidor' AS origem
+                'distribuidor'                       AS origem
          FROM \`bling_nfe_saida_detalhes_distribuicao\` n
          LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.id
          WHERE n.dataemissao BETWEEN ? AND ?
@@ -113,12 +114,11 @@ app.get('/api/notas', async (req, res) => {
       notas = notas.concat(rows.map(r => montarNota(r)));
     }
 
-    // Vínculo 2: para notas sem pedido, busca pelo CPF do contato
+    // Vínculo 2: notas sem pedido → busca pelo CPF
     const semPedido = notas.filter(n => !n.numeropedido && n.cpf);
     if (semPedido.length > 0) {
       const cpfsEco  = [...new Set(semPedido.filter(n => n.origem === 'ecommerce').map(n => n.cpf))];
       const cpfsDist = [...new Set(semPedido.filter(n => n.origem === 'distribuidor').map(n => n.cpf))];
-
       const cpfPedidoMap = {};
 
       if (cpfsEco.length > 0) {
@@ -132,8 +132,7 @@ app.get('/api/notas', async (req, res) => {
            ORDER BY id DESC`, cpfsEco
         ).catch(() => [[]]);
         rowsCpf.forEach(r => {
-          if (!cpfPedidoMap[r.contato_numerodocumento])
-            cpfPedidoMap[r.contato_numerodocumento] = r;
+          if (!cpfPedidoMap[r.contato_numerodocumento]) cpfPedidoMap[r.contato_numerodocumento] = r;
         });
       }
 
@@ -149,24 +148,62 @@ app.get('/api/notas', async (req, res) => {
            ORDER BY id DESC`, cpfsDist
         ).catch(() => [[]]);
         rowsCpf.forEach(r => {
-          if (!cpfPedidoMap[r.contato_numerodocumento])
-            cpfPedidoMap[r.contato_numerodocumento] = r;
+          if (!cpfPedidoMap[r.contato_numerodocumento]) cpfPedidoMap[r.contato_numerodocumento] = r;
         });
       }
 
       notas.forEach(n => {
         if (!n.numeropedido && n.cpf && cpfPedidoMap[n.cpf]) {
           const p = cpfPedidoMap[n.cpf];
-          n.numeropedido            = p.numero            || null;
-          n.pedido_situacao         = p.situacao_nome     || null;
-          n.pedido_numeroloja       = p.numeroloja        || null;
-          n.pedido_observacoes      = p.observacoes       || null;
-          n.pedido_observacoesinternas = p.observacoesinternas || null;
+          n.numeropedido               = p.numero        || null;
+          n.pedido_situacao            = p.situacao_nome || null;
+          n.pedido_numeroloja          = p.numeroloja    || null;
+          n.pedido_observacoes         = p.observacoes && p.observacoes.trim() ? p.observacoes.trim() : null;
+          n.pedido_observacoesinternas = p.observacoesinternas && p.observacoesinternas.trim() ? p.observacoesinternas.trim() : null;
         }
       });
     }
 
-    // Pesos pelos IDs desta página
+    // ── Obs Tray para e-commerce ──────────────────────────
+    const notasEco = notas.filter(n => n.origem === 'ecommerce');
+    if (notasEco.length > 0) {
+      // Coleta numeropedido e numeroloja para fazer o JOIN
+      const numeros    = [...new Set(notasEco.map(n => n.numeropedido).filter(Boolean))];
+      const numerosLoja = [...new Set(notasEco.map(n => n.pedido_numeroloja).filter(Boolean))];
+
+      const trayMap = {}; // key = numeropedido ou numeroloja → customer_note
+
+      if (numeros.length > 0) {
+        const ph = numeros.map(() => '?').join(',');
+        const [trayRows] = await conn.execute(
+          `SELECT order_id, MAX(order_customer_note) AS customer_note
+           FROM \`detalhes_pedidos_ecommerce_tray\`
+           WHERE order_id IN (${ph}) AND order_customer_note IS NOT NULL AND order_customer_note != ''
+           GROUP BY order_id`, numeros
+        ).catch(() => [[]]);
+        trayRows.forEach(r => { trayMap[String(r.order_id)] = r.customer_note; });
+      }
+
+      if (numerosLoja.length > 0) {
+        const ph = numerosLoja.map(() => '?').join(',');
+        const [trayRows] = await conn.execute(
+          `SELECT order_id, MAX(order_customer_note) AS customer_note
+           FROM \`detalhes_pedidos_ecommerce_tray\`
+           WHERE order_id IN (${ph}) AND order_customer_note IS NOT NULL AND order_customer_note != ''
+           GROUP BY order_id`, numerosLoja
+        ).catch(() => [[]]);
+        trayRows.forEach(r => {
+          if (!trayMap[String(r.order_id)]) trayMap[String(r.order_id)] = r.customer_note;
+        });
+      }
+
+      notasEco.forEach(n => {
+        const note = trayMap[String(n.numeropedido)] || trayMap[String(n.pedido_numeroloja)] || null;
+        n.tray_customer_note = note && note.trim() ? note.trim() : null;
+      });
+    }
+
+    // Pesos
     if (notas.length > 0) {
       const ids = notas.map(n => n.id);
       const ph  = ids.map(() => '?').join(',');
@@ -183,7 +220,10 @@ app.get('/api/notas', async (req, res) => {
       [...pesosE, ...pesosD].forEach(p => {
         pm[p.nfe_id] = { pesoBruto: p.x_transp_vol_pesob, pesoLiquido: p.x_transp_vol_pesol, qtdVolumes: p.x_transp_vol_qvol };
       });
-      notas.forEach(n => { const p = pm[n.id]; if (p) { n.pesoBruto = p.pesoBruto; n.pesoLiquido = p.pesoLiquido; n.qtdVolumes = p.qtdVolumes; } });
+      notas.forEach(n => {
+        const p = pm[n.id];
+        if (p) { n.pesoBruto = p.pesoBruto; n.pesoLiquido = p.pesoLiquido; n.qtdVolumes = p.qtdVolumes; }
+      });
     }
 
     conn.release();
@@ -227,7 +267,7 @@ app.get('/api/produtos-lista', async (req, res) => {
           const key = p.codigo || p.nome;
           if (key && !prodMap[key]) prodMap[key] = { codigo: p.codigo, nome: p.nome };
         });
-      } catch(e) {}
+      } catch(e) { /* ignora */ }
     }));
     const produtos = Object.values(prodMap).sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
     res.json({ produtos, total: produtos.length });
@@ -279,13 +319,12 @@ function montarNota(r) {
     linkdanfe:          r.linkdanfe,
     linkpdf:            r.linkpdf,
     xmlUrl:             r.xml,
-    numeropedido:       r.numeropedido       || null,
-    pedido_situacao:    r.pedido_situacao    || null,
     numeropedido:       r.numeropedido      || null,
     pedido_situacao:    r.pedido_situacao   || null,
     pedido_numeroloja:  r.pedido_numeroloja || null,
     pedido_observacoes: r.pedido_observacoes && r.pedido_observacoes.trim() ? r.pedido_observacoes.trim() : null,
     pedido_observacoesinternas: r.pedido_observacoesinternas && r.pedido_observacoesinternas.trim() ? r.pedido_observacoesinternas.trim() : null,
+    tray_customer_note: null, // preenchido depois para ecommerce
     pesoBruto:          null,
     pesoLiquido:        null,
     qtdVolumes:         null
