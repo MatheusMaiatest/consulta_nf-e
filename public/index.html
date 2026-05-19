@@ -203,7 +203,7 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
       </div>
     </div>
     <div class="psec">
-      <span class="plabel">👁️ Colunas</span>
+      <span class="plabel">🔎 Filtrar:</span>
       <div class="col-togs" id="colTogs">
         <label class="ctog"><input type="checkbox" data-c="cliente" checked/>Cliente</label>
         <label class="ctog"><input type="checkbox" data-c="valor" checked/>Valor NF</label>
@@ -214,6 +214,20 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
         <label class="ctog"><input type="checkbox" data-c="numero" checked/>Nº NF</label>
         <label class="ctog"><input type="checkbox" data-c="data" checked/>Data</label>
       </div>
+    </div>
+    <div class="psec">
+      <span class="plabel">🎟️ Cupom</span>
+      <div class="tog-grp">
+        <label class="tchip on" id="chipComCupom" data-cupom="com"><input type="checkbox" checked/>Com cupom</label>
+        <label class="tchip on" id="chipSemCupom" data-cupom="sem"><input type="checkbox" checked/>Sem cupom</label>
+      </div>
+    </div>
+    <div class="psec">
+      <span class="plabel">💳 Forma de Pagamento</span>
+      <button class="btn-filtro-extra" id="btnFiltroPag" style="justify-content:space-between">
+        <span>Selecionar formas...</span><span class="fex-count" id="cntPag">0</span>
+      </button>
+      <div id="pagFiltroChip"></div>
     </div>
     <div class="psec">
       <span class="plabel">📦 Filtrar por Produto</span>
@@ -305,7 +319,22 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
   <div class="spin"></div>
   <p>Buscando notas fiscais...</p>
 </div>
-<script>// ── Estado global ──────────────────────────────────────────
+<!-- SUB-MODAL BLING (pedido de venda) -->
+<div class="pedido-overlay" id="pedidoOverlay">
+  <div class="pedido-modal">
+    <button class="pedido-modal-close" id="pedidoClose">✕</button>
+    <div class="pedido-modal-head" id="pedidoHead"></div>
+    <div class="pedido-modal-body" id="pedidoBody"></div>
+  </div>
+</div>
+<!-- SUB-MODAL TRAY (obs do cliente) -->
+<div class="pedido-overlay" id="trayOverlay">
+  <div class="pedido-modal">
+    <button class="pedido-modal-close" id="trayClose">✕</button>
+    <div class="pedido-modal-head" id="trayHead"></div>
+    <div class="pedido-modal-body" id="trayBody"></div>
+  </div>
+</div><script>// ── Estado global ──────────────────────────────────────────
 var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
 var G=function(id){return document.getElementById(id);};
 
@@ -457,7 +486,7 @@ function buildCard(n,cols){
   d.innerHTML=
     (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
     (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+'</div>':'')+
+    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+(n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">🎟️</span>':'')+' </div>':'')+
     (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
     '<div class="cmeta">'+
       (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
@@ -992,22 +1021,118 @@ function abrirModalTray(e, n){
 }
 G('trayClose').onclick = function(){ G('trayOverlay').classList.remove('open'); };
 G('trayOverlay').onclick = function(e){ if(e.target===G('trayOverlay')) G('trayOverlay').classList.remove('open'); };
+
+// ── Filtro Cupom ───────────────────────────────────────────
+var _filtroCupom = { com: true, sem: true };
+['com','sem'].forEach(function(tipo){
+  var chip = document.querySelector('[data-cupom="'+tipo+'"]');
+  if(!chip) return;
+  chip.onclick = function(){
+    _filtroCupom[tipo] = !_filtroCupom[tipo];
+    chip.classList.toggle('on', _filtroCupom[tipo]);
+    applyFilters();
+  };
+});
+
+// ── Filtro Forma de Pagamento ──────────────────────────────
+var _pagSelecionados = new Set();
+var _pagAtivo = false;
+
+G('btnFiltroPag').onclick = function(){ abrirFiltroFormasPag(); };
+
+function abrirFiltroFormasPag(){
+  // Coleta todas as formas únicas das notas carregadas
+  var formas = {};
+  allNotas.forEach(function(n){
+    (n.formas_pagamento||[]).forEach(function(fp){ if(fp.tipo) formas[fp.tipo]=true; });
+    if(n.tray_payment_form) formas[n.tray_payment_form]=true;
+  });
+  var lista = Object.keys(formas).sort();
+  if(!lista.length){ alert('Faça uma busca primeiro.'); return; }
+  // Reutiliza o modal genérico fexOverlay
+  _fexAtual = '__pag__';
+  G('fexTitulo').textContent = '💳 Forma de Pagamento';
+  G('fexSearch').value = '';
+  var frag = document.createDocumentFragment();
+  lista.forEach(function(v){
+    var item = document.createElement('div');
+    item.className = 'pmod-item';
+    var chk = document.createElement('input');
+    chk.type = 'checkbox'; chk.checked = _pagSelecionados.has(v);
+    chk.onchange = function(){ if(this.checked) _pagSelecionados.add(v); else _pagSelecionados.delete(v); atualizarFexCount(); };
+    var lbl = document.createElement('label');
+    lbl.textContent = v; lbl.onclick = function(){ chk.click(); };
+    item.appendChild(chk); item.appendChild(lbl);
+    frag.appendChild(item);
+  });
+  G('fexList').innerHTML = '';
+  G('fexList').appendChild(frag);
+  G('fexSelCount').textContent = _pagSelecionados.size + ' selecionados';
+  G('fexOverlay').classList.add('open');
+}
+
+// Sobrescreve fexAplicar para tratar o caso __pag__
+var _fexAplicarOrig = G('fexAplicar').onclick;
+G('fexAplicar').onclick = function(){
+  if(_fexAtual === '__pag__'){
+    _pagAtivo = _pagSelecionados.size > 0;
+    G('fexOverlay').classList.remove('open');
+    var cnt = G('cntPag');
+    var btn = G('btnFiltroPag');
+    cnt.textContent = _pagSelecionados.size;
+    if(_pagAtivo){ btn.classList.add('ativo'); cnt.style.display='inline'; }
+    else { btn.classList.remove('ativo'); cnt.style.display='none'; }
+    var chip = G('pagFiltroChip');
+    chip.innerHTML = _pagAtivo ? '<div class="filtro-chip">'+_pagSelecionados.size+' forma(s) <button onclick="limparFiltroPag()">✕</button></div>' : '';
+    applyFilters();
+  } else {
+    _fexAplicarOrig && _fexAplicarOrig.call(this);
+  }
+};
+
+function limparFiltroPag(){
+  _pagSelecionados.clear(); _pagAtivo=false;
+  G('cntPag').textContent='0'; G('btnFiltroPag').classList.remove('ativo');
+  G('cntPag').style.display='none'; G('pagFiltroChip').innerHTML='';
+  applyFilters();
+}
+
+// Sobrescreve applyFilters para incluir filtros cupom e pagamento
+var _applyFiltersAnterior = applyFilters;
+applyFilters = function(){
+  var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
+  filteredNotas = allNotas.filter(function(n){
+    if(!activeOrigens.has(n.origem)) return false;
+    if(activeSearch){
+      var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
+      if(h.indexOf(activeSearch) < 0) return false;
+    }
+    if(temFex){
+      var ok = Object.keys(_fexSel).every(function(key){
+        if(_fexSel[key].size === 0) return true;
+        var campo = _fexConfig[key].campo;
+        var val = (n[campo]||'').toString().trim();
+        return _fexSel[key].has(val);
+      });
+      if(!ok) return false;
+    }
+    // Filtro cupom
+    var temCupom = !!(n.tray_cupom_nome);
+    if(temCupom && !_filtroCupom.com) return false;
+    if(!temCupom && !_filtroCupom.sem) return false;
+    // Filtro forma de pagamento
+    if(_pagAtivo && _pagSelecionados.size > 0){
+      var formasNota = (n.formas_pagamento||[]).map(function(fp){ return fp.tipo; });
+      if(n.tray_payment_form) formasNota.push(n.tray_payment_form);
+      var match = formasNota.some(function(f){ return _pagSelecionados.has(f); });
+      if(!match) return false;
+    }
+    return true;
+  });
+  G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
+  renderCards();
+};
 </script>
-<!-- SUB-MODAL BLING (pedido de venda) -->
-<div class="pedido-overlay" id="pedidoOverlay">
-  <div class="pedido-modal">
-    <button class="pedido-modal-close" id="pedidoClose">✕</button>
-    <div class="pedido-modal-head" id="pedidoHead"></div>
-    <div class="pedido-modal-body" id="pedidoBody"></div>
-  </div>
-</div>
-<!-- SUB-MODAL TRAY (obs do cliente) -->
-<div class="pedido-overlay" id="trayOverlay">
-  <div class="pedido-modal">
-    <button class="pedido-modal-close" id="trayClose">✕</button>
-    <div class="pedido-modal-head" id="trayHead"></div>
-    <div class="pedido-modal-body" id="trayBody"></div>
-  </div>
-</div>
+
 </body>
 </html>
