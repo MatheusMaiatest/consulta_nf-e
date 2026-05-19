@@ -166,14 +166,14 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--tm)}
 @media(max-width:768px){.panel{position:fixed;left:0;top:56px;bottom:0;z-index:90}.panel.collapsed{transform:translateX(-100%);width:280px}.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
-/* -- Abas ----------------------------------------------- */
+/* ── Abas ─────────────────────────────────────────────── */
 .tab-nav{display:flex;gap:4px;align-items:center}
 .tab-btn{padding:6px 16px;border-radius:var(--rs);border:1px solid transparent;background:none;color:var(--ts);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t)}
 .tab-btn:hover{background:var(--bgc);color:var(--tp)}
 .tab-btn.active{background:var(--ac);color:#fff;border-color:var(--ac)}
 .view-section{display:none}
 .view-section.active{display:flex;flex-direction:column}
-/* -- Dashboard layout ----------------------------------- */
+/* ── Dashboard layout ─────────────────────────────────── */
 .dash-wrap{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
 .dash-kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
 .dash-kpi{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:6px;transition:all var(--t)}
@@ -216,7 +216,7 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 .drill-bar-fill{height:100%;background:var(--ac);border-radius:4px;transition:width .4s ease}
 .drill-bar-count{width:32px;text-align:right;color:var(--tm);font-weight:600}
 @media(max-width:900px){.dash-row.cols-2,.dash-row.cols-3,.dash-row.cols-12,.dash-row.cols-21{grid-template-columns:1fr}}
-/* -- Drill-down mapa municipal --------------------------- */
+/* ── Drill-down mapa municipal ─────────────────────────── */
 .drill-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .drill-overlay.open{opacity:1;pointer-events:all}
 .drill-modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);width:95%;max-width:900px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;box-shadow:var(--sh);transform:scale(.94) translateY(12px);transition:transform .25s}
@@ -242,15 +242,15 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 </head>
 <body>
 <header class="topbar">
-  <span class="logo">?? NF-e Viewer</span>
+  <span class="logo">📦 NF-e Viewer</span>
   <nav class="tab-nav">
-    <button class="tab-btn active" onclick="switchView('nfe',this)">?? NF-e</button>
-    <button class="tab-btn" onclick="switchView('transporte',this)">?? Transporte</button>
-    <button class="tab-btn" onclick="switchView('vendas',this)">?? Vendas</button>
+    <button class="tab-btn active" onclick="switchView('nfe',this)">📋 NF-e</button>
+    <button class="tab-btn" onclick="switchView('transporte',this)">🚚 Transporte</button>
+    <button class="tab-btn" onclick="switchView('vendas',this)">📊 Vendas</button>
   </nav>
   <div class="topbar-right">
-    <button class="btn-icon" id="btnTheme" title="Tema">??</button>
-    <button class="btn-icon" id="btnPanel" title="Painel">??</button>
+    <button class="btn-icon" id="btnTheme" title="Tema">🌙</button>
+    <button class="btn-icon" id="btnPanel" title="Painel">⚙️</button>
   </div>
 </header>
 <div id="view-nfe" class="view-section active">
@@ -258,14 +258,14 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
   <aside class="panel" id="panel">
     <div class="panel-title">Painel de Controle</div>
     <div class="psec">
-      <span class="plabel">?? Per�odo</span>
+      <span class="plabel">📅 Período</span>
       <div class="date-row">
         <div class="fg"><label>De</label><input type="date" id="dtFrom"/></div>
-        <div class="fg"><label>At�</label><input type="date" id="dtTo"/></div>
+        <div class="fg"><label>Até</label><input type="date" id="dtTo"/></div>
       </div>
     </div>
     <div class="psec">
-      <span class="plabel">??? Agrupar por</span>
+      <span class="plabel">🗂️ Agrupar por</span>
       <div class="group-opts">
         <label class="rcard"><input type="radio" name="grp" value="nf" checked/><span>Por NF-e</span></label>
         <label class="rcard"><input type="radio" name="grp" value="cliente"/><span>Por Cliente</span></label>
@@ -274,14 +274,14 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
       </div>
     </div>
     <div class="psec">
-      <span class="plabel">?? Origem</span>
+      <span class="plabel">🏭 Origem</span>
       <div class="tog-grp">
         <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
         <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
       </div>
     </div>
     <div class="psec">
-      <span class="plabel">?? Filtrar:</span>
+      <span class="plabel">🔎 Filtrar:</span>
       <div class="col-togs" id="colTogs">
         <label class="ctog"><input type="checkbox" data-c="cliente" checked/>Cliente</label>
         <label class="ctog"><input type="checkbox" data-c="valor" checked/>Valor NF</label>
@@ -289,60 +289,60 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
         <label class="ctog"><input type="checkbox" data-c="transp" checked/>Transportadora</label>
         <label class="ctog"><input type="checkbox" data-c="cpf" checked/>CPF</label>
         <label class="ctog"><input type="checkbox" data-c="cidade" checked/>Cidade/UF</label>
-        <label class="ctog"><input type="checkbox" data-c="numero" checked/>N� NF</label>
+        <label class="ctog"><input type="checkbox" data-c="numero" checked/>Nº NF</label>
         <label class="ctog"><input type="checkbox" data-c="data" checked/>Data</label>
       </div>
     </div>
     <div class="psec">
-      <span class="plabel">??? Cupom</span>
+      <span class="plabel">🎟️ Cupom</span>
       <div class="tog-grp">
         <label class="tchip on" id="chipComCupom" data-cupom="com"><input type="checkbox" checked/>Com cupom</label>
         <label class="tchip on" id="chipSemCupom" data-cupom="sem"><input type="checkbox" checked/>Sem cupom</label>
       </div>
     </div>
     <div class="psec">
-      <span class="plabel">?? Forma de Pagamento</span>
+      <span class="plabel">💳 Forma de Pagamento</span>
       <button class="btn-filtro-extra" id="btnFiltroPag" style="justify-content:space-between">
         <span>Selecionar formas...</span><span class="fex-count" id="cntPag">0</span>
       </button>
       <div id="pagFiltroChip"></div>
     </div>
     <div class="psec">
-      <span class="plabel">?? Filtrar por Produto</span>
-      <button class="btn-filtrar-prod" id="btnFiltrarProd">?? Selecionar produtos... <span id="prodFiltroCount"></span></button>
+      <span class="plabel">📦 Filtrar por Produto</span>
+      <button class="btn-filtrar-prod" id="btnFiltrarProd">🔎 Selecionar produtos... <span id="prodFiltroCount"></span></button>
       <div id="prodFiltroChip"></div>
     </div>
     <div class="psec">
-      <span class="plabel">?? Filtros Avan�ados</span>
+      <span class="plabel">🔎 Filtros Avançados</span>
       <div class="filtros-extra">
         <button class="btn-filtro-extra" data-filtro="numero" id="btnFiltroNumero">
-          <span>?? N�mero NF</span><span class="fex-count" id="cntNumero">0</span>
+          <span>🔢 Número NF</span><span class="fex-count" id="cntNumero">0</span>
         </button>
         <button class="btn-filtro-extra" data-filtro="cliente" id="btnFiltroCliente">
-          <span>?? Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
+          <span>👤 Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
         </button>
         <button class="btn-filtro-extra" data-filtro="cpf" id="btnFiltroCpf">
-          <span>?? CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
+          <span>🪪 CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
         </button>
         <button class="btn-filtro-extra" data-filtro="telefone" id="btnFiltroTelefone">
-          <span>?? Telefone</span><span class="fex-count" id="cntTelefone">0</span>
+          <span>📞 Telefone</span><span class="fex-count" id="cntTelefone">0</span>
         </button>
         <button class="btn-filtro-extra" data-filtro="email" id="btnFiltroEmail">
-          <span>?? E-mail</span><span class="fex-count" id="cntEmail">0</span>
+          <span>✉️ E-mail</span><span class="fex-count" id="cntEmail">0</span>
         </button>
       </div>
       <div id="filtrosChips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
     </div>
-    <button class="btn-primary" id="btnBuscar">?? Buscar Notas</button>
+    <button class="btn-primary" id="btnBuscar">🔍 Buscar Notas</button>
     <div class="statusbar" id="status">Aguardando busca...</div>
   </aside>
   <main class="main">
     <div class="fbar">
-      <input type="text" class="sinput" id="search" placeholder="?? Buscar por cliente, NF, CPF..."/>
+      <input type="text" class="sinput" id="search" placeholder="🔎 Buscar por cliente, NF, CPF..."/>
       <span class="rcount" id="rcount"></span>
     </div>
     <div class="grid" id="grid">
-      <div class="empty"><div class="empty-icon">??</div><p>Selecione um per�odo e clique em <strong>Buscar Notas</strong></p></div>
+      <div class="empty"><div class="empty-icon">📋</div><p>Selecione um período e clique em <strong>Buscar Notas</strong></p></div>
     </div>
   </main>
 </div>
@@ -354,48 +354,48 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
   <div class="dash-kpi-row" id="kpi-transp"></div>
   <div class="dash-row cols-2">
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Fatia de Mercado por Transportadora</div>
+      <div class="dash-card-title"><span>🥧</span> Fatia de Mercado por Transportadora</div>
       <div class="dash-chart-wrap"><canvas id="chart-market"></canvas></div>
       <div class="legend-row" id="legend-market"></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Peso Bruto por Transportadora (kg)</div>
+      <div class="dash-card-title"><span>⚖️</span> Peso Bruto por Transportadora (kg)</div>
       <div class="dash-chart-wrap"><canvas id="chart-peso-transp"></canvas></div>
     </div>
   </div>
   <div class="dash-row cols-2">
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Top NFs por Peso Bruto</div>
+      <div class="dash-card-title"><span>📦</span> Top NFs por Peso Bruto</div>
       <div class="dash-chart-wrap"><canvas id="chart-peso-nf"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> NFs por Origem</div>
+      <div class="dash-card-title"><span>🔵</span> NFs por Origem</div>
       <div class="dash-chart-wrap"><canvas id="chart-nf-source"></canvas></div>
     </div>
   </div>
   <div class="dash-row cols-3">
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Peso Bruto vs L�quido M�dio / Transportadora</div>
+      <div class="dash-card-title"><span>📊</span> Peso Bruto vs Líquido Médio / Transportadora</div>
       <div class="dash-chart-wrap"><canvas id="chart-pb-pl"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Distribui��o de Peso Bruto (faixas)</div>
+      <div class="dash-card-title"><span>📈</span> Distribuição de Peso Bruto (faixas)</div>
       <div class="dash-chart-wrap"><canvas id="chart-hist"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>???</span> Fator PL�PB por Transportadora</div>
+      <div class="dash-card-title"><span>🕸️</span> Fator PL÷PB por Transportadora</div>
       <div class="dash-chart-wrap"><canvas id="chart-fator"></canvas></div>
     </div>
   </div>
   <div class="dash-row cols-2">
     <div class="map-card">
-      <div class="dash-card-title"><span>???</span> NFs por Estado</div>
+      <div class="dash-card-title"><span>🗺️</span> NFs por Estado</div>
       <div class="map-svg-wrap"><svg id="svg-map-nf" viewBox="0 0 460 400"></svg></div>
       <div id="map-nf-loading" class="dash-empty">Carregando mapa...</div>
       <div id="detail-nf" class="drill-panel">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <strong id="detail-nf-flag" style="font-size:1.1rem"></strong>
-          <button onclick="closeStateDetail('nf')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">?</button>
+          <button onclick="closeStateDetail('nf')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">✕</button>
         </div>
         <div id="detail-nf-name" style="font-size:.8rem;color:var(--ts)"></div>
         <div id="detail-nf-count" style="font-size:.75rem;color:var(--tm)"></div>
@@ -403,14 +403,14 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
       </div>
     </div>
     <div class="map-card">
-      <div class="dash-card-title"><span>???</span> Transportadora Dominante por Estado</div>
+      <div class="dash-card-title"><span>🗺️</span> Transportadora Dominante por Estado</div>
       <div class="map-svg-wrap"><svg id="svg-map-transp" viewBox="0 0 460 400"></svg></div>
       <div id="map-transp-loading" class="dash-empty">Carregando mapa...</div>
       <div class="legend-row" id="transp-map-legend-items"></div>
       <div id="detail-transp" class="drill-panel">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <strong id="detail-transp-flag" style="font-size:1.1rem"></strong>
-          <button onclick="closeStateDetail('transp')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">?</button>
+          <button onclick="closeStateDetail('transp')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">✕</button>
         </div>
         <div id="detail-transp-name" style="font-size:.8rem;color:var(--ts)"></div>
         <div id="detail-transp-count" style="font-size:.75rem;color:var(--tm)"></div>
@@ -427,65 +427,65 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
   <div class="dash-kpi-row" id="kpi-vendas"></div>
   <div class="dash-row cols-3">
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Faturamento por Dia</div>
+      <div class="dash-card-title"><span>📈</span> Faturamento por Dia</div>
       <div class="dash-chart-wrap"><canvas id="chart-fat-dia"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Faturamento por Unidade (Eco vs Dist)</div>
+      <div class="dash-card-title"><span>🏭</span> Faturamento por Unidade (Eco vs Dist)</div>
       <div class="dash-chart-wrap"><canvas id="chart-fat-unidade"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Ticket M�dio por Unidade</div>
+      <div class="dash-card-title"><span>🎯</span> Ticket Médio por Unidade</div>
       <div class="dash-chart-wrap"><canvas id="chart-ticket-unidade"></canvas></div>
     </div>
   </div>
   <div class="dash-row cols-2">
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Top Clientes por Valor</div>
+      <div class="dash-card-title"><span>👤</span> Top Clientes por Valor</div>
       <div class="dash-chart-wrap"><canvas id="chart-top-clientes"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Formas de Pagamento</div>
+      <div class="dash-card-title"><span>💳</span> Formas de Pagamento</div>
       <div class="dash-chart-wrap"><canvas id="chart-pagamento"></canvas></div>
     </div>
   </div>
   <div class="dash-row cols-2">
     <div class="dash-card">
-      <div class="dash-card-title"><span>???</span> Uso de Cupons</div>
+      <div class="dash-card-title"><span>🎟️</span> Uso de Cupons</div>
       <div class="dash-chart-wrap"><canvas id="chart-cupons"></canvas></div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>?</span> NFs Reversas vs Normais</div>
+      <div class="dash-card-title"><span>↩</span> NFs Reversas vs Normais</div>
       <div class="dash-chart-wrap"><canvas id="chart-reversas"></canvas></div>
     </div>
   </div>
   <div class="dash-row cols-2">
     <div class="dash-card">
-      <div class="dash-card-title"><span>???</span> Faturamento por Estado</div>
+      <div class="dash-card-title"><span>🗺️</span> Faturamento por Estado</div>
       <div class="map-svg-wrap"><svg id="svg-map-vendas" viewBox="0 0 460 400"></svg></div>
       <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
     </div>
     <div class="dash-card">
-      <div class="dash-card-title"><span>??</span> Situa��o dos Pedidos</div>
+      <div class="dash-card-title"><span>📦</span> Situação dos Pedidos</div>
       <div class="dash-chart-wrap"><canvas id="chart-situacao"></canvas></div>
     </div>
   </div>
 </div>
 </div><!-- /view-vendas -->
 
-<!-- MODAL GEN�RICO DE FILTRO (reutilizado para todos os 5 filtros) -->
+<!-- MODAL GENÉRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
 <div class="pmod-overlay" id="fexOverlay">
   <div class="pmod">
     <div class="pmod-head">
       <h3 id="fexTitulo">Filtro</h3>
       <input type="text" class="pmod-search" id="fexSearch" placeholder="Buscar..."/>
-      <button class="pmod-close" id="fexClose">?</button>
+      <button class="pmod-close" id="fexClose">✕</button>
     </div>
     <div class="pmod-actions">
       <button id="fexSelAll">Selecionar todos</button>
       <button id="fexClear">Limpar</button>
     </div>
-    <div class="pmod-list" id="fexList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Fa�a uma busca primeiro.</div></div>
+    <div class="pmod-list" id="fexList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Faça uma busca primeiro.</div></div>
     <div class="pmod-foot">
       <span class="pmod-sel-count" id="fexSelCount">0 selecionados</span>
       <button class="btn-aplicar" id="fexAplicar">Aplicar</button>
@@ -497,15 +497,15 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 <div class="pmod-overlay" id="pmodOverlay">
   <div class="pmod">
     <div class="pmod-head">
-      <h3>?? Filtrar por Produto</h3>
+      <h3>�� Filtrar por Produto</h3>
       <input type="text" class="pmod-search" id="pmodSearch" placeholder="Buscar produto..."/>
-      <button class="pmod-close" id="pmodClose">?</button>
+      <button class="pmod-close" id="pmodClose">✕</button>
     </div>
     <div class="pmod-actions">
       <button id="pmodSelAll">Selecionar todos</button>
       <button id="pmodClear">Limpar</button>
     </div>
-    <div class="pmod-list" id="pmodList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Fa�a uma busca primeiro para carregar os produtos.</div></div>
+    <div class="pmod-list" id="pmodList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Faça uma busca primeiro para carregar os produtos.</div></div>
     <div class="pmod-foot">
       <span class="pmod-sel-count" id="pmodSelCount">0 selecionados</span>
       <button class="btn-aplicar" id="pmodAplicar">Aplicar filtro</button>
@@ -515,7 +515,7 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 
 <div class="moverlay" id="moverlay">
   <div class="modal">
-    <button class="mclose" id="mclose">?</button>
+    <button class="mclose" id="mclose">✕</button>
     <div class="mhead" id="mhead"></div>
     <div class="mbody" id="mbody"></div>
   </div>
@@ -527,7 +527,7 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 <!-- SUB-MODAL BLING (pedido de venda) -->
 <div class="pedido-overlay" id="pedidoOverlay">
   <div class="pedido-modal">
-    <button class="pedido-modal-close" id="pedidoClose">?</button>
+    <button class="pedido-modal-close" id="pedidoClose">✕</button>
     <div class="pedido-modal-head" id="pedidoHead"></div>
     <div class="pedido-modal-body" id="pedidoBody"></div>
   </div>
@@ -535,25 +535,25 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 <!-- SUB-MODAL TRAY (obs do cliente) -->
 <div class="pedido-overlay" id="trayOverlay">
   <div class="pedido-modal">
-    <button class="pedido-modal-close" id="trayClose">?</button>
+    <button class="pedido-modal-close" id="trayClose">✕</button>
     <div class="pedido-modal-head" id="trayHead"></div>
     <div class="pedido-modal-body" id="trayBody"></div>
   </div>
-</div><script>// -- Estado global ------------------------------------------
+</div><script>// ── Estado global ──────────────────────────────────────────
 var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
 var G=function(id){return document.getElementById(id);};
 
-// -- Tema ---------------------------------------------------
+// ── Tema ───────────────────────────────────────────────────
 G('btnTheme').onclick=function(){
   var h=document.documentElement, dark=h.getAttribute('data-theme')==='dark';
   h.setAttribute('data-theme',dark?'light':'dark');
-  G('btnTheme').textContent=dark?'??':'??';
+  G('btnTheme').textContent=dark?'☀️':'🌙';
 };
 
-// -- Painel -------------------------------------------------
+// ── Painel ─────────────────────────────────────────────────
 G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
-// -- Origem toggle ------------------------------------------
+// ── Origem toggle ──────────────────────────────────────────
 document.querySelectorAll('.tchip').forEach(function(c){
   c.onclick=function(){
     var o=c.dataset.o;
@@ -563,15 +563,15 @@ document.querySelectorAll('.tchip').forEach(function(c){
   };
 });
 
-// -- Buscar notas paginado (fetch direto na API) ------------
+// ── Buscar notas paginado (fetch direto na API) ────────────
 var _buscarFrom='', _buscarTo='', _buscarOffset=0, _buscarTotal=0, _buscarAtivo=false;
 var API_BASE = '';  // vazio = mesmo dominio (Railway serve tudo junto)
 G('btnBuscar').onclick=buscar;
 
 function buscar(){
   var f=G('dtFrom').value, t=G('dtTo').value;
-  if(!f||!t){setStatus('?? Selecione o per�odo.','warn');return;}
-  if(f>t){setStatus('?? Data inicial maior que final.','warn');return;}
+  if(!f||!t){setStatus('⚠️ Selecione o período.','warn');return;}
+  if(f>t){setStatus('⚠️ Data inicial maior que final.','warn');return;}
   allNotas=[];
   _buscarFrom=f; _buscarTo=t; _buscarOffset=0; _buscarTotal=0; _buscarAtivo=true;
   loading(true); setStatus('Buscando...');
@@ -584,12 +584,12 @@ async function buscarPagina(){
     var url=API_BASE+'/api/notas?from='+_buscarFrom+'&to='+_buscarTo+'&offset='+_buscarOffset;
     var resp=await fetch(url);
     var d=await resp.json();
-    if(d.error){setStatus('? '+d.error,'err');loading(false);_buscarAtivo=false;return;}
+    if(d.error){setStatus('❌ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
     var novas=d.notas||[];
     allNotas=allNotas.concat(novas);
     if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
     var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
-    setStatus('? Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
+    setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
     applyFilters();
     if(d.hasMore){
       _buscarOffset+=novas.length;
@@ -597,15 +597,15 @@ async function buscarPagina(){
     } else {
       loading(false);
       _buscarAtivo=false;
-      setStatus('? '+allNotas.length+' notas carregadas.');
+      setStatus('✅ '+allNotas.length+' notas carregadas.');
     }
   }catch(e){
-    setStatus('? '+e.message,'err');
+    setStatus('❌ '+e.message,'err');
     loading(false); _buscarAtivo=false;
   }
 }
 
-// -- Busca r�pida -------------------------------------------
+// ── Busca rápida ───────────────────────────────────────────
 G('search').oninput=function(e){
   activeSearch=e.target.value.toLowerCase().trim();
   applyFilters();
@@ -624,7 +624,7 @@ function applyFilters(){
   renderCards();
 }
 
-// -- Render cards com lazy load -----------------------------
+// ── Render cards com lazy load ─────────────────────────────
 var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
 
 function renderCards(){
@@ -638,7 +638,7 @@ function renderCards(){
   if(_renderObs){_renderObs.disconnect();_renderObs=null;}
 
   if(!filteredNotas.length){
-    grid.innerHTML='<div class="empty"><div class="empty-icon">??</div><p>Nenhuma nota encontrada.</p></div>';
+    grid.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma nota encontrada.</p></div>';
     return;
   }
 
@@ -687,15 +687,15 @@ function renderLote(cols, grid){
 function buildCard(n,cols){
   var d=document.createElement('div');
   d.className='card '+n.origem;
-  var ol=n.origem==='ecommerce'?'?? E-commerce':'?? Distribuidor';
+  var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
   d.innerHTML=
     (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
-    (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'�')+'</div>':'')+
-    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'�')+' � S�rie '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">? Reversa</span>':'')+' </div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">?? '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+(n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' � R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">???</span>':'')+' </div>':'')+
+    (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
+    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+(n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">🎟️</span>':'')+' </div>':'')+
     (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
     '<div class="cmeta">'+
       (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
-      (cols.has('transp')?'<span class="ctransp" title="'+esc(n.transportadora||'')+'">'+esc(n.transportadora||'�')+'</span>':'')+
+      (cols.has('transp')?'<span class="ctransp" title="'+esc(n.transportadora||'')+'">'+esc(n.transportadora||'—')+'</span>':'')+
     '</div>';
   d.onclick=function(){abrirModal(n);};
   return d;
@@ -708,63 +708,63 @@ function groupNotas(notas,grp){
     var k='';
     if(grp==='cliente')k=n.cliente||'Sem cliente';
     if(grp==='transportadora')k=n.transportadora||'Sem transportadora';
-    if(grp==='unidade')k=n.origem==='ecommerce'?'?? E-commerce':'?? Distribuidor';
+    if(grp==='unidade')k=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     if(!m[k])m[k]=[];
     m[k].push(n);
   });
   return Object.keys(m).sort().map(function(k){return{label:k+' ('+m[k].length+')',notas:m[k]};});
 }
 
-// -- Modal --------------------------------------------------
+// ── Modal ──────────────────────────────────────────────────
 function abrirModal(n){
-  var ol=n.origem==='ecommerce'?'?? E-commerce':'?? Distribuidor';
+  var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
   G('mhead').innerHTML=
     '<div class="cbadge '+n.origem+'" style="margin-bottom:10px">'+ol+'</div>'+
-    '<h2>'+esc(n.cliente||'�')+'</h2>'+
-    '<div class="msub">NF '+esc(n.numero||'�')+' � '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">? Nota Reversa</span>':'')+' </div>';
+    '<h2>'+esc(n.cliente||'—')+'</h2>'+
+    '<div class="msub">NF '+esc(n.numero||'—')+' · '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">↩ Nota Reversa</span>':'')+' </div>';
   G('mbody').innerHTML=
-    '<div class="dsec"><h3>?? Dados da Nota</h3><div class="dgrid">'+
-      di('N�mero',n.numero)+di('S�rie',n.serie)+di('Data Emiss�o',fmtDate(n.dataemissao))+diCopy('N� Pedido',n.numeropedido||'�')+
+    '<div class="dsec"><h3>📄 Dados da Nota</h3><div class="dgrid">'+
+      di('Número',n.numero)+di('Série',n.serie)+di('Data Emissão',fmtDate(n.dataemissao))+diCopy('Nº Pedido',n.numeropedido||'—')+
       diV('Valor Total',brl(n.valor))+di('Valor Produtos',brl(n.valorProdutos))+
       di('Desconto',brl(n.desconto))+di('Frete',brl(n.frete))+
-      '<div class="di"><label>Chave Acesso</label><span style="font-size:.7rem;word-break:break-all">'+esc(n.chaveacesso||'�')+'</span></div>'+
+      '<div class="di"><label>Chave Acesso</label><span style="font-size:.7rem;word-break:break-all">'+esc(n.chaveacesso||'—')+'</span></div>'+
     '</div></div>'+
-    '<div class="dsec"><h3>?? Destinat�rio</h3><div class="dgrid">'+
+    '<div class="dsec"><h3>👤 Destinatário</h3><div class="dgrid">'+
       di('Nome',n.cliente)+di('CPF/CNPJ',n.cpf)+di('E-mail',n.email)+
-      di('Telefone',n.telefone)+di('Endere�o',n.endereco)+di('N�mero',n.endNumero)+
+      di('Telefone',n.telefone)+di('Endereço',n.endereco)+di('Número',n.endNumero)+
       di('Bairro',n.bairro)+di('Cidade/UF',n.cidade)+di('CEP',n.cep)+di('Complemento',n.complemento)+
     '</div></div>'+
-    '<div class="dsec"><h3>?? Transporte</h3><div class="dgrid">'+
+    '<div class="dsec"><h3>🚚 Transporte</h3><div class="dgrid">'+
       di('Transportadora',n.transportadora)+di('CNPJ Transp.',n.transportadoraCnpj)+
       di('Frete por conta',fpc(n.fretePorConta))+
-      di('Peso Bruto',n.pesoBruto?n.pesoBruto+' kg':'�')+
-      di('Peso L�quido',n.pesoLiquido?n.pesoLiquido+' kg':'�')+
-      di('Qtd Volumes',n.qtdVolumes||'�')+
+      di('Peso Bruto',n.pesoBruto?n.pesoBruto+' kg':'—')+
+      di('Peso Líquido',n.pesoLiquido?n.pesoLiquido+' kg':'—')+
+      di('Qtd Volumes',n.qtdVolumes||'—')+
     '</div></div>'+
-    '<div class="dsec"><h3>?? Pedido de Venda</h3>'+
+    '<div class="dsec"><h3>🛒 Pedido de Venda</h3>'+
     (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? '<div class="dgrid">'+
-      diCopy('N� Pedido', n.numeropedido||'�')+
-      (n.pedido_situacao ? '<div class="di"><label>Situa��o</label><span><span class="sit-badge sit-'+(n.pedido_situacao||'default').replace(/\s/g,'\\ ')+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
-      di('N� Loja/Marketplace', n.pedido_numeroloja||'�')+
+      diCopy('Nº Pedido', n.numeropedido||'—')+
+      (n.pedido_situacao ? '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+(n.pedido_situacao||'default').replace(/\s/g,'\\ ')+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
+      di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
     '</div>' : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">Nenhum pedido vinculado a esta nota.</div>')+
-    (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observa��es</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
-    (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observa��es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
+    (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observações</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
+    (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
   '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
-    '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">?? Pedido Bling</button>'+
-    (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">?? Obs. Cliente (Tray)</button>' : '')+
+    '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Pedido Bling</button>'+
+    (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">🛒 Obs. Cliente (Tray)</button>' : '')+
   '</div>'+
   '</div>'+
-  '<div class="dsec"><h3>?? Pagamento</h3>'+
+  '<div class="dsec"><h3>💳 Pagamento</h3>'+
     (n.formas_pagamento && n.formas_pagamento.length ?
       n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
       '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
     (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
     (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
     '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
-    (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">??? Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' � '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
+    (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">🎟️ Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
   '</div>'+
-  '<div class="dsec"><h3>?? Produtos</h3><div class="plist" id="plist"><div class="pload">? Carregando...</div></div></div>'+
-    '<div class="dsec"><h3>?? Links</h3><div class="dgrid">'+
+  '<div class="dsec"><h3>📦 Produtos</h3><div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div></div>'+
+    '<div class="dsec"><h3>🔗 Links</h3><div class="dgrid">'+
       (n.linkdanfe?'<div class="di"><label>DANFE</label><span><a href="'+esc(n.linkdanfe)+'" target="_blank" style="color:var(--ac)">Abrir DANFE</a></span></div>':'')+
       (n.linkpdf?'<div class="di"><label>PDF</label><span><a href="'+esc(n.linkpdf)+'" target="_blank" style="color:var(--ac)">Abrir PDF</a></span></div>':'')+
       (n.xmlUrl?'<div class="di"><label>XML</label><span><a href="'+esc(n.xmlUrl)+'" target="_blank" style="color:var(--ac)">Baixar XML</a></span></div>':'')+
@@ -775,21 +775,21 @@ function abrirModal(n){
 
 async function carregarProdutos(n){
   var lista=G('plist');
-  if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML n�o dispon�vel.</div>';return;}
+  if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML não disponível.</div>';return;}
   try{
     var resp=await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
     var d=await resp.json();
-    if(d.error){lista.innerHTML='<div class="pload">? '+d.error+'</div>';return;}
+    if(d.error){lista.innerHTML='<div class="pload">❌ '+d.error+'</div>';return;}
     var ps=d.produtos||[];
     if(!ps.length){lista.innerHTML='<div class="pload">Nenhum produto no XML.</div>';return;}
     lista.innerHTML=ps.map(function(p){
       return '<div class="pitem">'+
-        '<span class="pnome">'+esc(p.nome||p.codigo||'�')+'</span>'+
+        '<span class="pnome">'+esc(p.nome||p.codigo||'—')+'</span>'+
         '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
         '<span class="pval">'+brl(p.valor)+'</span>'+
       '</div>';
     }).join('');
-  }catch(e){lista.innerHTML='<div class="pload">? '+e.message+'</div>';}
+  }catch(e){lista.innerHTML='<div class="pload">❌ '+e.message+'</div>';}
 }
 
 G('mclose').onclick=fecharModal;
@@ -805,24 +805,24 @@ document.querySelectorAll('#colTogs input').forEach(function(c){
 });
 function getCols(){var s=new Set();document.querySelectorAll('#colTogs input:checked').forEach(function(c){s.add(c.dataset.c);});return s;}
 
-// -- Helpers ------------------------------------------------
-function brl(v){var n=parseFloat(v);return isNaN(n)?'�':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
-function fmtDate(v){if(!v)return'�';var d=new Date(v);return isNaN(d.getTime())?v:d.toLocaleDateString('pt-BR');}
-function fpc(v){return({0:'Emitente',1:'Destinat�rio',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'�';}
+// ── Helpers ────────────────────────────────────────────────
+function brl(v){var n=parseFloat(v);return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+function fmtDate(v){if(!v)return'—';var d=new Date(v);return isNaN(d.getTime())?v:d.toLocaleDateString('pt-BR');}
+function fpc(v){return({0:'Emitente',1:'Destinatário',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'—';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function di(l,v){return'<div class="di"><label>'+l+'</label><span>'+esc(String(v||'�'))+'</span></div>';}
+function di(l,v){return'<div class="di"><label>'+l+'</label><span>'+esc(String(v||'—'))+'</span></div>';}
 function diV(l,v){return'<div class="di"><label>'+l+'</label><span class="vd">'+v+'</span></div>';}
 function diCopy(l,v){
-  var val=String(v||'�');
-  var hasVal=(val!=='�'&&val!=='');
-  var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">??</button>':'';
+  var val=String(v||'—');
+  var hasVal=(val!=='—'&&val!=='');
+  var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">📋</button>':'';
   return'<div class="di"><label>'+l+'</label><div class="copy-row"><span>'+esc(val)+'</span>'+copyBtn+'</div></div>';
 }
 function copiarTexto(btn,texto){
   navigator.clipboard.writeText(texto).then(function(){
-    btn.textContent='?';
+    btn.textContent='✅';
     btn.classList.add('copiado');
-    setTimeout(function(){btn.textContent='??';btn.classList.remove('copiado');},1500);
+    setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
   }).catch(function(){
     // fallback para navegadores sem clipboard API
     var el=document.createElement('textarea');
@@ -830,24 +830,24 @@ function copiarTexto(btn,texto){
     document.body.appendChild(el); el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
-    btn.textContent='?'; btn.classList.add('copiado');
-    setTimeout(function(){btn.textContent='??';btn.classList.remove('copiado');},1500);
+    btn.textContent='✅'; btn.classList.add('copiado');
+    setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
   });
 }
 function setStatus(m,t){var s=G('status');s.textContent=m;s.style.color=t==='err'?'var(--err)':t==='warn'?'var(--warn)':'var(--tm)';}
 function loading(on){G('loverlay').classList.toggle('on',on);}
-// -- FILTROS AVAN�ADOS (numero, cliente, cpf, telefone, email) --
+// ── FILTROS AVANÇADOS (numero, cliente, cpf, telefone, email) ──
 var _fexConfig = {
-  numero:   { titulo:'?? N�mero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
-  cliente:  { titulo:'?? Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
-  cpf:      { titulo:'?? CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
-  telefone: { titulo:'?? Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
-  email:    { titulo:'?? E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
+  numero:   { titulo:'🔢 Número NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
+  cliente:  { titulo:'👤 Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
+  cpf:      { titulo:'🪪 CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
+  telefone: { titulo:'📞 Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
+  email:    { titulo:'✉️ E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
 };
 
-// Mapa de sele��es: { numero: Set, cliente: Set, ... }
+// Mapa de seleções: { numero: Set, cliente: Set, ... }
 var _fexSel = { numero:new Set(), cliente:new Set(), cpf:new Set(), telefone:new Set(), email:new Set() };
-var _fexAtual = null; // qual filtro est� aberto agora
+var _fexAtual = null; // qual filtro está aberto agora
 
 // Abre modal para o filtro clicado
 Object.keys(_fexConfig).forEach(function(key){
@@ -884,7 +884,7 @@ function abrirFex(key){
   G('fexTitulo').textContent = cfg.titulo;
   G('fexSearch').value = '';
   if(allNotas.length === 0){
-    G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">?? Fa�a uma busca primeiro.</div>';
+    G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">⚠️ Faça uma busca primeiro.</div>';
     G('fexOverlay').classList.add('open');
     return;
   }
@@ -959,7 +959,7 @@ function atualizarFexChips(){
       var chip = document.createElement('div');
       chip.className = 'filtro-chip';
       chip.innerHTML = cfg.titulo.replace(/[^\w\s]/g,'').trim() + ': ' + _fexSel[key].size +
-        ' <button onclick="limparFex(\''+key+'\')">?</button>';
+        ' <button onclick="limparFex(\''+key+'\')">✕</button>';
       chips.appendChild(chip);
     }
   });
@@ -972,7 +972,7 @@ function limparFex(key){
   applyFilters();
 }
 
-// Sobrescreve applyFilters para incluir filtros avan�ados
+// Sobrescreve applyFilters para incluir filtros avançados
 var _applyFiltersBase = applyFilters;
 applyFilters = function(){
   var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
@@ -983,10 +983,10 @@ applyFilters = function(){
       var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
       if(h.indexOf(activeSearch) < 0) return false;
     }
-    // Filtros avan�ados � AND entre filtros, OR dentro de cada filtro
+    // Filtros avançados — AND entre filtros, OR dentro de cada filtro
     if(temFex){
       var ok = Object.keys(_fexSel).every(function(key){
-        if(_fexSel[key].size === 0) return true; // filtro n�o aplicado = passa
+        if(_fexSel[key].size === 0) return true; // filtro não aplicado = passa
         var campo = _fexConfig[key].campo;
         var val = (n[campo]||'').toString().trim();
         return _fexSel[key].has(val);
@@ -1000,7 +1000,7 @@ applyFilters = function(){
   renderCards();
 };
 
-// -- FILTRO POR PRODUTOS ------------------------------------
+// ── FILTRO POR PRODUTOS ────────────────────────────────────
 var _todosProdutos=[], _prodSelecionados=new Set(), _prodFiltroAtivo=false;
 
 G('btnFiltrarProd').onclick=abrirModalProdutos;
@@ -1038,18 +1038,18 @@ async function abrirModalProdutos(){
   if(_todosProdutos.length>0){renderProdList('');return;}
   var f=G('dtFrom').value, t=G('dtTo').value;
   if(!f||!t){
-    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">?? Fa�a uma busca primeiro.</div>';
+    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">⚠️ Faça uma busca primeiro.</div>';
     return;
   }
-  G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">? Carregando produtos...</div>';
+  G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">⏳ Carregando produtos...</div>';
   try{
     var resp=await fetch(API_BASE+'/api/produtos-lista?from='+f+'&to='+t);
     var d=await resp.json();
-    if(d.error){G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">? '+d.error+'</div>';return;}
+    if(d.error){G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">❌ '+d.error+'</div>';return;}
     _todosProdutos=d.produtos||[];
     renderProdList('');
   }catch(e){
-    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">? '+e.message+'</div>';
+    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">❌ '+e.message+'</div>';
   }
 }
 
@@ -1070,7 +1070,7 @@ function renderProdList(filtro){
       atualizarContSel();
     };
     var lbl=document.createElement('label');
-    lbl.textContent=p.nome||p.codigo||'�';
+    lbl.textContent=p.nome||p.codigo||'—';
     lbl.onclick=function(){chk.click();};
     var cod=document.createElement('span');
     cod.className='pmod-cod'; cod.textContent=p.codigo||'';
@@ -1093,7 +1093,7 @@ function atualizarChipFiltro(){
   if(_prodFiltroAtivo && _prodSelecionados.size>0){
     cnt.textContent='('+_prodSelecionados.size+')';
     btn.classList.add('ativo');
-    chip.innerHTML='<div class="filtro-chip">'+_prodSelecionados.size+' produto(s) <button onclick="limparFiltroProd()">?</button></div>';
+    chip.innerHTML='<div class="filtro-chip">'+_prodSelecionados.size+' produto(s) <button onclick="limparFiltroProd()">✕</button></div>';
   } else {
     cnt.textContent='';
     btn.classList.remove('ativo');
@@ -1109,11 +1109,11 @@ function limparFiltroProd(){
 }
 
 // Filtra notas que contenham pelo menos um produto selecionado
-// Usa os XMLs j� carregados nas notas (campo xmlUrl) � faz fetch dos XMLs necess�rios
+// Usa os XMLs já carregados nas notas (campo xmlUrl) — faz fetch dos XMLs necessários
 var _notasProdCache={};
 async function filtrarNotasPorProdutos(){
   if(!_prodFiltroAtivo||_prodSelecionados.size===0){applyFilters();return;}
-  setStatus('?? Filtrando por produtos...');
+  setStatus('🔎 Filtrando por produtos...');
   var notasBase=allNotas.filter(function(n){
     if(!activeOrigens.has(n.origem))return false;
     if(activeSearch){
@@ -1144,10 +1144,10 @@ async function filtrarNotasPorProdutos(){
   filteredNotas=resultado;
   G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
   renderCards();
-  setStatus('? '+filteredNotas.length+' notas com os produtos selecionados.');
+  setStatus('✅ '+filteredNotas.length+' notas com os produtos selecionados.');
 }
 
-// -- Helper badge situa��o no card --------------------------
+// ── Helper badge situação no card ──────────────────────────
 function sitBadgeCard(sit){
   if(!sit) return '';
   var cls='info';
@@ -1157,7 +1157,7 @@ function sitBadgeCard(sit){
   return '<span class="card-sit-badge '+cls+'">'+esc(sit)+'</span>';
 }
 
-// -- Sub-modal pedido ---------------------------------------
+// ── Sub-modal pedido ───────────────────────────────────────
 var currentNota = null;
 
 var _abrirModalOrig = abrirModal;
@@ -1176,30 +1176,30 @@ function abrirModalPedido(e, n){
   else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
 
   G('pedidoHead').innerHTML =
-    '<h3>?? Pedido de Venda</h3>'+
+    '<h3>🛒 Pedido de Venda</h3>'+
     '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
       (n.numeropedido ? '<span style="font-size:.95rem;font-weight:700;color:var(--ac)">#'+esc(n.numeropedido)+'</span>' : '')+
       (sit ? '<span class="card-sit-badge '+cls+'" style="font-size:.75rem;padding:3px 12px">'+esc(sit)+'</span>' : '')+
     '</div>';
 
   var body = '<div class="dgrid">';
-  if(n.numeropedido)      body += diCopy('N� Pedido', n.numeropedido);
-  if(n.pedido_numeroloja) body += di('N� Loja/Marketplace', n.pedido_numeroloja);
-  if(sit)                 body += '<div class="di"><label>Situa��o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
+  if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
+  if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
+  if(sit)                 body += '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
   body += '</div>';
 
-  body += '<div><div class="obs-label">?? Observa��es</div>';
+  body += '<div><div class="obs-label">📝 Observações</div>';
   if(n.pedido_observacoes){
     body += '<div class="obs-box">'+esc(n.pedido_observacoes)+'</div>';
   } else {
-    body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa��es.</div>';
+    body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observações.</div>';
   }
   body += '</div>';
-  body += '<div><div class="obs-label">?? Observa��es Internas</div>';
+  body += '<div><div class="obs-label">🔒 Observações Internas</div>';
   if(n.pedido_observacoesinternas){
     body += '<div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div>';
   } else {
-    body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa��es internas.</div>';
+    body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observações internas.</div>';
   }
   body += '</div>';
 
@@ -1213,14 +1213,14 @@ G('pedidoOverlay').onclick = function(e){ if(e.target===G('pedidoOverlay')) G('p
 function abrirModalTray(e, n){
   e.stopPropagation();
   if(!n) return;
-  G('trayHead').innerHTML = '<h3>?? Observa��o do Cliente (Tray)</h3>'+
+  G('trayHead').innerHTML = '<h3>🛒 Observação do Cliente (Tray)</h3>'+
     (n.numeropedido ? '<div style="font-size:.8rem;color:var(--tm);margin-top:4px">Pedido #'+esc(n.numeropedido)+'</div>' : '')+
     (n.pedido_numeroloja ? '<div style="font-size:.8rem;color:var(--tm)">Loja: '+esc(n.pedido_numeroloja)+'</div>' : '');
   var body = '';
   if(n.tray_customer_note){
-    body += '<div><div class="obs-label">?? Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
+    body += '<div><div class="obs-label">📝 Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
   } else {
-    body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa��o do cliente neste pedido.</div>';
+    body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observação do cliente neste pedido.</div>';
   }
   G('trayBody').innerHTML = body;
   G('trayOverlay').classList.add('open');
@@ -1228,7 +1228,7 @@ function abrirModalTray(e, n){
 G('trayClose').onclick = function(){ G('trayOverlay').classList.remove('open'); };
 G('trayOverlay').onclick = function(e){ if(e.target===G('trayOverlay')) G('trayOverlay').classList.remove('open'); };
 
-// -- Filtro Cupom -------------------------------------------
+// ── Filtro Cupom ───────────────────────────────────────────
 var _filtroCupom = { com: true, sem: true };
 ['com','sem'].forEach(function(tipo){
   var chip = document.querySelector('[data-cupom="'+tipo+'"]');
@@ -1240,24 +1240,24 @@ var _filtroCupom = { com: true, sem: true };
   };
 });
 
-// -- Filtro Forma de Pagamento ------------------------------
+// ── Filtro Forma de Pagamento ──────────────────────────────
 var _pagSelecionados = new Set();
 var _pagAtivo = false;
 
 G('btnFiltroPag').onclick = function(){ abrirFiltroFormasPag(); };
 
 function abrirFiltroFormasPag(){
-  // Coleta todas as formas �nicas das notas carregadas
+  // Coleta todas as formas únicas das notas carregadas
   var formas = {};
   allNotas.forEach(function(n){
     (n.formas_pagamento||[]).forEach(function(fp){ if(fp.tipo) formas[fp.tipo]=true; });
     if(n.tray_payment_form) formas[n.tray_payment_form]=true;
   });
   var lista = Object.keys(formas).sort();
-  if(!lista.length){ alert('Fa�a uma busca primeiro.'); return; }
-  // Reutiliza o modal gen�rico fexOverlay
+  if(!lista.length){ alert('Faça uma busca primeiro.'); return; }
+  // Reutiliza o modal genérico fexOverlay
   _fexAtual = '__pag__';
-  G('fexTitulo').textContent = '?? Forma de Pagamento';
+  G('fexTitulo').textContent = '💳 Forma de Pagamento';
   G('fexSearch').value = '';
   var frag = document.createDocumentFragment();
   lista.forEach(function(v){
@@ -1289,7 +1289,7 @@ G('fexAplicar').onclick = function(){
     if(_pagAtivo){ btn.classList.add('ativo'); cnt.style.display='inline'; }
     else { btn.classList.remove('ativo'); cnt.style.display='none'; }
     var chip = G('pagFiltroChip');
-    chip.innerHTML = _pagAtivo ? '<div class="filtro-chip">'+_pagSelecionados.size+' forma(s) <button onclick="limparFiltroPag()">?</button></div>' : '';
+    chip.innerHTML = _pagAtivo ? '<div class="filtro-chip">'+_pagSelecionados.size+' forma(s) <button onclick="limparFiltroPag()">✕</button></div>' : '';
     applyFilters();
   } else {
     _fexAplicarOrig && _fexAplicarOrig.call(this);
@@ -1339,11 +1339,11 @@ applyFilters = function(){
   renderCards();
 };
 
-// -- DASHBOARD JS --
+// ── DASHBOARD JS ──
 
-// ---------------------------------------------------------------
-//  DASHBOARD � estado global
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD — estado global
+// ═══════════════════════════════════════════════════════════════
 var DASH_CHARTS = {};
 var GEO_DATA    = null;
 var TRANSP_COLOR_MAP = {};
@@ -1359,7 +1359,7 @@ var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',G
 var STATE_GEO_CACHE = {};
 var _tipEl = null;
 
-// -- Troca de view ----------------------------------------------
+// ── Troca de view ──────────────────────────────────────────────
 function switchView(view, btn) {
   document.querySelectorAll('.view-section').forEach(function(s){ s.classList.remove('active'); });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -1369,7 +1369,7 @@ function switchView(view, btn) {
   if(view === 'vendas')     buildDashVendas();
 }
 
-// -- Helpers chart ----------------------------------------------
+// ── Helpers chart ──────────────────────────────────────────────
 function cD() {
   var dark = document.documentElement.getAttribute('data-theme') === 'dark';
   return {
@@ -1381,21 +1381,21 @@ function cD() {
   };
 }
 function destroyDashChart(id){ if(DASH_CHARTS[id]){ DASH_CHARTS[id].destroy(); delete DASH_CHARTS[id]; } }
-function fmtBRL(v){ var n=parseFloat(v); return isNaN(n)?'�':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function fmtBRL(v){ var n=parseFloat(v); return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 function fmtNum(n){ return Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1}); }
 
-// -- Dados do dashboard a partir de allNotas --------------------
+// ── Dados do dashboard a partir de allNotas ────────────────────
 function getDashData() {
   var notas = allNotas || [];
   return notas;
 }
 
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 //  DASHBOARD TRANSPORTE
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 function buildDashTransporte() {
   var notas = getDashData();
-  if(!notas.length){ document.getElementById('kpi-transp').innerHTML='<div class="dash-empty">Fa�a uma busca primeiro.</div>'; return; }
+  if(!notas.length){ document.getElementById('kpi-transp').innerHTML='<div class="dash-empty">Faça uma busca primeiro.</div>'; return; }
 
   // KPIs
   var totalPB=0, totalPL=0, totalVol=0, nfComPeso=0;
@@ -1410,10 +1410,10 @@ function buildDashTransporte() {
   var nTransp = Object.keys(transpSet).length;
 
   var kpis = [
-    {label:'NFs no per�odo', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
+    {label:'NFs no período', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
     {label:'Transportadoras', value:nTransp, sub:'Transportadoras ativas', cls:''},
     {label:'Peso Bruto Total', value:fmtNum(totalPB)+' kg', sub:nfComPeso+' NFs com peso', cls:''},
-    {label:'Peso M�dio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto m�dio', cls:'ok'},
+    {label:'Peso Médio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto médio', cls:'ok'},
     {label:'Volumes Total', value:fmtNum(totalVol), sub:'Qtd volumes', cls:''}
   ];
   document.getElementById('kpi-transp').innerHTML = kpis.map(function(k){
@@ -1543,7 +1543,7 @@ function buildTranspCubagemCharts(notas) {
     type:'bar',
     data:{ labels:tL, datasets:[
       { label:'Peso Bruto (kg)', data:pbAv, backgroundColor:'#5c6bc0bb', borderRadius:5, borderSkipped:false },
-      { label:'Peso L�quido (kg)', data:plAv, backgroundColor:'#26a69abb', borderRadius:5, borderSkipped:false }
+      { label:'Peso Líquido (kg)', data:plAv, backgroundColor:'#26a69abb', borderRadius:5, borderSkipped:false }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
       plugins:{ legend:{ labels:{ color:cd.tick, font:{ size:10, weight:'600' }, padding:10 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
@@ -1574,7 +1574,7 @@ function buildTranspCubagemCharts(notas) {
   var ctx3=document.getElementById('chart-fator'); if(!ctx3) return;
   DASH_CHARTS['fator']=new Chart(ctx3.getContext('2d'),{
     type:'radar',
-    data:{ labels:fL, datasets:[{ label:'Fator PL�PB', data:fatores, backgroundColor:'rgba(92,107,192,.18)', borderColor:'#5c6bc0', pointBackgroundColor:'#5c6bc0', pointBorderColor:'#fff', pointHoverRadius:7, borderWidth:2 }] },
+    data:{ labels:fL, datasets:[{ label:'Fator PL÷PB', data:fatores, backgroundColor:'rgba(92,107,192,.18)', borderColor:'#5c6bc0', pointBackgroundColor:'#5c6bc0', pointBorderColor:'#fff', pointHoverRadius:7, borderWidth:2 }] },
     options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:1000, easing:'easeOutQuart' },
       plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' Fator: '+(c.parsed.r*100).toFixed(1)+'%'; } } } },
       scales:{ r:{ min:0, max:Math.min(fatMax*1.1,1), grid:{ color:cd.grid }, angleLines:{ color:cd.grid }, pointLabels:{ color:cd.tick, font:{ size:10, weight:'700' } }, ticks:{ color:cd.tick, backdropColor:'transparent', font:{ size:9 }, stepSize:.2, callback:function(v){ return (v*100).toFixed(0)+'%'; } } } }
@@ -1583,12 +1583,12 @@ function buildTranspCubagemCharts(notas) {
 }
 
 
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 //  DASHBOARD VENDAS
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 function buildDashVendas() {
   var notas = getDashData();
-  if(!notas.length){ document.getElementById('kpi-vendas').innerHTML='<div class="dash-empty">Fa�a uma busca primeiro.</div>'; return; }
+  if(!notas.length){ document.getElementById('kpi-vendas').innerHTML='<div class="dash-empty">Faça uma busca primeiro.</div>'; return; }
 
   var totalFat=0, totalDesc=0, totalFrete=0, nComValor=0;
   notas.forEach(function(n){
@@ -1609,13 +1609,13 @@ function buildDashVendas() {
 
   var kpis = [
     {label:'Faturamento Total',  value:fmtBRL(totalFat),        sub:nComValor+' NFs com valor',   cls:'accent'},
-    {label:'Ticket M�dio Geral', value:fmtBRL(ticketMedio),     sub:'Valor m�dio por NF',          cls:'ok'},
-    {label:'Ticket M�dio Eco',   value:fmtBRL(ticketEco),       sub:ecoNotas.length+' NFs E-com',  cls:''},
-    {label:'Ticket M�dio Dist',  value:fmtBRL(ticketDist),      sub:distNotas.length+' NFs Dist',  cls:''},
+    {label:'Ticket Médio Geral', value:fmtBRL(ticketMedio),     sub:'Valor médio por NF',          cls:'ok'},
+    {label:'Ticket Médio Eco',   value:fmtBRL(ticketEco),       sub:ecoNotas.length+' NFs E-com',  cls:''},
+    {label:'Ticket Médio Dist',  value:fmtBRL(ticketDist),      sub:distNotas.length+' NFs Dist',  cls:''},
     {label:'Total Descontos',    value:fmtBRL(totalDesc),        sub:'Descontos aplicados',         cls:'warn'},
     {label:'Total Frete',        value:fmtBRL(totalFrete),       sub:'Frete nas NFs',               cls:''},
     {label:'Com Cupom',          value:comCupom,                 sub:'NFs com cupom Tray',          cls:''},
-    {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu��o',          cls:'warn'}
+    {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolução',          cls:'warn'}
   ];
   document.getElementById('kpi-vendas').innerHTML = kpis.map(function(k){
     return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
@@ -1671,7 +1671,7 @@ function buildVendasUnidadeChart(notas, fatEco, fatDist, ticketEco, ticketDist) 
   var ctx2=document.getElementById('chart-ticket-unidade'); if(!ctx2) return;
   DASH_CHARTS['ticketunid']=new Chart(ctx2.getContext('2d'),{
     type:'bar',
-    data:{ labels:['E-commerce','Distribuidor'], datasets:[{ label:'Ticket M�dio', data:[Math.round(ticketEco),Math.round(ticketDist)], backgroundColor:['#42a5f5bb','#ab47bcbb'], borderRadius:8, borderSkipped:false }] },
+    data:{ labels:['E-commerce','Distribuidor'], datasets:[{ label:'Ticket Médio', data:[Math.round(ticketEco),Math.round(ticketDist)], backgroundColor:['#42a5f5bb','#ab47bcbb'], borderRadius:8, borderSkipped:false }] },
     options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
       plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.y); } } } },
       scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:12, weight:'700' } } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } } }
@@ -1693,7 +1693,7 @@ function buildVendasTopClientesChart(notas) {
   var ctx=document.getElementById('chart-top-clientes'); if(!ctx) return;
   DASH_CHARTS['topclientes']=new Chart(ctx.getContext('2d'),{
     type:'bar',
-    data:{ labels:sorted.map(function(c){ return c.length>20?c.slice(0,20)+'�':c; }), datasets:[{ label:'Faturamento', data:data, backgroundColor:colors, borderRadius:5, borderSkipped:false }] },
+    data:{ labels:sorted.map(function(c){ return c.length>20?c.slice(0,20)+'…':c; }), datasets:[{ label:'Faturamento', data:data, backgroundColor:colors, borderRadius:5, borderSkipped:false }] },
     options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
       plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.x); }, title:function(c){ return sorted[c[0].dataIndex]; } } } },
       scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 } } } },
@@ -1737,7 +1737,7 @@ function buildVendasCuponsChart(notas) {
     var ctx=document.getElementById('chart-cupons'); if(!ctx) return;
     destroyDashChart('cupons');
     ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
-    ctx.parentElement.innerHTML='<div class="dash-empty">Nenhum cupom no per�odo.</div>';
+    ctx.parentElement.innerHTML='<div class="dash-empty">Nenhum cupom no período.</div>';
     return;
   }
   var data=labels.map(function(l){ return cupons[l].count; });
@@ -1803,9 +1803,9 @@ function buildVendasSituacaoChart(notas) {
 }
 
 
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 //  MAPAS
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 function loadBrazilMap() {
   fetch(MAP_GEO_URL)
     .then(function(r){ return r.json(); })
@@ -1818,7 +1818,7 @@ function loadBrazilMap() {
     })
     .catch(function(){
       ['map-nf-loading','map-transp-loading','map-vendas-loading'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--tm);padding:20px;text-align:center">Mapa indispon�vel.</p>';
+        var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--tm);padding:20px;text-align:center">Mapa indisponível.</p>';
       });
     });
 }
@@ -1910,7 +1910,7 @@ function renderMapTransp(notas) {
     })
     .on('mouseenter',function(event,d){
       var s=getSigla(d),m=ufT[s];
-      var info=m?Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0]:'�';
+      var info=m?Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0]:'–';
       showMapTip(event,s+': '+info);
     })
     .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
@@ -1970,7 +1970,7 @@ function showDetailNF(sigla, name, total, notas) {
     if(uf===sigla&&parts[0]) cCount[parts[0].trim()]=(cCount[parts[0].trim()]||0)+1;
   });
   var cities=Object.keys(cCount).sort(function(a,b){ return cCount[b]-cCount[a]; });
-  document.getElementById('detail-nf-count').textContent=total+' NFs � '+cities.length+' cidade'+(cities.length!==1?'s':'');
+  document.getElementById('detail-nf-count').textContent=total+' NFs · '+cities.length+' cidade'+(cities.length!==1?'s':'');
   var maxC=cities.length?cCount[cities[0]]:1;
   document.getElementById('detail-nf-cities').innerHTML=cities.slice(0,15).map(function(city){
     var n=cCount[city],pct=(n/maxC)*100;
@@ -1986,7 +1986,7 @@ function showDetailTransp(sigla, name, transpMap) {
   document.getElementById('detail-transp-name').textContent=name;
   var sortedT=Object.keys(transpMap).sort(function(a,b){ return transpMap[b]-transpMap[a]; });
   var totalT=Object.values(transpMap).reduce(function(a,b){ return a+b; },0);
-  document.getElementById('detail-transp-count').textContent=totalT+' NFs � '+sortedT.length+' transportadora'+(sortedT.length!==1?'s':'');
+  document.getElementById('detail-transp-count').textContent=totalT+' NFs · '+sortedT.length+' transportadora'+(sortedT.length!==1?'s':'');
   var maxT=sortedT.length?transpMap[sortedT[0]]:1;
   document.getElementById('detail-transp-cities').innerHTML=sortedT.map(function(t){
     var n=transpMap[t],pct=(n/maxT)*100,clr=TRANSP_COLOR_MAP[t]||'#5c6bc0';
@@ -2000,29 +2000,29 @@ function closeStateDetail(type) {
   d3.select('#svg-map-'+type).selectAll('.state-path').classed('selected',false);
 }
 
-// -- Tooltip mapa -----------------------------------------------
+// ── Tooltip mapa ───────────────────────────────────────────────
 var _mapTipEl=null;
 function getMapTip(){ if(!_mapTipEl){ _mapTipEl=document.getElementById('map-tooltip'); if(!_mapTipEl){ _mapTipEl=document.createElement('div'); _mapTipEl.id='map-tooltip'; _mapTipEl.className='map-tooltip'; document.body.appendChild(_mapTipEl); } } return _mapTipEl; }
 function showMapTip(event,text){ var t=getMapTip(); t.textContent=text; t.style.opacity='1'; t.style.left=(event.clientX+12)+'px'; t.style.top=(event.clientY-32)+'px'; }
 function moveMapTip(event){ var t=getMapTip(); t.style.left=(event.clientX+12)+'px'; t.style.top=(event.clientY-32)+'px'; }
 function hideMapTip(){ getMapTip().style.opacity='0'; }
 
-// -- Filtrar e ir para aba NF-e ---------------------------------
+// ── Filtrar e ir para aba NF-e ─────────────────────────────────
 function filterAndGoNFe(campo, valor) {
-  // Aplica filtro de busca r�pida e vai para aba NF-e
+  // Aplica filtro de busca rápida e vai para aba NF-e
   var searchEl = document.getElementById('search');
   if(searchEl){ searchEl.value=valor; activeSearch=valor.toLowerCase().trim(); }
   applyFilters();
   switchView('nfe', document.querySelector('.tab-btn'));
 }
 
-// -- Utilit�rio escape para dash --------------------------------
+// ── Utilitário escape para dash ────────────────────────────────
 function escDash(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
 
-// -- Atualiza dashboards quando notas s�o carregadas ------------
+// ── Atualiza dashboards quando notas são carregadas ────────────
 var _dashAutoUpdate = (function(){
   var orig = buscarPagina;
-  // Hook: quando busca terminar, atualiza dash se estiver vis�vel
+  // Hook: quando busca terminar, atualiza dash se estiver visível
   return function(){};
 })();
 
@@ -2040,9 +2040,9 @@ loading = function(on){
 };
 
 
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 //  DRILL-DOWN MAPA MUNICIPAL
-// ---------------------------------------------------------------
+// ═══════════════════════════════════════════════════════════════
 var _drillGeoCache = {};
 var _drillCurrentUF = null;
 var _drillCurrentMode = 'nf'; // 'nf' | 'transp' | 'vendas'
@@ -2056,7 +2056,7 @@ var UF_IBGE_CODES = {
 function openDrillModal(uf, stateName, mode) {
   _drillCurrentUF   = uf;
   _drillCurrentMode = mode || 'nf';
-  document.getElementById('drillTitle').textContent   = stateName + ' � Munic�pios';
+  document.getElementById('drillTitle').textContent   = stateName + ' — Municípios';
   document.getElementById('drillSub').textContent     = 'Carregando...';
   document.getElementById('drillLoading').style.display = 'block';
   document.getElementById('svg-map-drill').style.display = 'none';
@@ -2066,7 +2066,7 @@ function openDrillModal(uf, stateName, mode) {
 
   var code = UF_IBGE_CODES[uf];
   if(!code){
-    document.getElementById('drillLoading').textContent = 'Estado n�o dispon�vel para drill-down.';
+    document.getElementById('drillLoading').textContent = 'Estado não disponível para drill-down.';
     return;
   }
   if(_drillGeoCache[uf]){
@@ -2078,7 +2078,7 @@ function openDrillModal(uf, stateName, mode) {
     .then(function(r){ return r.json(); })
     .then(function(geo){ _drillGeoCache[uf] = geo; renderDrillMap(geo, uf, stateName); })
     .catch(function(){
-      document.getElementById('drillLoading').textContent = 'N�o foi poss�vel carregar o mapa municipal.';
+      document.getElementById('drillLoading').textContent = 'Não foi possível carregar o mapa municipal.';
     });
 }
 
@@ -2117,10 +2117,10 @@ function renderDrillMap(geo, uf, stateName) {
   var sortedCities = Object.keys(origCities).sort(function(a,b){ return origCities[b]-origCities[a]; });
   var maxCity = sortedCities.length ? origCities[sortedCities[0]] : 1;
 
-  // Sub-t�tulo
+  // Sub-título
   document.getElementById('drillSub').textContent =
-    ufNotas.length + ' NFs � ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
-    ' � ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
+    ufNotas.length + ' NFs · ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
+    ' · ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
 
   // Lista cidades
   document.getElementById('drillCityList').innerHTML = sortedCities.slice(0,20).map(function(city){
@@ -2138,7 +2138,7 @@ function renderDrillMap(geo, uf, stateName) {
       '<span class="drill-bar-label" title="'+escDash(t)+'">'+escDash(t)+'</span>' +
       '<div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div>' +
       '<span class="drill-bar-count">'+n+'</span></div>';
-  }).join('') || '<p style="font-size:11px;color:var(--tm)">�</p>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">–</p>';
 
   // Mapa
   var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
@@ -2195,7 +2195,7 @@ function renderDrillMap(geo, uf, stateName) {
           .attr('text-anchor','middle').attr('dy','0.3em')
           .attr('font-size',fs).attr('font-weight','700').attr('pointer-events','none')
           .attr('fill', val/Math.max(maxCount,maxFat)>.4 ? '#fff' : (dark?'#c9d1d9':'#1e293b'))
-          .text(label.length>12 ? label.slice(0,11)+'�' : label);
+          .text(label.length>12 ? label.slice(0,11)+'…' : label);
       }
     }
   });
@@ -2213,21 +2213,26 @@ function closeDrillModal(){
   _drillCurrentUF = null;
 }
 
-// -- Patch: mapas chamam openDrillModal ao clicar no estado -----
-// Sobrescreve showDetailNF e showDetailTransp para tamb�m abrir drill
+// Fechar clicando fora
+document.getElementById('drillOverlay').onclick = function(e){
+  if(e.target === this) closeDrillModal();
+};
+
+// ── Patch: mapas chamam openDrillModal ao clicar no estado ─────
+// Sobrescreve showDetailNF e showDetailTransp para também abrir drill
 var _showDetailNFOrig = showDetailNF;
 showDetailNF = function(sigla, name, total, notas){
   _showDetailNFOrig(sigla, name, total, notas);
-  openDrillModal(sigla, name, notas);
+  openDrillModal(sigla, name, 'nf');
 };
 
 var _showDetailTranspOrig = showDetailTransp;
 showDetailTransp = function(sigla, name, transpMap){
   _showDetailTranspOrig(sigla, name, transpMap);
-  openDrillModal(sigla, name, transpMap);
+  openDrillModal(sigla, name, 'transp');
 };
 
-// Mapa vendas tamb�m abre drill ao clicar
+// Mapa vendas também abre drill ao clicar
 var _renderMapVendasOrig = renderMapVendas;
 renderMapVendas = function(notas){
   _renderMapVendasOrig(notas);
@@ -2237,42 +2242,782 @@ renderMapVendas = function(notas){
       var s = getSigla(d);
       d3.select('#svg-map-vendas').selectAll('.state-path').classed('selected',false);
       d3.select(this).classed('selected',true);
-      openDrillModal(s, d.properties.name||s, notas);
+      openDrillModal(s, d.properties.name||s, 'vendas');
     });
 };
 
-// Inicializar evento de fechar drill ao clicar fora
+// ── DRILL-DOWN MAPA MUNICIPAL ──────────────────────────────────
+var _drillCache = {};
+var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+
+function openDrillModal(uf, stateName, notas) {
+  var overlay = document.getElementById('drillOverlay');
+  var svgEl   = document.getElementById('svg-map-drill');
+  var loading = document.getElementById('drillLoading');
+  document.getElementById('drillTitle').textContent = stateName + ' — Municípios';
+  document.getElementById('drillSub').textContent   = 'Carregando...';
+  document.getElementById('drillCityList').innerHTML   = '';
+  document.getElementById('drillTranspList').innerHTML = '';
+  svgEl.style.display = 'none';
+  loading.style.display = 'block';
+  loading.textContent = '⏳ Carregando mapa municipal...';
+  overlay.classList.add('open');
+
+  var code = UF_IBGE[uf];
+  if (!code) { loading.textContent = 'Estado não disponível.'; return; }
+
+  var doRender = function(geo) { renderDrillMap(geo, uf, stateName, notas); };
+  if (_drillCache[uf]) { doRender(_drillCache[uf]); return; }
+
+  fetch('https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json')
+    .then(function(r){ return r.json(); })
+    .then(function(geo){ _drillCache[uf] = geo; doRender(geo); })
+    .catch(function(){ loading.textContent = 'Não foi possível carregar o mapa municipal.'; });
+}
+
+function renderDrillMap(geo, uf, stateName, notas) {
+  var loading = document.getElementById('drillLoading');
+  var svgEl   = document.getElementById('svg-map-drill');
+
+  // Contar NFs e transportadoras por cidade
+  var cityCount = {}, cityTransp = {};
+  (notas || getDashData()).forEach(function(n) {
+    var parts = (n.cidade || '').split('/');
+    var nuf   = (parts[1] || '').trim().toUpperCase();
+    if (nuf !== uf) return;
+    var city  = (parts[0] || '').trim();
+    if (!city) return;
+    cityCount[city] = (cityCount[city] || 0) + 1;
+    if (n.transportadora) {
+      if (!cityTransp[city]) cityTransp[city] = {};
+      cityTransp[city][n.transportadora] = (cityTransp[city][n.transportadora] || 0) + 1;
+    }
+  });
+
+  // Transportadoras do estado
+  var transpMap = {};
+  Object.values(cityTransp).forEach(function(m) {
+    Object.keys(m).forEach(function(t) { transpMap[t] = (transpMap[t] || 0) + m[t]; });
+  });
+
+  var totalNFs   = Object.values(cityCount).reduce(function(a,b){ return a+b; }, 0);
+  var totalCities = Object.keys(cityCount).length;
+  var transpList  = Object.keys(transpMap).sort(function(a,b){ return transpMap[b]-transpMap[a]; });
+  document.getElementById('drillSub').textContent = totalNFs + ' NFs · ' + totalCities + ' cidades · ' + transpList.length + ' transportadoras';
+
+  // Lista cidades
+  var sortedCities = Object.keys(cityCount).sort(function(a,b){ return cityCount[b]-cityCount[a]; });
+  var maxC = sortedCities.length ? cityCount[sortedCities[0]] : 1;
+  document.getElementById('drillCityList').innerHTML = sortedCities.slice(0,20).map(function(city) {
+    var n = cityCount[city], pct = (n/maxC)*100;
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'cidade\',\''+escDash(city)+'\')">'+
+      '<span class="drill-bar-label" title="'+escDash(city)+'">'+escDash(city)+'</span>'+
+      '<div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div>'+
+      '<span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Lista transportadoras
+  var maxT = transpList.length ? transpMap[transpList[0]] : 1;
+  document.getElementById('drillTranspList').innerHTML = transpList.slice(0,10).map(function(t) {
+    var n = transpMap[t], pct = (n/maxT)*100, clr = TRANSP_COLOR_MAP[t] || '#5c6bc0';
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')">'+
+      '<span class="drill-bar-label" title="'+escDash(t)+'">'+escDash(t)+'</span>'+
+      '<div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div>'+
+      '<span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Mapa SVG municipal
+  var W = 500, H = 450;
+  var proj = d3.geoMercator().fitSize([W-20, H-20], {type:'FeatureCollection', features:geo.features});
+  var t = proj.translate(); proj.translate([t[0]+10, t[1]+10]);
+  var path = d3.geoPath().projection(proj);
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
+  var colorScale = d3.scaleSequential().domain([0, maxCount])
+    .interpolator(dark ? d3.interpolate('#1e2130','#5c6bc0') : d3.interpolate('#dde3ff','#5c6bc0'));
+
+  function normCity(s){ return String(s).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+  var svg = d3.select('#svg-map-drill');
+  svg.selectAll('*').remove();
+  var g = svg.append('g');
+
+  geo.features.forEach(function(feature) {
+    var munName  = normCity(feature.properties.name || '');
+    // Tenta match normalizado
+    var matchKey = Object.keys(cityCount).find(function(k){ return normCity(k) === munName; });
+    var count    = matchKey ? cityCount[matchKey] : 0;
+    var hasData  = count > 0;
+
+    g.append('path').datum(feature)
+      .attr('class', 'mun-path' + (hasData ? ' has-data' : ''))
+      .attr('d', path)
+      .attr('fill', hasData ? colorScale(count) : (dark ? '#1c2128' : '#edf2f7'))
+      .attr('opacity', hasData ? 1 : 0.6)
+      .on('mouseenter', function(event) {
+        showMapTip(event, (feature.properties.name||'') + (count > 0 ? ': ' + count + ' NFs' : ''));
+      })
+      .on('mousemove', moveMapTip)
+      .on('mouseleave', hideMapTip)
+      .on('click', function() {
+        if (!hasData) return;
+        filterAndGoNFe('cidade', matchKey || feature.properties.name || '');
+        closeDrillModal();
+      });
+
+    if (hasData) {
+      var c = path.centroid(feature);
+      if (!isNaN(c[0]) && !isNaN(c[1])) {
+        var nameLen = (feature.properties.name || '').length;
+        g.append('text')
+          .attr('transform', 'translate(' + c + ')')
+          .attr('text-anchor','middle').attr('dy','0.3em')
+          .attr('font-size', Math.min(Math.max(5, 9 - nameLen * 0.15), 10) + '')
+          .attr('font-weight','700').attr('pointer-events','none')
+          .attr('fill', count/maxCount > .4 ? '#fff' : (dark ? '#c9d1d9' : '#1e293b'))
+          .text(feature.properties.name || '');
+      }
+    }
+  });
+
+  loading.style.display = 'none';
+  svgEl.style.display   = 'block';
+}
+
+function closeDrillModal() {
+  document.getElementById('drillOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrillModal(); });
+
+// ── DRILL-DOWN MAPA MUNICIPAL ──────────────────────────────────
+var _drillCache = {};
+var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+
+function openDrillModal(uf, stateName, notas) {
+  var overlay = document.getElementById('drillOverlay');
+  var svgEl   = document.getElementById('svg-map-drill');
+  var loading = document.getElementById('drillLoading');
+  document.getElementById('drillTitle').textContent = stateName + ' — Municípios';
+  document.getElementById('drillSub').textContent   = 'Carregando...';
+  document.getElementById('drillCityList').innerHTML   = '';
+  document.getElementById('drillTranspList').innerHTML = '';
+  svgEl.style.display = 'none';
+  loading.style.display = 'block';
+  loading.textContent = '⏳ Carregando mapa municipal...';
+  overlay.classList.add('open');
+
+  var code = UF_IBGE[uf.toUpperCase()];
+  if (!code) { loading.textContent = 'Estado não disponível.'; return; }
+
+  var done = function(geo) { renderDrillMap(geo, uf, stateName, notas); };
+  if (_drillCache[uf]) { done(_drillCache[uf]); return; }
+
+  fetch('https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json')
+    .then(function(r){ return r.json(); })
+    .then(function(geo){ _drillCache[uf] = geo; done(geo); })
+    .catch(function(){ loading.textContent = 'Não foi possível carregar o mapa municipal.'; });
+}
+
+function renderDrillMap(geo, uf, stateName, notas) {
+  var loading = document.getElementById('drillLoading');
+  var svgEl   = document.getElementById('svg-map-drill');
+
+  // Contar NFs e transportadoras por município
+  var cityCount = {}, cityTransp = {}, cityVal = {};
+  (notas || getDashData()).forEach(function(n) {
+    var parts = (n.cidade || '').split('/');
+    var nuf   = (parts[1] || '').trim().toUpperCase();
+    if (nuf !== uf.toUpperCase()) return;
+    var city  = (parts[0] || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if (!city) return;
+    cityCount[city] = (cityCount[city] || 0) + 1;
+    cityVal[city]   = (cityVal[city]   || 0) + (parseFloat(n.valor) || 0);
+    if (n.transportadora) {
+      if (!cityTransp[city]) cityTransp[city] = {};
+      cityTransp[city][n.transportadora] = (cityTransp[city][n.transportadora] || 0) + 1;
+    }
+  });
+
+  var totalNFs = Object.values(cityCount).reduce(function(a,b){return a+b;},0);
+  var nCities  = Object.keys(cityCount).length;
+  document.getElementById('drillSub').textContent = totalNFs + ' NFs · ' + nCities + ' cidade' + (nCities!==1?'s':'');
+
+  // Lista cidades
+  var sortedCities = Object.keys(cityCount).sort(function(a,b){ return cityCount[b]-cityCount[a]; });
+  var maxC = sortedCities.length ? cityCount[sortedCities[0]] : 1;
+  document.getElementById('drillCityList').innerHTML = sortedCities.slice(0,20).map(function(city){
+    var n=cityCount[city], pct=(n/maxC)*100;
+    return '<div class="drill-bar-item"><span class="drill-bar-label" title="'+city+'">'+city+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Lista transportadoras
+  var transpTot = {};
+  Object.values(cityTransp).forEach(function(m){ Object.keys(m).forEach(function(t){ transpTot[t]=(transpTot[t]||0)+m[t]; }); });
+  var sortedT = Object.keys(transpTot).sort(function(a,b){ return transpTot[b]-transpTot[a]; });
+  var maxT = sortedT.length ? transpTot[sortedT[0]] : 1;
+  document.getElementById('drillTranspList').innerHTML = sortedT.map(function(t){
+    var n=transpTot[t], pct=(n/maxT)*100, clr=TRANSP_COLOR_MAP[t]||'#5c6bc0';
+    return '<div class="drill-bar-item"><span class="drill-bar-label" title="'+t+'">'+t+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Renderiza SVG
+  var W=500, H=450;
+  var proj = d3.geoMercator().fitSize([W-20,H-20],{type:'FeatureCollection',features:geo.features});
+  var t = proj.translate(); proj.translate([t[0]+10,t[1]+10]);
+  var path = d3.geoPath().projection(proj);
+  var dark = document.documentElement.getAttribute('data-theme')==='dark';
+  var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
+  var colorScale = d3.scaleSequential().domain([0,maxCount]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
+
+  var svg = d3.select('#svg-map-drill');
+  svg.selectAll('*').remove();
+  var g = svg.append('g');
+
+  geo.features.forEach(function(feature) {
+    var munName = (feature.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    var count   = cityCount[munName] || 0;
+    var hasData = count > 0;
+    g.append('path').datum(feature)
+      .attr('class','mun-path'+(hasData?' has-data':''))
+      .attr('d',path)
+      .attr('fill', hasData ? colorScale(count) : (dark?'#1c2128':'#edf2f7'))
+      .attr('opacity', hasData ? 1 : 0.6)
+      .on('mouseenter',function(event){ showMapTip(event,(feature.properties.name||'')+(count>0?': '+count+' NFs':'')+(cityVal[munName]?' · '+fmtBRL(cityVal[munName]):'')); })
+      .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+      .on('click',function(){ if(!hasData) return; filterAndGoNFe('cidade_uf', (feature.properties.name||'')+'/'+uf); closeDrillModal(); });
+  });
+
+  geo.features.forEach(function(feature) {
+    var munName = (feature.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    var count   = cityCount[munName]||0;
+    if(!count) return;
+    var c = path.centroid(feature);
+    if(isNaN(c[0])||isNaN(c[1])) return;
+    var name = feature.properties.name||'';
+    g.append('text').attr('transform','translate('+c+')')
+      .attr('text-anchor','middle').attr('dy','0.3em')
+      .attr('font-size', Math.min(Math.max(6, 9-name.length*0.15),10)+'')
+      .attr('font-weight','700').attr('pointer-events','none')
+      .attr('fill', count/maxCount>.4?'#fff':(dark?'#c9d1d9':'#1e293b'))
+      .text(name);
+  });
+
+  loading.style.display = 'none';
+  svgEl.style.display   = 'block';
+}
+
+function closeDrillModal() {
+  document.getElementById('drillOverlay').classList.remove('open');
+}
 document.addEventListener('DOMContentLoaded', function(){
   var ov = document.getElementById('drillOverlay');
   if(ov) ov.addEventListener('click', function(e){ if(e.target===ov) closeDrillModal(); });
 });
 
-</script>
+// Patch: ao clicar no estado nos mapas, abre drill-down
+var _origShowDetailNF = showDetailNF;
+showDetailNF = function(sigla, name, total, notas) {
+  _origShowDetailNF(sigla, name, total, notas);
+  openDrillModal(sigla, name, notas);
+};
+var _origShowDetailTransp = showDetailTransp;
+showDetailTransp = function(sigla, name, transpMap) {
+  _origShowDetailTransp(sigla, name, transpMap);
+  openDrillModal(sigla, name, getDashData());
+};
 
-<!-- DRILL-DOWN MAPA MUNICIPAL -->
-  <div class="drill-modal">
-    <div class="drill-modal-head">
-      <button class="drill-back-btn" onclick="closeDrillModal()">? Voltar</button>
-      <div style="flex:1">
-        <div class="drill-modal-title" id="drillTitle">Estado</div>
-        <div class="drill-modal-sub" id="drillSub"></div>
-      </div>
-      <button style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1.1rem" onclick="closeDrillModal()">?</button>
-    </div>
-    <div class="drill-modal-body">
-      <div class="drill-map-area">
-        <div class="drill-loading" id="drillLoading">? Carregando mapa municipal...</div>
-        <svg id="svg-map-drill" viewBox="0 0 500 450" style="display:none"></svg>
-      </div>
-      <div class="drill-side">
-        <div class="drill-side-title">??? Cidades</div>
-        <div id="drillCityList"></div>
-        <div class="drill-side-title" style="margin-top:8px">?? Transportadoras</div>
-        <div id="drillTranspList"></div>
-      </div>
-    </div>
-  </div>
-</div>
+// ── DRILL-DOWN MAPA MUNICIPAL ──────────────────────────────────
+var _drillCache = {};
+var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+
+function openDrillMap(uf, stateName, notas) {
+  var overlay = document.getElementById('drillOverlay');
+  document.getElementById('drillTitle').textContent = stateName + ' — Municípios';
+  document.getElementById('drillSub').textContent = 'Carregando...';
+  document.getElementById('drillLoading').style.display = 'block';
+  document.getElementById('svg-map-drill').style.display = 'none';
+  document.getElementById('drillCityList').innerHTML = '';
+  document.getElementById('drillTranspList').innerHTML = '';
+  overlay.classList.add('open');
+
+  var code = UF_IBGE[uf];
+  if (!code) { document.getElementById('drillLoading').textContent = 'Estado não disponível.'; return; }
+
+  var notasUF = (notas || getDashData()).filter(function(n) {
+    var parts = (n.cidade || '').split('/');
+    return (parts[1] || '').trim().toUpperCase() === uf;
+  });
+
+  // Cidades
+  var cityCount = {}, cityFat = {}, cityTransp = {};
+  notasUF.forEach(function(n) {
+    var city = (n.cidade || '').split('/')[0].trim();
+    if (!city) return;
+    cityCount[city] = (cityCount[city] || 0) + 1;
+    cityFat[city]   = (cityFat[city]   || 0) + (parseFloat(n.valor) || 0);
+    if (n.transportadora) {
+      if (!cityTransp[city]) cityTransp[city] = {};
+      cityTransp[city][n.transportadora] = (cityTransp[city][n.transportadora] || 0) + 1;
+    }
+  });
+
+  // Transportadoras do estado
+  var transpCount = {};
+  notasUF.forEach(function(n) { if (n.transportadora) transpCount[n.transportadora] = (transpCount[n.transportadora] || 0) + 1; });
+  var transpList = Object.keys(transpCount).sort(function(a,b){ return transpCount[b]-transpCount[a]; });
+  var maxT = transpList.length ? transpCount[transpList[0]] : 1;
+  document.getElementById('drillTranspList').innerHTML = transpList.map(function(t) {
+    var n = transpCount[t], pct = (n/maxT)*100, clr = TRANSP_COLOR_MAP[t] || '#5c6bc0';
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')"><span class="drill-bar-label" title="'+escDash(t)+'">'+escDash(t)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">–</p>';
+
+  // Cidades sidebar
+  var sortedCities = Object.keys(cityCount).sort(function(a,b){ return cityCount[b]-cityCount[a]; });
+  var maxC = sortedCities.length ? cityCount[sortedCities[0]] : 1;
+  document.getElementById('drillCityList').innerHTML = sortedCities.slice(0,20).map(function(city) {
+    var n = cityCount[city], pct = (n/maxC)*100;
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'cidade\',\''+escDash(city)+'\')"><span class="drill-bar-label" title="'+escDash(city)+'">'+escDash(city)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem cidades.</p>';
+
+  document.getElementById('drillSub').textContent = notasUF.length + ' NFs · ' + sortedCities.length + ' cidades · ' + transpList.length + ' transportadoras';
+
+  // Mapa municipal
+  if (_drillCache[uf]) { renderDrillMunicipal(_drillCache[uf], uf, cityCount, cityFat); return; }
+  var url = 'https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json';
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(geo){ _drillCache[uf] = geo; renderDrillMunicipal(geo, uf, cityCount, cityFat); })
+    .catch(function(){ document.getElementById('drillLoading').textContent = 'Mapa municipal indisponível.'; });
+}
+
+function normalizeCity(s) {
+  return String(s).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function renderDrillMunicipal(geo, uf, cityCount, cityFat) {
+  document.getElementById('drillLoading').style.display = 'none';
+  var svgEl = document.getElementById('svg-map-drill');
+  svgEl.style.display = 'block';
+  var W = 500, H = 450;
+  var proj = d3.geoMercator().fitSize([W-20, H-20], {type:'FeatureCollection', features:geo.features});
+  var t = proj.translate(); proj.translate([t[0]+10, t[1]+10]);
+  var path = d3.geoPath().projection(proj);
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var maxC = Math.max.apply(null, Object.values(cityCount).concat([1]));
+  var colorScale = d3.scaleSequential().domain([0, maxC]).interpolator(dark ? d3.interpolate('#1e2130','#5c6bc0') : d3.interpolate('#dde3ff','#5c6bc0'));
+
+  var svg = d3.select('#svg-map-drill');
+  svg.selectAll('*').remove();
+  var g = svg.append('g');
+
+  geo.features.forEach(function(feature) {
+    var munNorm = normalizeCity(feature.properties.name || '');
+    // Tenta match normalizado
+    var count = 0, fat = 0;
+    Object.keys(cityCount).forEach(function(city) {
+      if (normalizeCity(city) === munNorm) { count += cityCount[city]; fat += cityFat[city] || 0; }
+    });
+    var hasData = count > 0;
+    g.append('path')
+      .datum(feature)
+      .attr('class', 'mun-path' + (hasData ? ' has-data' : ''))
+      .attr('d', path)
+      .attr('fill', hasData ? colorScale(count) : (dark ? '#1c2128' : '#edf2f7'))
+      .attr('opacity', hasData ? 1 : 0.6)
+      .on('mouseenter', function(event) { showMapTip(event, (feature.properties.name||'') + (count>0 ? ': '+count+' NFs · '+fmtBRL(fat) : '')); })
+      .on('mousemove', moveMapTip)
+      .on('mouseleave', hideMapTip)
+      .on('click', function() { if (!hasData) return; filterAndGoNFe('cidade', feature.properties.name || ''); });
+
+    if (hasData) {
+      var c = path.centroid(feature);
+      if (!isNaN(c[0]) && !isNaN(c[1])) {
+        var name = feature.properties.name || '';
+        var fs = Math.min(Math.max(6, 9 - name.length * 0.15), 10);
+        g.append('text')
+          .attr('transform', 'translate('+c+')')
+          .attr('text-anchor','middle').attr('dy','0.3em')
+          .attr('font-size', fs+'').attr('font-weight','700').attr('pointer-events','none')
+          .attr('fill', count/maxC > .4 ? '#fff' : (dark ? '#c9d1d9' : '#1e293b'))
+          .text(name);
+      }
+    }
+  });
+}
+
+function closeDrillModal() {
+  document.getElementById('drillOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrillModal(); });
+
+// Patch: conectar clique nos mapas de estado ao drill-down
+var _renderMapNFOrig = renderMapNF;
+renderMapNF = function(notas) {
+  _renderMapNFOrig(notas);
+  // Re-bind click com drill
+  d3.select('#svg-map-nf').selectAll('.state-path').on('click', function(event, d) {
+    var s = getSigla(d);
+    d3.select('#svg-map-nf').selectAll('.state-path').classed('selected', false);
+    d3.select(this).classed('selected', true);
+    showDetailNF(s, d.properties.name||s, 0, notas||getDashData());
+    openDrillMap(s, d.properties.name||s, notas||getDashData());
+  });
+};
+var _renderMapTranspOrig = renderMapTransp;
+renderMapTransp = function(notas) {
+  _renderMapTranspOrig(notas);
+  d3.select('#svg-map-transp').selectAll('.state-path').on('click', function(event, d) {
+    var s = getSigla(d);
+    d3.select('#svg-map-transp').selectAll('.state-path').classed('selected', false);
+    d3.select(this).classed('selected', true);
+    showDetailTransp(s, d.properties.name||s, {});
+    openDrillMap(s, d.properties.name||s, getDashData());
+  });
+};
+var _renderMapVendasOrig = renderMapVendas;
+renderMapVendas = function(notas) {
+  _renderMapVendasOrig(notas);
+  d3.select('#svg-map-vendas').selectAll('.state-path').on('click', function(event, d) {
+    var s = getSigla(d);
+    d3.select(this).classed('selected', true);
+    openDrillMap(s, d.properties.name||s, notas||getDashData());
+  });
+};
+
+// ── DRILL-DOWN MUNICIPAL ───────────────────────────────────────
+var _drillCache = {};
+var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+
+function openDrillMap(uf, stateName, notas) {
+  var overlay = document.getElementById('drillOverlay');
+  document.getElementById('drillTitle').textContent = stateName + ' — Municípios';
+  document.getElementById('drillSub').textContent = 'Carregando...';
+  document.getElementById('drillLoading').style.display = 'block';
+  document.getElementById('svg-map-drill').style.display = 'none';
+  document.getElementById('drillCityList').innerHTML = '';
+  document.getElementById('drillTranspList').innerHTML = '';
+  overlay.classList.add('open');
+
+  var code = UF_IBGE[uf];
+  if (!code) { document.getElementById('drillLoading').textContent = 'Estado não disponível.'; return; }
+
+  var notasUF = (notas || getDashData()).filter(function(n){
+    var uf2 = (n.cidade||'').split('/')[1]; return uf2 && uf2.trim().toUpperCase() === uf;
+  });
+
+  // Cidades
+  var cityCount = {}, cityTransp = {};
+  notasUF.forEach(function(n){
+    var city = (n.cidade||'').split('/')[0].trim();
+    if(!city) return;
+    cityCount[city] = (cityCount[city]||0) + 1;
+    if(n.transportadora){ if(!cityTransp[city]) cityTransp[city]={}; cityTransp[city][n.transportadora]=(cityTransp[city][n.transportadora]||0)+1; }
+  });
+  var sortedCities = Object.keys(cityCount).sort(function(a,b){ return cityCount[b]-cityCount[a]; });
+  var maxC = sortedCities.length ? cityCount[sortedCities[0]] : 1;
+  document.getElementById('drillCityList').innerHTML = sortedCities.slice(0,20).map(function(city){
+    var n=cityCount[city], pct=(n/maxC)*100;
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'cidade\',\''+escDash(city)+'\')"><span class="drill-bar-label" title="'+escDash(city)+'">'+escDash(city)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Transportadoras
+  var transpCount = {};
+  notasUF.forEach(function(n){ if(n.transportadora) transpCount[n.transportadora]=(transpCount[n.transportadora]||0)+1; });
+  var sortedT = Object.keys(transpCount).sort(function(a,b){ return transpCount[b]-transpCount[a]; });
+  var maxT = sortedT.length ? transpCount[sortedT[0]] : 1;
+  document.getElementById('drillTranspList').innerHTML = sortedT.map(function(t,i){
+    var n=transpCount[t], pct=(n/maxT)*100, clr=TRANSP_COLOR_MAP[t]||CHART_COLORS[i%CHART_COLORS.length];
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')"><span class="drill-bar-label" title="'+escDash(t)+'">'+escDash(t)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  document.getElementById('drillSub').textContent = notasUF.length + ' NFs · ' + sortedCities.length + ' cidades · ' + sortedT.length + ' transportadoras';
+
+  // Mapa municipal
+  if (_drillCache[uf]) { renderDrillMunicipal(_drillCache[uf], uf, cityCount); return; }
+  var url = 'https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json';
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(geo){ _drillCache[uf]=geo; renderDrillMunicipal(geo, uf, cityCount); })
+    .catch(function(){ document.getElementById('drillLoading').textContent = 'Mapa municipal indisponível.'; });
+}
+
+function normalizeCity(s){ return String(s).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function renderDrillMunicipal(geo, uf, cityCount) {
+  var normMap = {};
+  Object.keys(cityCount).forEach(function(c){ normMap[normalizeCity(c)] = cityCount[c]; });
+  var maxC = Math.max.apply(null, Object.values(cityCount).concat([1]));
+  var dark = document.documentElement.getAttribute('data-theme')==='dark';
+  var colorScale = d3.scaleSequential().domain([0,maxC]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
+
+  var W=500, H=450;
+  var proj = d3.geoMercator().fitSize([W-20,H-20],{type:'FeatureCollection',features:geo.features});
+  var t = proj.translate(); proj.translate([t[0]+10,t[1]+10]);
+  var path = d3.geoPath().projection(proj);
+
+  var svg = d3.select('#svg-map-drill');
+  svg.selectAll('*').remove();
+  var g = svg.append('g');
+
+  geo.features.forEach(function(feature){
+    var munNorm = normalizeCity(feature.properties.name||'');
+    var count = normMap[munNorm] || 0;
+    g.append('path').datum(feature)
+      .attr('class','mun-path'+(count>0?' has-data':''))
+      .attr('d',path)
+      .attr('fill', count>0 ? colorScale(count) : (dark?'#1c2128':'#edf2f7'))
+      .attr('opacity', count>0?1:0.6)
+      .on('mouseenter',function(event){ showMapTip(event,(feature.properties.name||'')+(count>0?': '+count+' NFs':'')); })
+      .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+      .on('click',function(){ if(!count) return; filterAndGoNFe('cidade', feature.properties.name||''); });
+  });
+
+  geo.features.forEach(function(feature){
+    var munNorm = normalizeCity(feature.properties.name||'');
+    var count = normMap[munNorm]||0; if(!count) return;
+    var c = path.centroid(feature); if(isNaN(c[0])||isNaN(c[1])) return;
+    var name = feature.properties.name||'';
+    var fs = Math.min(Math.max(6, 9 - name.length*0.15), 10);
+    g.append('text').attr('transform','translate('+c+')')
+      .attr('text-anchor','middle').attr('dy','0.3em')
+      .attr('font-size',fs+'').attr('font-weight','700').attr('pointer-events','none')
+      .attr('fill', count/maxC>.4?'#fff':(dark?'#c9d1d9':'#1e293b'))
+      .text(name);
+  });
+
+  document.getElementById('drillLoading').style.display = 'none';
+  document.getElementById('svg-map-drill').style.display = 'block';
+}
+
+function closeDrillModal(){
+  document.getElementById('drillOverlay').classList.remove('open');
+}
+document.getElementById('drillOverlay').onclick = function(e){ if(e.target===this) closeDrillModal(); };
+
+// Conectar cliques nos mapas de estado ao drill-down
+var _renderMapNFOrig = renderMapNF;
+renderMapNF = function(notas){
+  _renderMapNFOrig(notas);
+  d3.select('#svg-map-nf').selectAll('.state-path').on('click', function(event,d){
+    var s=getSigla(d);
+    d3.select('#svg-map-nf').selectAll('.state-path').classed('selected',false);
+    d3.select(this).classed('selected',true);
+    showDetailNF(s,d.properties.name||s,(function(){ var ufCount={}; (notas||getDashData()).forEach(function(n){ var uf=(n.cidade||'').split('/')[1]||''; uf=uf.trim().toUpperCase(); if(uf.length===2) ufCount[uf]=(ufCount[uf]||0)+1; }); return ufCount[s]||0; })(),notas||getDashData());
+    openDrillMap(s, d.properties.name||s, notas||getDashData());
+  });
+};
+
+var _renderMapTranspOrig = renderMapTransp;
+renderMapTransp = function(notas){
+  _renderMapTranspOrig(notas);
+  d3.select('#svg-map-transp').selectAll('.state-path').on('click', function(event,d){
+    var s=getSigla(d);
+    d3.select('#svg-map-transp').selectAll('.state-path').classed('selected',false);
+    d3.select(this).classed('selected',true);
+    openDrillMap(s, d.properties.name||s, notas||getDashData());
+  });
+};
+
+var _renderMapVendasOrig = renderMapVendas;
+renderMapVendas = function(notas){
+  _renderMapVendasOrig(notas);
+  d3.select('#svg-map-vendas').selectAll('.state-path').on('click', function(event,d){
+    var s=getSigla(d);
+    openDrillMap(s, d.properties.name||s, notas||getDashData());
+  });
+};
+
+// ── DRILL-DOWN MAPA MUNICIPAL ──────────────────────────────────
+var _drillCache = {};
+var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+
+function openDrillModal(uf, stateName, notas) {
+  var overlay = document.getElementById('drillOverlay');
+  document.getElementById('drillTitle').textContent = stateName + ' — ' + uf;
+  document.getElementById('drillSub').textContent = 'Carregando municípios...';
+  document.getElementById('drillLoading').style.display = 'block';
+  document.getElementById('svg-map-drill').style.display = 'none';
+  document.getElementById('drillCityList').innerHTML = '';
+  document.getElementById('drillTranspList').innerHTML = '';
+  overlay.classList.add('open');
+
+  var code = UF_IBGE[uf];
+  if (!code) { document.getElementById('drillLoading').textContent = 'Estado não disponível.'; return; }
+  if (_drillCache[uf]) { renderDrillMap(_drillCache[uf], uf, notas); return; }
+
+  fetch('https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json')
+    .then(function(r){ return r.json(); })
+    .then(function(geo){ _drillCache[uf] = geo; renderDrillMap(geo, uf, notas); })
+    .catch(function(){ document.getElementById('drillLoading').textContent = 'Não foi possível carregar o mapa municipal.'; });
+}
+
+function renderDrillMap(geo, uf, notas) {
+  var cityCount = {}, cityTransp = {}, transpMap = {};
+  notas.forEach(function(n){
+    var parts = (n.cidade||'').split('/');
+    var nuf = (parts[1]||'').trim().toUpperCase();
+    if (nuf !== uf) return;
+    var city = (parts[0]||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if (city) cityCount[city] = (cityCount[city]||0) + 1;
+    if (city && n.transportadora) {
+      if (!cityTransp[city]) cityTransp[city] = {};
+      cityTransp[city][n.transportadora] = (cityTransp[city][n.transportadora]||0) + 1;
+    }
+    if (n.transportadora) transpMap[n.transportadora] = (transpMap[n.transportadora]||0) + 1;
+  });
+
+  var totalNFs = Object.values(cityCount).reduce(function(a,b){return a+b;},0);
+  var cities = Object.keys(cityCount).sort(function(a,b){return cityCount[b]-cityCount[a];});
+  document.getElementById('drillSub').textContent = totalNFs + ' NFs · ' + cities.length + ' cidades';
+
+  // Side: cidades
+  var maxC = cities.length ? cityCount[cities[0]] : 1;
+  document.getElementById('drillCityList').innerHTML = cities.slice(0,20).map(function(city){
+    var n=cityCount[city], pct=(n/maxC)*100;
+    return '<div class="drill-bar-item"><span class="drill-bar-label" title="'+city+'">'+city+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Side: transportadoras
+  var tList = Object.keys(transpMap).sort(function(a,b){return transpMap[b]-transpMap[a];});
+  var maxT = tList.length ? transpMap[tList[0]] : 1;
+  document.getElementById('drillTranspList').innerHTML = tList.map(function(t,i){
+    var n=transpMap[t], pct=(n/maxT)*100, clr=TRANSP_COLOR_MAP[t]||CHART_COLORS[i%CHART_COLORS.length];
+    return '<div class="drill-bar-item"><span class="drill-bar-label" title="'+t+'">'+t+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+
+  // Mapa
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
+  var colorScale = d3.scaleSequential().domain([0,maxCount]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
+  var svgEl = document.getElementById('svg-map-drill');
+  var W=500, H=450;
+  var proj = d3.geoMercator().fitSize([W-20,H-20],{type:'FeatureCollection',features:geo.features});
+  var t = proj.translate(); proj.translate([t[0]+10,t[1]+10]);
+  var path = d3.geoPath().projection(proj);
+  var svg = d3.select('#svg-map-drill');
+  svg.selectAll('*').remove();
+  var g = svg.append('g');
+
+  g.selectAll('path').data(geo.features).enter().append('path')
+    .attr('class',function(d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return 'mun-path'+(cityCount[nm]?' has-data':''); })
+    .attr('d',path)
+    .attr('fill',function(d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return cityCount[nm]?colorScale(cityCount[nm]):(dark?'#1c2128':'#edf2f7'); })
+    .attr('opacity',function(d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return cityCount[nm]?1:.6; })
+    .on('mouseenter',function(event,d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); showMapTip(event,(d.properties.name||'')+(cityCount[nm]?' — '+cityCount[nm]+' NFs':'')); })
+    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+    .on('click',function(event,d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); if(!cityCount[nm]) return; filterAndGoNFe('cidade', d.properties.name||''); closeDrillModal(); });
+
+  g.selectAll('text').data(geo.features.filter(function(d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return cityCount[nm]>0; })).enter().append('text')
+    .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
+    .attr('text-anchor','middle').attr('dy','0.3em')
+    .attr('font-size',function(d){ return Math.min(Math.max(6,9-String(d.properties.name||'').length*.15),10)+''; })
+    .attr('font-weight','700').attr('pointer-events','none')
+    .attr('fill',function(d){ var nm=(d.properties.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return (cityCount[nm]||0)/maxCount>.4?'#fff':(dark?'#c9d1d9':'#1e293b'); })
+    .text(function(d){ return d.properties.name||''; });
+
+  document.getElementById('drillLoading').style.display = 'none';
+  svgEl.style.display = 'block';
+}
+
+function closeDrillModal() {
+  document.getElementById('drillOverlay').classList.remove('open');
+}
+document.getElementById('drillOverlay').onclick = function(e){ if(e.target===this) closeDrillModal(); };
+
+// Conectar clique nos mapas de estado ao drill-down
+var _origShowDetailNF = showDetailNF;
+showDetailNF = function(sigla, name, total, notas){
+  _origShowDetailNF(sigla, name, total, notas);
+  openDrillModal(sigla, name, notas);
+};
+var _origShowDetailTransp = showDetailTransp;
+showDetailTransp = function(sigla, name, transpMap){
+  _origShowDetailTransp(sigla, name, transpMap);
+  openDrillModal(sigla, name, getDashData());
+};
+
+// ── DRILL-DOWN MAPA MUNICIPAL ──────────────────────────────────
+var _drillCache = {};
+var UF_IBGE2 = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+
+function normCity(s){ return String(s).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function openDrillModal(uf, stateName, notas) {
+  document.getElementById('drillTitle').textContent = stateName + ' — ' + uf;
+  document.getElementById('drillSub').textContent = 'Carregando...';
+  document.getElementById('drillLoading').style.display = 'block';
+  document.getElementById('svg-map-drill').style.display = 'none';
+  document.getElementById('drillCityList').innerHTML = '';
+  document.getElementById('drillTranspList').innerHTML = '';
+  document.getElementById('drillOverlay').classList.add('open');
+  var code = UF_IBGE2[uf];
+  if (!code) { document.getElementById('drillLoading').textContent = 'Estado nao disponivel.'; return; }
+  if (_drillCache[uf]) { renderDrillMap(_drillCache[uf], uf, notas); return; }
+  fetch('https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json')
+    .then(function(r){ return r.json(); })
+    .then(function(geo){ _drillCache[uf]=geo; renderDrillMap(geo,uf,notas); })
+    .catch(function(){ document.getElementById('drillLoading').textContent='Mapa municipal indisponivel.'; });
+}
+
+function renderDrillMap(geo, uf, notas) {
+  var cityCount={}, transpMap={};
+  notas.forEach(function(n){
+    var parts=(n.cidade||'').split('/');
+    if((parts[1]||'').trim().toUpperCase()!==uf) return;
+    var city=normCity(parts[0]||'');
+    if(city) cityCount[city]=(cityCount[city]||0)+1;
+    if(n.transportadora) transpMap[n.transportadora]=(transpMap[n.transportadora]||0)+1;
+  });
+  var cities=Object.keys(cityCount).sort(function(a,b){return cityCount[b]-cityCount[a];});
+  var total=Object.values(cityCount).reduce(function(a,b){return a+b;},0);
+  document.getElementById('drillSub').textContent=total+' NFs em '+cities.length+' cidades';
+  var maxC=cities.length?cityCount[cities[0]]:1;
+  document.getElementById('drillCityList').innerHTML=cities.slice(0,20).map(function(city){
+    var n=cityCount[city],pct=(n/maxC)*100;
+    return '<div class="drill-bar-item"><span class="drill-bar-label">'+city+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('')||'<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+  var tList=Object.keys(transpMap).sort(function(a,b){return transpMap[b]-transpMap[a];});
+  var maxT=tList.length?transpMap[tList[0]]:1;
+  document.getElementById('drillTranspList').innerHTML=tList.map(function(t,i){
+    var n=transpMap[t],pct=(n/maxT)*100,clr=TRANSP_COLOR_MAP[t]||CHART_COLORS[i%CHART_COLORS.length];
+    return '<div class="drill-bar-item"><span class="drill-bar-label">'+t+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('')||'<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var maxCount=Math.max.apply(null,Object.values(cityCount).concat([1]));
+  var colorScale=d3.scaleSequential().domain([0,maxCount]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
+  var W=500,H=450;
+  var proj=d3.geoMercator().fitSize([W-20,H-20],{type:'FeatureCollection',features:geo.features});
+  var t=proj.translate(); proj.translate([t[0]+10,t[1]+10]);
+  var path=d3.geoPath().projection(proj);
+  var svg=d3.select('#svg-map-drill'); svg.selectAll('*').remove();
+  var g=svg.append('g');
+  g.selectAll('path').data(geo.features).enter().append('path')
+    .attr('class',function(d){ return 'mun-path'+(cityCount[normCity(d.properties.name||'')]?' has-data':''); })
+    .attr('d',path)
+    .attr('fill',function(d){ var nm=normCity(d.properties.name||''); return cityCount[nm]?colorScale(cityCount[nm]):(dark?'#1c2128':'#edf2f7'); })
+    .attr('opacity',function(d){ return cityCount[normCity(d.properties.name||'')]?1:.6; })
+    .on('mouseenter',function(event,d){ var nm=normCity(d.properties.name||''); showMapTip(event,(d.properties.name||'')+(cityCount[nm]?' — '+cityCount[nm]+' NFs':'')); })
+    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+    .on('click',function(event,d){ var nm=normCity(d.properties.name||''); if(!cityCount[nm]) return; filterAndGoNFe('cidade',d.properties.name||''); closeDrillModal(); });
+  g.selectAll('text').data(geo.features.filter(function(d){ return cityCount[normCity(d.properties.name||'')]>0; })).enter().append('text')
+    .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
+    .attr('text-anchor','middle').attr('dy','0.3em').attr('font-size','8').attr('font-weight','700').attr('pointer-events','none')
+    .attr('fill',function(d){ var nm=normCity(d.properties.name||''); return (cityCount[nm]||0)/maxCount>.4?'#fff':(dark?'#c9d1d9':'#1e293b'); })
+    .text(function(d){ return d.properties.name||''; });
+  document.getElementById('drillLoading').style.display='none';
+  document.getElementById('svg-map-drill').style.display='block';
+}
+
+function closeDrillModal(){ document.getElementById('drillOverlay').classList.remove('open'); }
+document.getElementById('drillOverlay').onclick=function(e){ if(e.target===this) closeDrillModal(); };
+
+// Hook nos mapas de estado
+var _origShowDetailNF=showDetailNF;
+showDetailNF=function(sigla,name,total,notas){ _origShowDetailNF(sigla,name,total,notas); openDrillModal(sigla,name,notas); };
+var _origShowDetailTransp=showDetailTransp;
+showDetailTransp=function(sigla,name,tm){ _origShowDetailTransp(sigla,name,tm); openDrillModal(sigla,name,getDashData()); };
+
+</script>
 
 <!-- DRILL-DOWN MAPA MUNICIPAL -->
 <div class="drill-overlay" id="drillOverlay">
@@ -2281,27 +3026,23 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="drill-back-btn" onclick="closeDrillModal()">← Voltar</button>
       <div style="flex:1">
         <div class="drill-modal-title" id="drillTitle">Estado</div>
-        <div class="drill-modal-sub" id="drillSub">Carregando...</div>
+        <div class="drill-modal-sub" id="drillSub"></div>
       </div>
+      <button style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1.1rem" onclick="closeDrillModal()">✕</button>
     </div>
     <div class="drill-modal-body">
       <div class="drill-map-area">
         <div class="drill-loading" id="drillLoading">⏳ Carregando mapa municipal...</div>
-        <svg id="svg-map-drill" width="500" height="450" style="display:none"></svg>
+        <svg id="svg-map-drill" viewBox="0 0 500 450" style="display:none"></svg>
       </div>
       <div class="drill-side">
-        <div>
-          <div class="drill-side-title">🏙️ Cidades</div>
-          <div id="drillCityList"></div>
-        </div>
-        <div>
-          <div class="drill-side-title">🚚 Transportadoras</div>
-          <div id="drillTranspList"></div>
-        </div>
+        <div class="drill-side-title">🏙️ Cidades</div>
+        <div id="drillCityList"></div>
+        <div class="drill-side-title" style="margin-top:8px">🚚 Transportadoras</div>
+        <div id="drillTranspList"></div>
       </div>
     </div>
   </div>
 </div>
-
 </body>
 </html>
