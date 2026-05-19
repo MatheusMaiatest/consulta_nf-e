@@ -17,6 +17,18 @@ const pool = mysql.createPool({
   connectTimeout:     10000
 });
 
+// Tabela SPED/NF-e: código tpag → descrição
+const TPAG = {
+  '01':'Dinheiro','02':'Cheque','03':'Cartão de Crédito','04':'Cartão de Débito',
+  '05':'Crédito Loja','10':'Vale Alimentação','11':'Vale Refeição','12':'Vale Presente',
+  '13':'Vale Combustível','15':'Boleto Bancário','17':'Pagamento Instantâneo (PIX)',
+  '18':'Transferência Bancária','19':'Programa de Fidelidade','20':'Sem Pagamento',
+  '21':'Outros','90':'Sem Pagamento','99':'Outros'
+};
+function nomeTpag(cod) {
+  return TPAG[String(cod).padStart(2,'0')] || TPAG[String(cod)] || 'Outro ('+cod+')';
+}
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -75,7 +87,8 @@ app.get('/api/notas', async (req, res) => {
       n.transporte_freteporconta,
       n.x_total_icmstot_vnf, n.x_total_icmstot_vprod,
       n.x_total_icmstot_vdesc, n.x_total_icmstot_vfrete,
-      n.linkdanfe, n.linkpdf, n.xml
+      n.linkdanfe, n.linkpdf, n.xml,
+      n.x_ide_finnfe
     `;
 
     if (limE > 0) {
@@ -164,46 +177,120 @@ app.get('/api/notas', async (req, res) => {
       });
     }
 
-    // ── Obs Tray para e-commerce ──────────────────────────
+    // ── Forma de pagamento NF (detpag) ────────────────────
+    if (notas.length > 0) {
+      const ids = notas.map(n => n.id);
+      const ph  = ids.map(() => '?').join(',');
+
+      const [detpagE] = await conn.execute(
+        `SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag
+         FROM \`bling_nfe_saida_detpag_ecommerce\` WHERE nfe_id IN (${ph})`, ids
+      ).catch(() => [[]]);
+      const [detpagD] = await conn.execute(
+        `SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag
+         FROM \`bling_nfe_saida_detpag_distribuicao\` WHERE nfe_id IN (${ph})`, ids
+      ).catch(() => [[]]);
+
+      const pagMap = {};
+      [...detpagE, ...detpagD].forEach(p => {
+        if (!pagMap[p.nfe_id]) pagMap[p.nfe_id] = [];
+        pagMap[p.nfe_id].push({ tipo: nomeTpag(p.x_pag_detpag_tpag), valor: p.x_pag_detpag_vpag });
+      });
+      notas.forEach(n => { n.formas_pagamento = pagMap[n.id] || []; });
+    }
+
+    // ── Obs Tray + cupom + parcelas (e-commerce) ─────────
     const notasEco = notas.filter(n => n.origem === 'ecommerce');
     if (notasEco.length > 0) {
-      // Coleta numeropedido e numeroloja para fazer o JOIN
-      const numeros    = [...new Set(notasEco.map(n => n.numeropedido).filter(Boolean))];
+      const numeros     = [...new Set(notasEco.map(n => n.numeropedido).filter(Boolean))];
       const numerosLoja = [...new Set(notasEco.map(n => n.pedido_numeroloja).filter(Boolean))];
 
-      const trayMap = {}; // key = numeropedido ou numeroloja → customer_note
+      const trayMap = {};
 
-      if (numeros.length > 0) {
-        const ph = numeros.map(() => '?').join(',');
-        const [trayRows] = await conn.execute(
+      const fetchTray = async (ids) => {
+        if (!ids.length) return;
+        const ph = ids.map(() => '?').join(',');
+        // Obs cliente
+        const [tObs] = await conn.execute(
           `SELECT order_id, MAX(order_customer_note) AS customer_note
            FROM \`detalhes_pedidos_ecommerce_tray\`
            WHERE order_id IN (${ph}) AND order_customer_note IS NOT NULL AND order_customer_note != ''
-           GROUP BY order_id`, numeros
+           GROUP BY order_id`, ids
         ).catch(() => [[]]);
-        trayRows.forEach(r => { trayMap[String(r.order_id)] = r.customer_note; });
-      }
-
-      if (numerosLoja.length > 0) {
-        const ph = numerosLoja.map(() => '?').join(',');
-        const [trayRows] = await conn.execute(
-          `SELECT order_id, MAX(order_customer_note) AS customer_note
-           FROM \`detalhes_pedidos_ecommerce_tray\`
-           WHERE order_id IN (${ph}) AND order_customer_note IS NOT NULL AND order_customer_note != ''
-           GROUP BY order_id`, numerosLoja
-        ).catch(() => [[]]);
-        trayRows.forEach(r => {
-          if (!trayMap[String(r.order_id)]) trayMap[String(r.order_id)] = r.customer_note;
+        tObs.forEach(r => {
+          if (!trayMap[String(r.order_id)]) trayMap[String(r.order_id)] = {};
+          trayMap[String(r.order_id)].customer_note = r.customer_note;
         });
-      }
+        // Parcelas + payment_form
+        const [tPag] = await conn.execute(
+          `SELECT d.order_id, MAX(d.order_installment) AS parcelas, MAX(d.order_interest) AS juros,
+                  p.payment_form, p.discount_coupon
+           FROM \`detalhes_pedidos_ecommerce_tray\` d
+           LEFT JOIN \`pedidos_ecommerce_tray\` p ON p.id = d.order_id
+           WHERE d.order_id IN (${ph})
+           GROUP BY d.order_id, p.payment_form, p.discount_coupon`, ids
+        ).catch(() => [[]]);
+        tPag.forEach(r => {
+          if (!trayMap[String(r.order_id)]) trayMap[String(r.order_id)] = {};
+          trayMap[String(r.order_id)].parcelas     = r.parcelas;
+          trayMap[String(r.order_id)].juros        = r.juros;
+          trayMap[String(r.order_id)].payment_form = r.payment_form;
+          trayMap[String(r.order_id)].discount_coupon = r.discount_coupon;
+        });
+      };
+
+      await fetchTray(numeros);
+      await fetchTray(numerosLoja.filter(id => !trayMap[String(id)]));
 
       notasEco.forEach(n => {
-        const note = trayMap[String(n.numeropedido)] || trayMap[String(n.pedido_numeroloja)] || null;
-        n.tray_customer_note = note && note.trim() ? note.trim() : null;
+        const t = trayMap[String(n.numeropedido)] || trayMap[String(n.pedido_numeroloja)] || {};
+        n.tray_customer_note  = t.customer_note  && t.customer_note.trim()  ? t.customer_note.trim()  : null;
+        n.tray_payment_form   = t.payment_form   || null;
+        n.tray_parcelas       = t.parcelas       || null;
+        n.tray_juros          = t.juros          || null;
+        // Cupom: formato "NOME/valor"
+        if (t.discount_coupon && t.discount_coupon.trim()) {
+          const parts = t.discount_coupon.split('/');
+          n.tray_cupom_nome  = parts[0] ? parts[0].trim() : t.discount_coupon.trim();
+          n.tray_cupom_valor = parts[1] ? parseFloat(parts[1]) : null;
+        } else {
+          n.tray_cupom_nome  = null;
+          n.tray_cupom_valor = null;
+        }
       });
     }
 
-    // Pesos
+    // ── Parcelas distribuidor ─────────────────────────────
+    const notasDist = notas.filter(n => n.origem === 'distribuidor' && n.numeropedido);
+    if (notasDist.length > 0) {
+      const pedidoIds = [...new Set(notasDist.map(n => n._pedido_id).filter(Boolean))];
+      // Busca pelo numero do pedido
+      const numPedidos = [...new Set(notasDist.map(n => n.numeropedido).filter(Boolean))];
+      if (numPedidos.length > 0) {
+        const ph = numPedidos.map(() => '?').join(',');
+        const [parcs] = await conn.execute(
+          `SELECT pv.numero AS pedido_numero,
+                  COUNT(pa.parcelas_id) AS qtd_parcelas,
+                  GROUP_CONCAT(pa.parcelas_observacoes SEPARATOR ' | ') AS obs_parcelas,
+                  SUM(pa.parcelas_valor) AS total_parcelas
+           FROM \`bling_pedidos_venda_detalhes_distribuicao\` pv
+           JOIN \`bling_pedidos_venda_detalhes_parcelas_distribuicao\` pa ON pa.pedido_venda_id = pv.id
+           WHERE pv.numero IN (${ph})
+           GROUP BY pv.numero`, numPedidos
+        ).catch(() => [[]]);
+        const parcMap = {};
+        parcs.forEach(p => { parcMap[p.pedido_numero] = p; });
+        notasDist.forEach(n => {
+          const p = parcMap[n.numeropedido];
+          if (p) {
+            n.dist_qtd_parcelas   = p.qtd_parcelas   || null;
+            n.dist_obs_parcelas   = p.obs_parcelas   || null;
+          }
+        });
+      }
+    }
+
+    // ── Pesos ─────────────────────────────────────────────
     if (notas.length > 0) {
       const ids = notas.map(n => n.id);
       const ph  = ids.map(() => '?').join(',');
@@ -215,7 +302,6 @@ app.get('/api/notas', async (req, res) => {
         `SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol
          FROM \`bling_nfe_saida_x_transp_vol_distribuicao\` WHERE nfe_id IN (${ph})`, ids
       ).catch(() => [[]]);
-
       const pm = {};
       [...pesosE, ...pesosD].forEach(p => {
         pm[p.nfe_id] = { pesoBruto: p.x_transp_vol_pesob, pesoLiquido: p.x_transp_vol_pesol, qtdVolumes: p.x_transp_vol_qvol };
@@ -299,6 +385,7 @@ function montarNota(r) {
     chaveacesso:        r.chaveacesso,
     dataemissao:        r.dataemissao ? new Date(r.dataemissao).toISOString() : null,
     situacao:           r.situacao,
+    finnfe:             r.x_ide_finnfe || null,   // '2' = devolução/reversa
     cliente:            r.contato_nome,
     cpf:                r.contato_numerodocumento,
     email:              r.contato_email,
@@ -324,7 +411,15 @@ function montarNota(r) {
     pedido_numeroloja:  r.pedido_numeroloja || null,
     pedido_observacoes: r.pedido_observacoes && r.pedido_observacoes.trim() ? r.pedido_observacoes.trim() : null,
     pedido_observacoesinternas: r.pedido_observacoesinternas && r.pedido_observacoesinternas.trim() ? r.pedido_observacoesinternas.trim() : null,
-    tray_customer_note: null, // preenchido depois para ecommerce
+    formas_pagamento:   [],   // preenchido depois
+    tray_customer_note: null,
+    tray_payment_form:  null,
+    tray_parcelas:      null,
+    tray_juros:         null,
+    tray_cupom_nome:    null,
+    tray_cupom_valor:   null,
+    dist_qtd_parcelas:  null,
+    dist_obs_parcelas:  null,
     pesoBruto:          null,
     pesoLiquido:        null,
     qtdVolumes:         null
