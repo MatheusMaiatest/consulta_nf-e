@@ -147,6 +147,8 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 .card-sit-badge.err{background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.4)}
 .card-sit-badge.warn{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.4)}
 .card-sit-badge.info{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
+.badge-reversa{display:inline-flex;align-items:center;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:.5px;background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.5);margin-left:4px}
+.badge-cupom{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(255,193,7,.15);color:#ffc107;border:1px solid rgba(255,193,7,.4)}
 .btn-ver-pedido{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--acg);border:1px solid var(--ac);color:var(--ach);border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t);margin-top:10px;width:100%}
 .btn-ver-pedido:hover{background:var(--ac);color:#fff}
 .pedido-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:350;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
@@ -455,7 +457,7 @@ function buildCard(n,cols){
   d.innerHTML=
     (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
     (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+'</div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+'</div>':'')+
+    (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+'</div>':'')+
     (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
     '<div class="cmeta">'+
       (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
@@ -485,7 +487,7 @@ function abrirModal(n){
   G('mhead').innerHTML=
     '<div class="cbadge '+n.origem+'" style="margin-bottom:10px">'+ol+'</div>'+
     '<h2>'+esc(n.cliente||'—')+'</h2>'+
-    '<div class="msub">NF '+esc(n.numero||'—')+' · '+fmtDate(n.dataemissao)+'</div>';
+    '<div class="msub">NF '+esc(n.numero||'—')+' · '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">↩ Nota Reversa</span>':'')+' </div>';
   G('mbody').innerHTML=
     '<div class="dsec"><h3>📄 Dados da Nota</h3><div class="dgrid">'+
       di('Número',n.numero)+di('Série',n.serie)+di('Data Emissão',fmtDate(n.dataemissao))+diCopy('Nº Pedido',n.numeropedido||'—')+
@@ -517,6 +519,14 @@ function abrirModal(n){
     '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Pedido Bling</button>'+
     (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">🛒 Obs. Cliente (Tray)</button>' : '')+
   '</div>'+
+  '</div>'+
+  '<div class="dsec"><h3>💳 Pagamento</h3>'+
+    (n.formas_pagamento && n.formas_pagamento.length ?
+      n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
+      '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
+    (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
+    (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
+    (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">🎟️ Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
   '</div>'+
   '<div class="dsec"><h3>📦 Produtos</h3><div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div></div>'+
     '<div class="dsec"><h3>🔗 Links</h3><div class="dgrid">'+
