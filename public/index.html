@@ -555,6 +555,7 @@ function abrirModal(n){
       '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
     (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
     (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
+    '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
     (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">🎟️ Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
   '</div>'+
   '<div class="dsec"><h3>📦 Produtos</h3><div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div></div>'+
