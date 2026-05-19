@@ -166,16 +166,74 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--tm)}
 @media(max-width:768px){.panel{position:fixed;left:0;top:56px;bottom:0;z-index:90}.panel.collapsed{transform:translateX(-100%);width:280px}.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+/* ── Abas ─────────────────────────────────────────────── */
+.tab-nav{display:flex;gap:4px;align-items:center}
+.tab-btn{padding:6px 16px;border-radius:var(--rs);border:1px solid transparent;background:none;color:var(--ts);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t)}
+.tab-btn:hover{background:var(--bgc);color:var(--tp)}
+.tab-btn.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+.view-section{display:none}
+.view-section.active{display:flex;flex-direction:column}
+/* ── Dashboard layout ─────────────────────────────────── */
+.dash-wrap{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
+.dash-kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.dash-kpi{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:6px;transition:all var(--t)}
+.dash-kpi:hover{border-color:var(--ac);transform:translateY(-2px);box-shadow:var(--shc)}
+.dash-kpi-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm)}
+.dash-kpi-value{font-size:1.4rem;font-weight:700;color:var(--tp);letter-spacing:-.5px}
+.dash-kpi-sub{font-size:.72rem;color:var(--tm)}
+.dash-kpi.accent .dash-kpi-value{color:var(--ac)}
+.dash-kpi.ok .dash-kpi-value{color:var(--ok)}
+.dash-kpi.warn .dash-kpi-value{color:var(--warn)}
+.dash-row{display:grid;gap:16px}
+.dash-row.cols-2{grid-template-columns:1fr 1fr}
+.dash-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.dash-row.cols-12{grid-template-columns:1fr 2fr}
+.dash-row.cols-21{grid-template-columns:2fr 1fr}
+.dash-card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;min-height:280px}
+.dash-card-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);display:flex;align-items:center;gap:8px}
+.dash-card-title span{font-size:.9rem}
+.dash-chart-wrap{flex:1;position:relative;min-height:200px}
+.dash-empty{color:var(--tm);font-size:.82rem;text-align:center;padding:40px 0}
+/* Mapa */
+.map-card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
+.map-svg-wrap{width:100%;overflow:hidden;border-radius:var(--rs)}
+.map-svg-wrap svg{width:100%;height:auto;display:block}
+.state-path{stroke:var(--bdr);stroke-width:.5;cursor:pointer;transition:opacity .15s}
+.state-path:hover{opacity:.75;stroke-width:1.5;stroke:#fff}
+.state-path.selected{stroke:#fff;stroke-width:2}
+.map-tooltip{position:fixed;background:rgba(0,0,0,.85);color:#fff;padding:5px 10px;border-radius:6px;font-size:.75rem;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
+.legend-item{display:flex;align-items:center;font-size:.72rem;cursor:pointer;color:var(--ts);padding:2px 6px;border-radius:4px;transition:background var(--t)}
+.legend-item:hover{background:var(--bgch)}
+/* Drill panel */
+.drill-panel{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;display:none;flex-direction:column;gap:10px}
+.drill-panel.open{display:flex}
+.drill-bar-item{display:flex;align-items:center;gap:8px;font-size:.75rem;padding:3px 0;cursor:pointer}
+.drill-bar-item:hover .drill-bar-fill{filter:brightness(1.2)}
+.drill-bar-label{width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ts)}
+.drill-bar-track{flex:1;height:8px;background:var(--bdr);border-radius:4px;overflow:hidden}
+.drill-bar-fill{height:100%;background:var(--ac);border-radius:4px;transition:width .4s ease}
+.drill-bar-count{width:32px;text-align:right;color:var(--tm);font-weight:600}
+@media(max-width:900px){.dash-row.cols-2,.dash-row.cols-3,.dash-row.cols-12,.dash-row.cols-21{grid-template-columns:1fr}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 </head>
 <body>
 <header class="topbar">
   <span class="logo">📦 NF-e Viewer</span>
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchView('nfe',this)">📋 NF-e</button>
+    <button class="tab-btn" onclick="switchView('transporte',this)">🚚 Transporte</button>
+    <button class="tab-btn" onclick="switchView('vendas',this)">📊 Vendas</button>
+  </nav>
   <div class="topbar-right">
     <button class="btn-icon" id="btnTheme" title="Tema">🌙</button>
     <button class="btn-icon" id="btnPanel" title="Painel">⚙️</button>
   </div>
 </header>
+<div id="view-nfe" class="view-section active">
 <div class="layout">
   <aside class="panel" id="panel">
     <div class="panel-title">Painel de Controle</div>
@@ -268,6 +326,133 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
     </div>
   </main>
 </div>
+</div><!-- /view-nfe -->
+
+<!-- VIEW TRANSPORTE -->
+<div id="view-transporte" class="view-section">
+<div class="dash-wrap" id="dash-transp-wrap">
+  <div class="dash-kpi-row" id="kpi-transp"></div>
+  <div class="dash-row cols-2">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🥧</span> Fatia de Mercado por Transportadora</div>
+      <div class="dash-chart-wrap"><canvas id="chart-market"></canvas></div>
+      <div class="legend-row" id="legend-market"></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>⚖️</span> Peso Bruto por Transportadora (kg)</div>
+      <div class="dash-chart-wrap"><canvas id="chart-peso-transp"></canvas></div>
+    </div>
+  </div>
+  <div class="dash-row cols-2">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>📦</span> Top NFs por Peso Bruto</div>
+      <div class="dash-chart-wrap"><canvas id="chart-peso-nf"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🔵</span> NFs por Origem</div>
+      <div class="dash-chart-wrap"><canvas id="chart-nf-source"></canvas></div>
+    </div>
+  </div>
+  <div class="dash-row cols-3">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>📊</span> Peso Bruto vs Líquido Médio / Transportadora</div>
+      <div class="dash-chart-wrap"><canvas id="chart-pb-pl"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>📈</span> Distribuição de Peso Bruto (faixas)</div>
+      <div class="dash-chart-wrap"><canvas id="chart-hist"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🕸️</span> Fator PL÷PB por Transportadora</div>
+      <div class="dash-chart-wrap"><canvas id="chart-fator"></canvas></div>
+    </div>
+  </div>
+  <div class="dash-row cols-2">
+    <div class="map-card">
+      <div class="dash-card-title"><span>🗺️</span> NFs por Estado</div>
+      <div class="map-svg-wrap"><svg id="svg-map-nf" viewBox="0 0 460 400"></svg></div>
+      <div id="map-nf-loading" class="dash-empty">Carregando mapa...</div>
+      <div id="detail-nf" class="drill-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong id="detail-nf-flag" style="font-size:1.1rem"></strong>
+          <button onclick="closeStateDetail('nf')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">✕</button>
+        </div>
+        <div id="detail-nf-name" style="font-size:.8rem;color:var(--ts)"></div>
+        <div id="detail-nf-count" style="font-size:.75rem;color:var(--tm)"></div>
+        <div id="detail-nf-cities"></div>
+      </div>
+    </div>
+    <div class="map-card">
+      <div class="dash-card-title"><span>🗺️</span> Transportadora Dominante por Estado</div>
+      <div class="map-svg-wrap"><svg id="svg-map-transp" viewBox="0 0 460 400"></svg></div>
+      <div id="map-transp-loading" class="dash-empty">Carregando mapa...</div>
+      <div class="legend-row" id="transp-map-legend-items"></div>
+      <div id="detail-transp" class="drill-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong id="detail-transp-flag" style="font-size:1.1rem"></strong>
+          <button onclick="closeStateDetail('transp')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">✕</button>
+        </div>
+        <div id="detail-transp-name" style="font-size:.8rem;color:var(--ts)"></div>
+        <div id="detail-transp-count" style="font-size:.75rem;color:var(--tm)"></div>
+        <div id="detail-transp-cities"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /view-transporte -->
+
+<!-- VIEW VENDAS -->
+<div id="view-vendas" class="view-section">
+<div class="dash-wrap" id="dash-vendas-wrap">
+  <div class="dash-kpi-row" id="kpi-vendas"></div>
+  <div class="dash-row cols-3">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>📈</span> Faturamento por Dia</div>
+      <div class="dash-chart-wrap"><canvas id="chart-fat-dia"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🏭</span> Faturamento por Unidade (Eco vs Dist)</div>
+      <div class="dash-chart-wrap"><canvas id="chart-fat-unidade"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🎯</span> Ticket Médio por Unidade</div>
+      <div class="dash-chart-wrap"><canvas id="chart-ticket-unidade"></canvas></div>
+    </div>
+  </div>
+  <div class="dash-row cols-2">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>👤</span> Top Clientes por Valor</div>
+      <div class="dash-chart-wrap"><canvas id="chart-top-clientes"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>💳</span> Formas de Pagamento</div>
+      <div class="dash-chart-wrap"><canvas id="chart-pagamento"></canvas></div>
+    </div>
+  </div>
+  <div class="dash-row cols-2">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🎟️</span> Uso de Cupons</div>
+      <div class="dash-chart-wrap"><canvas id="chart-cupons"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>↩</span> NFs Reversas vs Normais</div>
+      <div class="dash-chart-wrap"><canvas id="chart-reversas"></canvas></div>
+    </div>
+  </div>
+  <div class="dash-row cols-2">
+    <div class="dash-card">
+      <div class="dash-card-title"><span>🗺️</span> Faturamento por Estado</div>
+      <div class="map-svg-wrap"><svg id="svg-map-vendas" viewBox="0 0 460 400"></svg></div>
+      <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title"><span>📦</span> Situação dos Pedidos</div>
+      <div class="dash-chart-wrap"><canvas id="chart-situacao"></canvas></div>
+    </div>
+  </div>
+</div>
+</div><!-- /view-vendas -->
+
 <!-- MODAL GENÉRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
 <div class="pmod-overlay" id="fexOverlay">
   <div class="pmod">
@@ -1133,6 +1318,707 @@ applyFilters = function(){
   G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
   renderCards();
 };
+
+// ── DASHBOARD JS ──
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD — estado global
+// ═══════════════════════════════════════════════════════════════
+var DASH_CHARTS = {};
+var GEO_DATA    = null;
+var TRANSP_COLOR_MAP = {};
+var DARK_MODE   = document.documentElement.getAttribute('data-theme') === 'dark';
+var CHART_COLORS = ['#5c6bc0','#42a5f5','#ab47bc','#26a69a','#ef5350','#ffa726','#66bb6a','#ec407a','#29b6f6','#d4e157'];
+var HIST_BINS = [
+  {lo:0,hi:5,label:'0-5'},{lo:5,hi:10,label:'5-10'},{lo:10,hi:20,label:'10-20'},
+  {lo:20,hi:50,label:'20-50'},{lo:50,hi:100,label:'50-100'},{lo:100,hi:200,label:'100-200'},
+  {lo:200,hi:500,label:'200-500'},{lo:500,hi:99999,label:'500+'}
+];
+var MAP_GEO_URL = 'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson';
+var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
+var STATE_GEO_CACHE = {};
+var _tipEl = null;
+
+// ── Troca de view ──────────────────────────────────────────────
+function switchView(view, btn) {
+  document.querySelectorAll('.view-section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('view-' + view).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(view === 'transporte') buildDashTransporte();
+  if(view === 'vendas')     buildDashVendas();
+}
+
+// ── Helpers chart ──────────────────────────────────────────────
+function cD() {
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    grid:    dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)',
+    tick:    dark ? '#9fa8da' : '#64748b',
+    tipBg:   dark ? '#1a1d27' : '#0f172a',
+    tipText: '#e8eaf6',
+    dark:    dark
+  };
+}
+function destroyDashChart(id){ if(DASH_CHARTS[id]){ DASH_CHARTS[id].destroy(); delete DASH_CHARTS[id]; } }
+function fmtBRL(v){ var n=parseFloat(v); return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function fmtNum(n){ return Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1}); }
+
+// ── Dados do dashboard a partir de allNotas ────────────────────
+function getDashData() {
+  var notas = allNotas || [];
+  return notas;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD TRANSPORTE
+// ═══════════════════════════════════════════════════════════════
+function buildDashTransporte() {
+  var notas = getDashData();
+  if(!notas.length){ document.getElementById('kpi-transp').innerHTML='<div class="dash-empty">Faça uma busca primeiro.</div>'; return; }
+
+  // KPIs
+  var totalPB=0, totalPL=0, totalVol=0, nfComPeso=0;
+  notas.forEach(function(n){
+    if(n.pesoBruto){ totalPB+=parseFloat(n.pesoBruto)||0; nfComPeso++; }
+    if(n.pesoLiquido) totalPL+=parseFloat(n.pesoLiquido)||0;
+    if(n.qtdVolumes) totalVol+=parseFloat(n.qtdVolumes)||0;
+  });
+  var avgPB = nfComPeso ? totalPB/nfComPeso : 0;
+  var transpSet = {};
+  notas.forEach(function(n){ if(n.transportadora) transpSet[n.transportadora]=(transpSet[n.transportadora]||0)+1; });
+  var nTransp = Object.keys(transpSet).length;
+
+  var kpis = [
+    {label:'NFs no período', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
+    {label:'Transportadoras', value:nTransp, sub:'Distintas', cls:''},
+    {label:'Peso Bruto Total', value:fmtNum(totalPB)+' kg', sub:nfComPeso+' NFs com peso', cls:''},
+    {label:'Peso Médio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto médio', cls:'ok'},
+    {label:'Volumes Total', value:fmtNum(totalVol), sub:'Qtd volumes', cls:''}
+  ];
+  document.getElementById('kpi-transp').innerHTML = kpis.map(function(k){
+    return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
+  }).join('');
+
+  buildTranspMarketChart(notas);
+  buildTranspPesoChart(notas);
+  buildTranspNFSourceChart(notas);
+  buildTranspPesoNFChart(notas);
+  buildTranspCubagemCharts(notas);
+  if(!GEO_DATA) loadBrazilMap(); else { renderMapNF(notas); renderMapTransp(notas); }
+}
+
+function buildTranspMarketChart(notas) {
+  var share = {};
+  notas.forEach(function(n){ var t=n.transportadora||'Sem info'; share[t]=(share[t]||0)+1; });
+  var labels = Object.keys(share).sort(function(a,b){ return share[b]-share[a]; }).slice(0,10);
+  var data   = labels.map(function(l){ return share[l]; });
+  var total  = data.reduce(function(a,b){ return a+b; },0);
+  var colors = labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]; });
+  var cd = cD();
+  destroyDashChart('market');
+  var ctx = document.getElementById('chart-market');
+  if(!ctx) return;
+  DASH_CHARTS['market'] = new Chart(ctx.getContext('2d'), {
+    type:'doughnut',
+    data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'63%',
+      animation:{ animateRotate:true, duration:950, easing:'easeOutQuart' },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ backgroundColor:cd.tipBg, titleColor:cd.tipText, bodyColor:cd.tipText,
+          callbacks:{ label:function(c){ return ' '+c.label+': '+c.parsed+' NFs ('+((c.parsed/total)*100).toFixed(1)+'%)'; } } }
+      },
+      onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('transportadora', labels[els[0].index]); }
+    }
+  });
+  var legHtml='';
+  labels.slice(0,8).forEach(function(l,i){
+    var pct=total?((share[l]/total)*100).toFixed(1):0;
+    legHtml+='<div class="legend-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(l)+'\')"><span class="legend-dot" style="background:'+colors[i]+'"></span>'+escDash(l)+' <strong>'+pct+'%</strong></div>';
+  });
+  document.getElementById('legend-market').innerHTML=legHtml;
+}
+
+function buildTranspPesoChart(notas) {
+  var wt={};
+  notas.forEach(function(n){ if(n.transportadora&&n.pesoBruto) wt[n.transportadora]=(wt[n.transportadora]||0)+(parseFloat(n.pesoBruto)||0); });
+  var labels=Object.keys(wt).sort(function(a,b){ return wt[b]-wt[a]; }).slice(0,10);
+  var data=labels.map(function(l){ return Math.round(wt[l]); });
+  var colors=labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]+'cc'; });
+  var cd=cD();
+  destroyDashChart('pesot');
+  var ctx=document.getElementById('chart-peso-transp'); if(!ctx) return;
+  DASH_CHARTS['pesot']=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{ labels:labels, datasets:[{ label:'Peso Bruto (kg)', data:data, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      animation:{ duration:900, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtNum(c.parsed.x)+' kg'; } } } },
+      scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return fmtNum(v); } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10, weight:'600' } } } },
+      onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('transportadora', labels[els[0].index]); }
+    }
+  });
+}
+
+function buildTranspNFSourceChart(notas) {
+  var d1=notas.filter(function(n){ return n.origem==='distribuidor'; }).length;
+  var d2=notas.filter(function(n){ return n.origem==='ecommerce'; }).length;
+  var cd=cD();
+  destroyDashChart('nfsrc');
+  var ctx=document.getElementById('chart-nf-source'); if(!ctx) return;
+  DASH_CHARTS['nfsrc']=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{ labels:['Distribuidor','E-commerce'], datasets:[{ data:[d1,d2], backgroundColor:['#ab47bc','#42a5f5'], borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'58%',
+      animation:{ animateRotate:true, duration:950, easing:'easeOutQuart' },
+      plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:11, weight:'700' }, padding:14 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ var t=d1+d2; return ' '+c.parsed+' NFs ('+((c.parsed/t)*100).toFixed(1)+'%)'; } } } },
+      onClick:function(e,els){ if(!els.length) return; switchView('nfe', document.querySelector('.tab-btn')); }
+    }
+  });
+}
+
+function buildTranspPesoNFChart(notas) {
+  var sorted=notas.filter(function(n){ return n.pesoBruto; }).sort(function(a,b){ return (parseFloat(b.pesoBruto)||0)-(parseFloat(a.pesoBruto)||0); }).slice(0,12);
+  var labels=sorted.map(function(n){ return 'NF '+n.numero; });
+  var data=sorted.map(function(n){ return Math.round(parseFloat(n.pesoBruto)||0); });
+  var cd=cD();
+  var ctx=document.getElementById('chart-peso-nf'); if(!ctx) return;
+  var grad=ctx.getContext('2d').createLinearGradient(0,0,0,250);
+  grad.addColorStop(0,'#5c6bc0cc'); grad.addColorStop(1,'#5c6bc011');
+  destroyDashChart('pesonf');
+  DASH_CHARTS['pesonf']=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{ labels:labels, datasets:[{ label:'Peso Bruto (kg)', data:data, backgroundColor:grad, borderRadius:6, borderSkipped:false }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{ duration:900, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtNum(c.parsed.y)+' kg'; } } } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10 }, maxRotation:35 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return fmtNum(v); } } } },
+      onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('numero', sorted[els[0].index].numero); }
+    }
+  });
+}
+
+function buildTranspCubagemCharts(notas) {
+  var td={};
+  notas.forEach(function(n){
+    if(!n.transportadora||!n.pesoBruto) return;
+    if(!td[n.transportadora]) td[n.transportadora]={pb:0,pl:0,count:0};
+    td[n.transportadora].pb+=parseFloat(n.pesoBruto)||0;
+    td[n.transportadora].pl+=parseFloat(n.pesoLiquido)||0;
+    td[n.transportadora].count++;
+  });
+  var tL=Object.keys(td).sort(function(a,b){ return td[b].pb-td[a].pb; }).slice(0,8);
+  var pbAv=tL.map(function(t){ return td[t].count?Math.round(td[t].pb/td[t].count):0; });
+  var plAv=tL.map(function(t){ return td[t].count?Math.round(td[t].pl/td[t].count):0; });
+  var cd=cD();
+
+  destroyDashChart('pbpl');
+  var ctx1=document.getElementById('chart-pb-pl'); if(!ctx1) return;
+  DASH_CHARTS['pbpl']=new Chart(ctx1.getContext('2d'),{
+    type:'bar',
+    data:{ labels:tL, datasets:[
+      { label:'Peso Bruto (kg)', data:pbAv, backgroundColor:'#5c6bc0bb', borderRadius:5, borderSkipped:false },
+      { label:'Peso Líquido (kg)', data:plAv, backgroundColor:'#26a69abb', borderRadius:5, borderSkipped:false }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
+      plugins:{ legend:{ labels:{ color:cd.tick, font:{ size:10, weight:'600' }, padding:10 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10 }, maxRotation:30 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return fmtNum(v); } } } }
+    }
+  });
+
+  var pesos=notas.filter(function(n){ return n.pesoBruto; }).map(function(n){ return parseFloat(n.pesoBruto)||0; });
+  var hData=HIST_BINS.map(function(b){ return pesos.filter(function(p){ return p>=b.lo&&p<b.hi; }).length; });
+  var hLabels=HIST_BINS.map(function(b){ return b.label; });
+  destroyDashChart('hist');
+  var ctx2=document.getElementById('chart-hist'); if(!ctx2) return;
+  var gradH=ctx2.getContext('2d').createLinearGradient(0,0,0,260);
+  gradH.addColorStop(0,'#26a69abb'); gradH.addColorStop(1,'#26a69a11');
+  DASH_CHARTS['hist']=new Chart(ctx2.getContext('2d'),{
+    type:'bar',
+    data:{ labels:hLabels, datasets:[{ label:'NFs', data:hData, backgroundColor:gradH, borderRadius:5, borderSkipped:false, barPercentage:.88 }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:950, easing:'easeOutBounce' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+c.parsed.y+' NFs nesta faixa'; }, title:function(c){ return 'Faixa: '+c[0].label+' kg'; } } } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 }, maxRotation:40 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 } }, title:{ display:true, text:'Qtd NFs', color:cd.tick, font:{ size:10 } } } }
+    }
+  });
+
+  var fL=tL.slice(0,7);
+  var fatores=fL.map(function(t){ return td[t]&&td[t].pb>0?+((td[t].pl/td[t].pb).toFixed(3)):0; });
+  var fatMax=Math.max.apply(null,fatores.concat([1]));
+  destroyDashChart('fator');
+  var ctx3=document.getElementById('chart-fator'); if(!ctx3) return;
+  DASH_CHARTS['fator']=new Chart(ctx3.getContext('2d'),{
+    type:'radar',
+    data:{ labels:fL, datasets:[{ label:'Fator PL÷PB', data:fatores, backgroundColor:'rgba(92,107,192,.18)', borderColor:'#5c6bc0', pointBackgroundColor:'#5c6bc0', pointBorderColor:'#fff', pointHoverRadius:7, borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:1000, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' Fator: '+(c.parsed.r*100).toFixed(1)+'%'; } } } },
+      scales:{ r:{ min:0, max:Math.min(fatMax*1.1,1), grid:{ color:cd.grid }, angleLines:{ color:cd.grid }, pointLabels:{ color:cd.tick, font:{ size:10, weight:'700' } }, ticks:{ color:cd.tick, backdropColor:'transparent', font:{ size:9 }, stepSize:.2, callback:function(v){ return (v*100).toFixed(0)+'%'; } } } }
+    }
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD VENDAS
+// ═══════════════════════════════════════════════════════════════
+function buildDashVendas() {
+  var notas = getDashData();
+  if(!notas.length){ document.getElementById('kpi-vendas').innerHTML='<div class="dash-empty">Faça uma busca primeiro.</div>'; return; }
+
+  var totalFat=0, totalDesc=0, totalFrete=0, nComValor=0;
+  notas.forEach(function(n){
+    var v=parseFloat(n.valor)||0;
+    if(v){ totalFat+=v; nComValor++; }
+    totalDesc+=parseFloat(n.desconto)||0;
+    totalFrete+=parseFloat(n.frete)||0;
+  });
+  var ticketMedio = nComValor ? totalFat/nComValor : 0;
+  var ecoNotas = notas.filter(function(n){ return n.origem==='ecommerce'; });
+  var distNotas = notas.filter(function(n){ return n.origem==='distribuidor'; });
+  var fatEco  = ecoNotas.reduce(function(a,n){ return a+(parseFloat(n.valor)||0); },0);
+  var fatDist = distNotas.reduce(function(a,n){ return a+(parseFloat(n.valor)||0); },0);
+  var ticketEco  = ecoNotas.length  ? fatEco/ecoNotas.length   : 0;
+  var ticketDist = distNotas.length ? fatDist/distNotas.length : 0;
+  var comCupom = notas.filter(function(n){ return n.tray_cupom_nome; }).length;
+  var reversas = notas.filter(function(n){ return n.finnfe==='2'; }).length;
+
+  var kpis = [
+    {label:'Faturamento Total',  value:fmtBRL(totalFat),        sub:nComValor+' NFs com valor',   cls:'accent'},
+    {label:'Ticket Médio Geral', value:fmtBRL(ticketMedio),     sub:'Valor médio por NF',          cls:'ok'},
+    {label:'Ticket Médio Eco',   value:fmtBRL(ticketEco),       sub:ecoNotas.length+' NFs E-com',  cls:''},
+    {label:'Ticket Médio Dist',  value:fmtBRL(ticketDist),      sub:distNotas.length+' NFs Dist',  cls:''},
+    {label:'Total Descontos',    value:fmtBRL(totalDesc),        sub:'Descontos aplicados',         cls:'warn'},
+    {label:'Total Frete',        value:fmtBRL(totalFrete),       sub:'Frete nas NFs',               cls:''},
+    {label:'Com Cupom',          value:comCupom,                 sub:'NFs com cupom Tray',          cls:''},
+    {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolução',          cls:'warn'}
+  ];
+  document.getElementById('kpi-vendas').innerHTML = kpis.map(function(k){
+    return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
+  }).join('');
+
+  buildVendasFatDiaChart(notas);
+  buildVendasUnidadeChart(notas, fatEco, fatDist, ticketEco, ticketDist);
+  buildVendasTopClientesChart(notas);
+  buildVendasPagamentoChart(notas);
+  buildVendasCuponsChart(notas);
+  buildVendasReversasChart(notas, reversas);
+  buildVendasSituacaoChart(notas);
+  if(!GEO_DATA) loadBrazilMap(); else renderMapVendas(notas);
+}
+
+function buildVendasFatDiaChart(notas) {
+  var byDay={};
+  notas.forEach(function(n){
+    if(!n.dataemissao||!n.valor) return;
+    var d=n.dataemissao.slice(0,10);
+    byDay[d]=(byDay[d]||0)+(parseFloat(n.valor)||0);
+  });
+  var days=Object.keys(byDay).sort();
+  var data=days.map(function(d){ return Math.round(byDay[d]); });
+  var cd=cD();
+  destroyDashChart('fatdia');
+  var ctx=document.getElementById('chart-fat-dia'); if(!ctx) return;
+  var grad=ctx.getContext('2d').createLinearGradient(0,0,0,220);
+  grad.addColorStop(0,'#5c6bc0aa'); grad.addColorStop(1,'#5c6bc005');
+  DASH_CHARTS['fatdia']=new Chart(ctx.getContext('2d'),{
+    type:'line',
+    data:{ labels:days.map(function(d){ return d.slice(5); }), datasets:[{ label:'Faturamento', data:data, borderColor:'#5c6bc0', backgroundColor:grad, fill:true, tension:.35, pointRadius:3, pointHoverRadius:6 }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900 },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.y); } } } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 }, maxTicksLimit:15 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } } }
+    }
+  });
+}
+
+function buildVendasUnidadeChart(notas, fatEco, fatDist, ticketEco, ticketDist) {
+  var cd=cD();
+  destroyDashChart('fatunid');
+  var ctx1=document.getElementById('chart-fat-unidade'); if(!ctx1) return;
+  DASH_CHARTS['fatunid']=new Chart(ctx1.getContext('2d'),{
+    type:'doughnut',
+    data:{ labels:['E-commerce','Distribuidor'], datasets:[{ data:[Math.round(fatEco),Math.round(fatDist)], backgroundColor:['#42a5f5','#ab47bc'], borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:11, weight:'700' }, padding:12 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed); } } } }
+    }
+  });
+
+  destroyDashChart('ticketunid');
+  var ctx2=document.getElementById('chart-ticket-unidade'); if(!ctx2) return;
+  DASH_CHARTS['ticketunid']=new Chart(ctx2.getContext('2d'),{
+    type:'bar',
+    data:{ labels:['E-commerce','Distribuidor'], datasets:[{ label:'Ticket Médio', data:[Math.round(ticketEco),Math.round(ticketDist)], backgroundColor:['#42a5f5bb','#ab47bcbb'], borderRadius:8, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.y); } } } },
+      scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:12, weight:'700' } } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } } }
+    }
+  });
+}
+
+function buildVendasTopClientesChart(notas) {
+  var byCliente={};
+  notas.forEach(function(n){
+    if(!n.cliente||!n.valor) return;
+    byCliente[n.cliente]=(byCliente[n.cliente]||0)+(parseFloat(n.valor)||0);
+  });
+  var sorted=Object.keys(byCliente).sort(function(a,b){ return byCliente[b]-byCliente[a]; }).slice(0,12);
+  var data=sorted.map(function(c){ return Math.round(byCliente[c]); });
+  var colors=sorted.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]+'cc'; });
+  var cd=cD();
+  destroyDashChart('topclientes');
+  var ctx=document.getElementById('chart-top-clientes'); if(!ctx) return;
+  DASH_CHARTS['topclientes']=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{ labels:sorted.map(function(c){ return c.length>20?c.slice(0,20)+'…':c; }), datasets:[{ label:'Faturamento', data:data, backgroundColor:colors, borderRadius:5, borderSkipped:false }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.x); }, title:function(c){ return sorted[c[0].dataIndex]; } } } },
+      scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 } } } },
+      onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('cliente', sorted[els[0].index]); }
+    }
+  });
+}
+
+function buildVendasPagamentoChart(notas) {
+  var pag={};
+  notas.forEach(function(n){
+    (n.formas_pagamento||[]).forEach(function(fp){ if(fp.tipo) pag[fp.tipo]=(pag[fp.tipo]||0)+1; });
+    if(n.tray_payment_form) pag[n.tray_payment_form]=(pag[n.tray_payment_form]||0)+1;
+  });
+  var labels=Object.keys(pag).sort(function(a,b){ return pag[b]-pag[a]; }).slice(0,8);
+  var data=labels.map(function(l){ return pag[l]; });
+  var colors=labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]; });
+  var total=data.reduce(function(a,b){ return a+b; },0);
+  var cd=cD();
+  destroyDashChart('pagamento');
+  var ctx=document.getElementById('chart-pagamento'); if(!ctx) return;
+  DASH_CHARTS['pagamento']=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:10 }, padding:8, boxWidth:12 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+c.label+': '+c.parsed+' ('+((c.parsed/total)*100).toFixed(1)+'%)'; } } } }
+    }
+  });
+}
+
+function buildVendasCuponsChart(notas) {
+  var cupons={};
+  notas.forEach(function(n){
+    if(!n.tray_cupom_nome) return;
+    if(!cupons[n.tray_cupom_nome]) cupons[n.tray_cupom_nome]={count:0,total:0};
+    cupons[n.tray_cupom_nome].count++;
+    cupons[n.tray_cupom_nome].total+=parseFloat(n.tray_cupom_valor)||0;
+  });
+  var labels=Object.keys(cupons).sort(function(a,b){ return cupons[b].count-cupons[a].count; }).slice(0,10);
+  if(!labels.length){
+    var ctx=document.getElementById('chart-cupons'); if(!ctx) return;
+    destroyDashChart('cupons');
+    ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
+    ctx.parentElement.innerHTML='<div class="dash-empty">Nenhum cupom no período.</div>';
+    return;
+  }
+  var data=labels.map(function(l){ return cupons[l].count; });
+  var vals=labels.map(function(l){ return Math.round(cupons[l].total); });
+  var colors=labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]+'cc'; });
+  var cd=cD();
+  destroyDashChart('cupons');
+  var ctx=document.getElementById('chart-cupons'); if(!ctx) return;
+  DASH_CHARTS['cupons']=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{ labels:labels, datasets:[
+      { label:'Usos', data:data, backgroundColor:colors, borderRadius:5, borderSkipped:false, yAxisID:'y' },
+      { label:'Desconto Total (R$)', data:vals, type:'line', borderColor:'#ffc107', backgroundColor:'transparent', pointRadius:4, pointHoverRadius:7, tension:.3, yAxisID:'y2' }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900 },
+      plugins:{ legend:{ labels:{ color:cd.tick, font:{ size:10 }, padding:10 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
+      scales:{
+        x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 }, maxRotation:35 } },
+        y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 } }, title:{ display:true, text:'Usos', color:cd.tick, font:{ size:10 } } },
+        y2:{ position:'right', grid:{ display:false }, ticks:{ color:'#ffc107', font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v); } }, title:{ display:true, text:'Desconto R$', color:'#ffc107', font:{ size:10 } } }
+      }
+    }
+  });
+}
+
+function buildVendasReversasChart(notas, reversas) {
+  var normais=notas.length-reversas;
+  var cd=cD();
+  destroyDashChart('reversas');
+  var ctx=document.getElementById('chart-reversas'); if(!ctx) return;
+  DASH_CHARTS['reversas']=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{ labels:['Normais','Reversas'], datasets:[{ data:[normais,reversas], backgroundColor:['#66bb6a','#ef5350'], borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:11, weight:'700' }, padding:12 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ var t=normais+reversas; return ' '+c.label+': '+c.parsed+' ('+((c.parsed/t)*100).toFixed(1)+'%)'; } } } }
+    }
+  });
+}
+
+function buildVendasSituacaoChart(notas) {
+  var sit={};
+  notas.forEach(function(n){ var s=n.pedido_situacao||'Sem pedido'; sit[s]=(sit[s]||0)+1; });
+  var labels=Object.keys(sit).sort(function(a,b){ return sit[b]-sit[a]; }).slice(0,10);
+  var data=labels.map(function(l){ return sit[l]; });
+  var colors=labels.map(function(l,i){
+    if(l==='Finalizado'||l==='Atendido') return '#66bb6a';
+    if(l==='Cancelado') return '#ef5350';
+    if(l==='Aberto'||l==='Em andamento') return '#ffa726';
+    return CHART_COLORS[i%CHART_COLORS.length];
+  });
+  var cd=cD();
+  destroyDashChart('situacao');
+  var ctx=document.getElementById('chart-situacao'); if(!ctx) return;
+  DASH_CHARTS['situacao']=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{ labels:labels, datasets:[{ label:'NFs', data:data, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
+      scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10 } } } },
+      onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('pedido_situacao', labels[els[0].index]); }
+    }
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  MAPAS
+// ═══════════════════════════════════════════════════════════════
+function loadBrazilMap() {
+  fetch(MAP_GEO_URL)
+    .then(function(r){ return r.json(); })
+    .then(function(geo){
+      GEO_DATA = geo;
+      var notas = getDashData();
+      renderMapNF(notas);
+      renderMapTransp(notas);
+      renderMapVendas(notas);
+    })
+    .catch(function(){
+      ['map-nf-loading','map-transp-loading','map-vendas-loading'].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--tm);padding:20px;text-align:center">Mapa indisponível.</p>';
+      });
+    });
+}
+
+function brazilProjection(w, h) {
+  var proj = d3.geoMercator();
+  proj.fitSize([w-16, h-16], { type:'FeatureCollection', features:GEO_DATA.features });
+  var t = proj.translate();
+  proj.translate([t[0]+8, t[1]+8]);
+  return proj;
+}
+
+function getSigla(feature) {
+  return (feature.properties.sigla || feature.properties.name || '').toUpperCase().slice(-2);
+}
+
+// Mapa NFs por estado
+function renderMapNF(notas) {
+  if(!GEO_DATA) return;
+  var ufCount={};
+  (notas||getDashData()).forEach(function(n){
+    var uf=(n.cidade||'').split('/')[1]||'';
+    uf=uf.trim().toUpperCase();
+    if(uf.length===2) ufCount[uf]=(ufCount[uf]||0)+1;
+  });
+  var maxC=Math.max.apply(null,Object.values(ufCount).concat([1]));
+  var W=460,H=400;
+  var proj=brazilProjection(W,H);
+  var path=d3.geoPath().projection(proj);
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var colorScale=d3.scaleSequential().domain([0,maxC]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
+  var svg=d3.select('#svg-map-nf');
+  svg.selectAll('*').remove();
+  var g=svg.append('g');
+  g.selectAll('path').data(GEO_DATA.features).enter().append('path')
+    .attr('class','state-path').attr('d',path)
+    .attr('fill',function(d){ return colorScale(ufCount[getSigla(d)]||0); })
+    .on('mouseenter',function(event,d){ showMapTip(event,getSigla(d)+': '+(ufCount[getSigla(d)]||0)+' NFs'); })
+    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+    .on('click',function(event,d){
+      var s=getSigla(d);
+      svg.selectAll('.state-path').classed('selected',false);
+      d3.select(this).classed('selected',true);
+      showDetailNF(s,d.properties.name||s,ufCount[s]||0,notas||getDashData());
+    });
+  g.selectAll('text').data(GEO_DATA.features).enter().append('text')
+    .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
+    .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
+    .attr('fill',function(d){ var s=getSigla(d),v=ufCount[s]||0; return (v/maxC)>.4?'#fff':(dark?'#c9d1d9':'#334155'); })
+    .text(function(d){ return getSigla(d); });
+  var el=document.getElementById('map-nf-loading'); if(el) el.classList.add('hidden');
+}
+
+// Mapa transportadora dominante por estado
+function renderMapTransp(notas) {
+  if(!GEO_DATA) return;
+  var ufT={};
+  (notas||getDashData()).forEach(function(n){
+    var uf=(n.cidade||'').split('/')[1]||''; uf=uf.trim().toUpperCase();
+    if(uf.length!==2||!n.transportadora) return;
+    if(!ufT[uf]) ufT[uf]={};
+    ufT[uf][n.transportadora]=(ufT[uf][n.transportadora]||0)+1;
+  });
+  var tSet={};
+  Object.values(ufT).forEach(function(m){ Object.keys(m).forEach(function(t){ tSet[t]=true; }); });
+  var tList=Object.keys(tSet).sort(function(a,b){
+    var sa=0,sb=0; Object.values(ufT).forEach(function(m){ sa+=(m[a]||0); sb+=(m[b]||0); }); return sb-sa;
+  });
+  TRANSP_COLOR_MAP={};
+  tList.forEach(function(t,i){ TRANSP_COLOR_MAP[t]=CHART_COLORS[i%CHART_COLORS.length]; });
+  var legEl=document.getElementById('transp-map-legend-items');
+  if(legEl) legEl.innerHTML=tList.slice(0,10).map(function(t){
+    return '<div class="legend-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')"><span class="legend-dot" style="background:'+TRANSP_COLOR_MAP[t]+'"></span>'+escDash(t)+'</div>';
+  }).join('');
+  var W=460,H=400;
+  var proj=brazilProjection(W,H);
+  var path=d3.geoPath().projection(proj);
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var svg=d3.select('#svg-map-transp');
+  svg.selectAll('*').remove();
+  var g=svg.append('g');
+  g.selectAll('path').data(GEO_DATA.features).enter().append('path')
+    .attr('class','state-path').attr('d',path)
+    .attr('fill',function(d){
+      var s=getSigla(d),m=ufT[s];
+      if(!m) return dark?'#21262d':'#e2e8f0';
+      var dom=Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0];
+      return TRANSP_COLOR_MAP[dom]||'#ccc';
+    })
+    .on('mouseenter',function(event,d){
+      var s=getSigla(d),m=ufT[s];
+      var info=m?Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0]:'–';
+      showMapTip(event,s+': '+info);
+    })
+    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+    .on('click',function(event,d){
+      var s=getSigla(d);
+      svg.selectAll('.state-path').classed('selected',false);
+      d3.select(this).classed('selected',true);
+      showDetailTransp(s,d.properties.name||s,ufT[s]||{});
+    });
+  g.selectAll('text').data(GEO_DATA.features).enter().append('text')
+    .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
+    .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700')
+    .attr('fill','rgba(255,255,255,.85)').attr('pointer-events','none')
+    .text(function(d){ return getSigla(d); });
+  var el=document.getElementById('map-transp-loading'); if(el) el.classList.add('hidden');
+}
+
+// Mapa faturamento por estado (aba Vendas)
+function renderMapVendas(notas) {
+  if(!GEO_DATA) return;
+  var ufFat={};
+  (notas||getDashData()).forEach(function(n){
+    var uf=(n.cidade||'').split('/')[1]||''; uf=uf.trim().toUpperCase();
+    if(uf.length===2&&n.valor) ufFat[uf]=(ufFat[uf]||0)+(parseFloat(n.valor)||0);
+  });
+  var maxF=Math.max.apply(null,Object.values(ufFat).concat([1]));
+  var W=460,H=400;
+  var proj=brazilProjection(W,H);
+  var path=d3.geoPath().projection(proj);
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var colorScale=d3.scaleSequential().domain([0,maxF]).interpolator(dark?d3.interpolate('#1e2130','#42a5f5'):d3.interpolate('#dde3ff','#1565c0'));
+  var svg=d3.select('#svg-map-vendas');
+  svg.selectAll('*').remove();
+  var g=svg.append('g');
+  g.selectAll('path').data(GEO_DATA.features).enter().append('path')
+    .attr('class','state-path').attr('d',path)
+    .attr('fill',function(d){ return colorScale(ufFat[getSigla(d)]||0); })
+    .on('mouseenter',function(event,d){ var s=getSigla(d); showMapTip(event,s+': '+fmtBRL(ufFat[s]||0)); })
+    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip);
+  g.selectAll('text').data(GEO_DATA.features).enter().append('text')
+    .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
+    .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
+    .attr('fill',function(d){ var s=getSigla(d),v=ufFat[s]||0; return (v/maxF)>.4?'#fff':(dark?'#c9d1d9':'#334155'); })
+    .text(function(d){ return getSigla(d); });
+  var el=document.getElementById('map-vendas-loading'); if(el) el.classList.add('hidden');
+}
+
+// Detalhes estado NF
+function showDetailNF(sigla, name, total, notas) {
+  var el=document.getElementById('detail-nf'); if(!el) return;
+  document.getElementById('detail-nf-flag').textContent=sigla;
+  document.getElementById('detail-nf-name').textContent=name;
+  var cCount={};
+  notas.forEach(function(n){
+    var parts=(n.cidade||'').split('/');
+    var uf=(parts[1]||'').trim().toUpperCase();
+    if(uf===sigla&&parts[0]) cCount[parts[0].trim()]=(cCount[parts[0].trim()]||0)+1;
+  });
+  var cities=Object.keys(cCount).sort(function(a,b){ return cCount[b]-cCount[a]; });
+  document.getElementById('detail-nf-count').textContent=total+' NFs · '+cities.length+' cidade'+(cities.length!==1?'s':'');
+  var maxC=cities.length?cCount[cities[0]]:1;
+  document.getElementById('detail-nf-cities').innerHTML=cities.slice(0,15).map(function(city){
+    var n=cCount[city],pct=(n/maxC)*100;
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'cidade_uf\',\''+escDash(city)+'/'+sigla+'\')"><span class="drill-bar-label">'+escDash(city)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('')||'<p style="font-size:11px;color:var(--tm)">Sem cidades.</p>';
+  el.classList.add('open');
+}
+
+// Detalhes estado Transportadora
+function showDetailTransp(sigla, name, transpMap) {
+  var el=document.getElementById('detail-transp'); if(!el) return;
+  document.getElementById('detail-transp-flag').textContent=sigla;
+  document.getElementById('detail-transp-name').textContent=name;
+  var sortedT=Object.keys(transpMap).sort(function(a,b){ return transpMap[b]-transpMap[a]; });
+  var totalT=Object.values(transpMap).reduce(function(a,b){ return a+b; },0);
+  document.getElementById('detail-transp-count').textContent=totalT+' NFs · '+sortedT.length+' transportadora'+(sortedT.length!==1?'s':'');
+  var maxT=sortedT.length?transpMap[sortedT[0]]:1;
+  document.getElementById('detail-transp-cities').innerHTML=sortedT.map(function(t){
+    var n=transpMap[t],pct=(n/maxT)*100,clr=TRANSP_COLOR_MAP[t]||'#5c6bc0';
+    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')"><span class="drill-bar-label">'+escDash(t)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
+  }).join('')||'<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
+  el.classList.add('open');
+}
+
+function closeStateDetail(type) {
+  var el=document.getElementById('detail-'+type); if(el) el.classList.remove('open');
+  d3.select('#svg-map-'+type).selectAll('.state-path').classed('selected',false);
+}
+
+// ── Tooltip mapa ───────────────────────────────────────────────
+var _mapTipEl=null;
+function getMapTip(){ if(!_mapTipEl){ _mapTipEl=document.getElementById('map-tooltip'); if(!_mapTipEl){ _mapTipEl=document.createElement('div'); _mapTipEl.id='map-tooltip'; _mapTipEl.className='map-tooltip'; document.body.appendChild(_mapTipEl); } } return _mapTipEl; }
+function showMapTip(event,text){ var t=getMapTip(); t.textContent=text; t.style.opacity='1'; t.style.left=(event.clientX+12)+'px'; t.style.top=(event.clientY-32)+'px'; }
+function moveMapTip(event){ var t=getMapTip(); t.style.left=(event.clientX+12)+'px'; t.style.top=(event.clientY-32)+'px'; }
+function hideMapTip(){ getMapTip().style.opacity='0'; }
+
+// ── Filtrar e ir para aba NF-e ─────────────────────────────────
+function filterAndGoNFe(campo, valor) {
+  // Aplica filtro de busca rápida e vai para aba NF-e
+  var searchEl = document.getElementById('search');
+  if(searchEl){ searchEl.value=valor; activeSearch=valor.toLowerCase().trim(); }
+  applyFilters();
+  switchView('nfe', document.querySelector('.tab-btn'));
+}
+
+// ── Utilitário escape para dash ────────────────────────────────
+function escDash(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
+
+// ── Atualiza dashboards quando notas são carregadas ────────────
+var _dashAutoUpdate = (function(){
+  var orig = buscarPagina;
+  // Hook: quando busca terminar, atualiza dash se estiver visível
+  return function(){};
+})();
+
+// Sobrescreve loading(false) para atualizar dash ativo
+var _loadingOrig = loading;
+loading = function(on){
+  _loadingOrig(on);
+  if(!on){
+    var activeView = document.querySelector('.view-section.active');
+    if(activeView){
+      if(activeView.id==='view-transporte') buildDashTransporte();
+      if(activeView.id==='view-vendas')     buildDashVendas();
+    }
+  }
+};
+
 </script>
 
 </body>
