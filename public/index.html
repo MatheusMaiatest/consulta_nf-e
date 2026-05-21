@@ -244,8 +244,16 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 .drill-modal-title{font-size:1rem;font-weight:700;color:var(--tp)}
 .drill-modal-sub{font-size:.75rem;color:var(--tm);margin-top:2px}
 .drill-loading{text-align:center;color:var(--tm);font-size:.82rem;padding:40px}
-.mun-path{stroke:var(--bdr);stroke-width:.3;cursor:pointer;transition:opacity .15s,stroke-width .15s}
-.mun-path:hover{opacity:.75;stroke-width:1;stroke:#fff}
+/* Rodapé com lista de cidades */
+.drill-city-footer{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)}
+.drill-footer-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin-bottom:10px}
+.drill-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:200px;overflow-y:auto}
+.drill-city-item{display:flex;flex-direction:column;gap:3px;padding:6px 10px;background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);cursor:pointer;transition:all var(--t)}
+.drill-city-item:hover{border-color:var(--ac);background:var(--bgch);transform:translateY(-1px)}
+.drill-city-name{font-size:.8rem;font-weight:600;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drill-city-count{font-size:.7rem;color:var(--tm)}
+.drill-city-bar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;margin-top:2px}
+.drill-city-bar-fill{height:100%;background:var(--ac);border-radius:2px;transition:width .3s ease}
 @media(max-width:700px){.drill-modal-body{grid-template-columns:1fr}.drill-side{max-height:300px;border-top:1px solid var(--bdr)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -2187,20 +2195,31 @@ function renderDrillMap(geo, uf, stateName) {
         filterAndGoNFe('cidade', cityName);
       });
 
-    if(hasData){
-      var c = path.centroid(feature);
-      if(!isNaN(c[0])&&!isNaN(c[1])){
-        var label = feature.properties.name||'';
-        var fs = Math.min(Math.max(6, 9 - label.length*0.15), 10);
-        svg.append('text')
-          .attr('transform','translate('+c+')')
-          .attr('text-anchor','middle').attr('dy','0.3em')
-          .attr('font-size',fs).attr('font-weight','700').attr('pointer-events','none')
-          .attr('fill', val/Math.max(maxCount,maxFat)>.4 ? '#fff' : (dark?'#c9d1d9':'#1e293b'))
-          .text(label.length>12 ? label.slice(0,11)+'…' : label);
-      }
-    }
+    // REMOVIDO: Não renderiza mais os nomes das cidades no mapa
   });
+
+  // Criar lista de cidades no rodapé
+  var drillContainer = svgEl.closest('.drill-container');
+  var cityListEl = drillContainer.querySelector('.drill-city-footer');
+  if(!cityListEl){
+    cityListEl = document.createElement('div');
+    cityListEl.className = 'drill-city-footer';
+    drillContainer.appendChild(cityListEl);
+  }
+  
+  var maxCity = sortedCities.length ? origCities[sortedCities[0]] : 1;
+  cityListEl.innerHTML = '<div class="drill-footer-title">🏙️ Cidades (' + sortedCities.length + ')</div>' +
+    '<div class="drill-city-grid">' +
+    sortedCities.map(function(city){
+      var n = origCities[city];
+      var pct = (n/maxCity)*100;
+      return '<div class="drill-city-item" onclick="filterAndGoNFe(\'cidade\',\''+escDash(city)+'\')" title="'+n+' NFs">' +
+        '<span class="drill-city-name">'+escDash(city)+'</span>' +
+        '<span class="drill-city-count">'+n+'</span>' +
+        '<div class="drill-city-bar"><div class="drill-city-bar-fill" style="width:'+pct+'%"></div></div>' +
+        '</div>';
+    }).join('') +
+    '</div>';
 
   document.getElementById('drillLoading').style.display = 'none';
   svgEl.style.display = 'block';
