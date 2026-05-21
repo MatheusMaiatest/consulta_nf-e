@@ -235,6 +235,17 @@ input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shado
 .mun-path{stroke:var(--bdr);stroke-width:.3;cursor:pointer;transition:opacity .15s}
 .mun-path:hover{opacity:.75;stroke-width:1;stroke:#fff}
 .mun-path.has-data{cursor:pointer}
+.mun-path{stroke:var(--bdr);stroke-width:.3;cursor:pointer;transition:opacity .15s,stroke-width .15s}
+.mun-path:hover{opacity:.75;stroke-width:1;stroke:#fff}
+/* Drill container - substitui mapa */
+.drill-container{display:none;width:100%}
+.drill-back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bgc);border:1px solid var(--bdr);color:var(--ts);border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t)}
+.drill-back-btn:hover{border-color:var(--ac);color:var(--ac);background:var(--bgch)}
+.drill-modal-title{font-size:1rem;font-weight:700;color:var(--tp)}
+.drill-modal-sub{font-size:.75rem;color:var(--tm);margin-top:2px}
+.drill-loading{text-align:center;color:var(--tm);font-size:.82rem;padding:40px}
+.mun-path{stroke:var(--bdr);stroke-width:.3;cursor:pointer;transition:opacity .15s,stroke-width .15s}
+.mun-path:hover{opacity:.75;stroke-width:1;stroke:#fff}
 @media(max-width:700px){.drill-modal-body{grid-template-columns:1fr}.drill-side{max-height:300px;border-top:1px solid var(--bdr)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -1949,7 +1960,13 @@ function renderMapVendas(notas) {
     .attr('class','state-path').attr('d',path)
     .attr('fill',function(d){ return colorScale(ufFat[getSigla(d)]||0); })
     .on('mouseenter',function(event,d){ var s=getSigla(d); showMapTip(event,s+': '+fmtBRL(ufFat[s]||0)); })
-    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip);
+    .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
+    .on('click',function(event,d){
+      var s=getSigla(d);
+      svg.selectAll('.state-path').classed('selected',false);
+      d3.select(this).classed('selected',true);
+      openDrillModal(s, d.properties.name||s, 'vendas');
+    });
   g.selectAll('text').data(GEO_DATA.features).enter().append('text')
     .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
     .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
@@ -1959,40 +1976,15 @@ function renderMapVendas(notas) {
 }
 
 // Detalhes estado NF
+// Detalhes estado NF - AGORA SUBSTITUI O MAPA
 function showDetailNF(sigla, name, total, notas) {
-  var el=document.getElementById('detail-nf'); if(!el) return;
-  document.getElementById('detail-nf-flag').textContent=sigla;
-  document.getElementById('detail-nf-name').textContent=name;
-  var cCount={};
-  notas.forEach(function(n){
-    var parts=(n.cidade||'').split('/');
-    var uf=(parts[1]||'').trim().toUpperCase();
-    if(uf===sigla&&parts[0]) cCount[parts[0].trim()]=(cCount[parts[0].trim()]||0)+1;
-  });
-  var cities=Object.keys(cCount).sort(function(a,b){ return cCount[b]-cCount[a]; });
-  document.getElementById('detail-nf-count').textContent=total+' NFs · '+cities.length+' cidade'+(cities.length!==1?'s':'');
-  var maxC=cities.length?cCount[cities[0]]:1;
-  document.getElementById('detail-nf-cities').innerHTML=cities.slice(0,15).map(function(city){
-    var n=cCount[city],pct=(n/maxC)*100;
-    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'cidade_uf\',\''+escDash(city)+'/'+sigla+'\')"><span class="drill-bar-label">'+escDash(city)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div><span class="drill-bar-count">'+n+'</span></div>';
-  }).join('')||'<p style="font-size:11px;color:var(--tm)">Sem cidades.</p>';
-  el.classList.add('open');
+  // Ao invés de abrir painel, carrega mapa municipal
+  openDrillModal(sigla, name, 'nf');
 }
 
-// Detalhes estado Transportadora
+// Detalhes estado Transportadora - AGORA SUBSTITUI O MAPA
 function showDetailTransp(sigla, name, transpMap) {
-  var el=document.getElementById('detail-transp'); if(!el) return;
-  document.getElementById('detail-transp-flag').textContent=sigla;
-  document.getElementById('detail-transp-name').textContent=name;
-  var sortedT=Object.keys(transpMap).sort(function(a,b){ return transpMap[b]-transpMap[a]; });
-  var totalT=Object.values(transpMap).reduce(function(a,b){ return a+b; },0);
-  document.getElementById('detail-transp-count').textContent=totalT+' NFs · '+sortedT.length+' transportadora'+(sortedT.length!==1?'s':'');
-  var maxT=sortedT.length?transpMap[sortedT[0]]:1;
-  document.getElementById('detail-transp-cities').innerHTML=sortedT.map(function(t){
-    var n=transpMap[t],pct=(n/maxT)*100,clr=TRANSP_COLOR_MAP[t]||'#5c6bc0';
-    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')"><span class="drill-bar-label">'+escDash(t)+'</span><div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div><span class="drill-bar-count">'+n+'</span></div>';
-  }).join('')||'<p style="font-size:11px;color:var(--tm)">Sem dados.</p>';
-  el.classList.add('open');
+  openDrillModal(sigla, name, 'transp');
 }
 
 function closeStateDetail(type) {
@@ -2056,13 +2048,41 @@ var UF_IBGE_CODES = {
 function openDrillModal(uf, stateName, mode) {
   _drillCurrentUF   = uf;
   _drillCurrentMode = mode || 'nf';
+  
+  // Encontrar o card do mapa correto baseado no mode
+  var mapId = mode === 'transp' ? 'svg-map-transp' : mode === 'vendas' ? 'svg-map-vendas' : 'svg-map-nf';
+  var brazilSvg = document.getElementById(mapId);
+  if(!brazilSvg) return;
+  
+  var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
+  if(!mapCard) return;
+  
+  // Criar container de drill se não existir
+  var drillContainer = mapCard.querySelector('.drill-container');
+  if(!drillContainer){
+    drillContainer = document.createElement('div');
+    drillContainer.className = 'drill-container';
+    drillContainer.style.display = 'none';
+    drillContainer.innerHTML = 
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">' +
+      '<button class="drill-back-btn" onclick="closeDrillModal()">← Voltar ao Brasil</button>' +
+      '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="drillTitle">Estado</div>' +
+      '<div class="drill-modal-sub" id="drillSub"></div></div></div>' +
+      '<div class="drill-loading" id="drillLoading">⏳ Carregando mapa municipal...</div>' +
+      '<div class="map-svg-wrap"><svg id="svg-map-drill" viewBox="0 0 500 450"></svg></div>';
+    mapCard.appendChild(drillContainer);
+  }
+  
+  // Esconder mapa Brasil, mostrar drill
+  brazilSvg.closest('.map-svg-wrap').style.display = 'none';
+  var loadingEl = mapCard.querySelector('[id^="map-"][id$="-loading"]');
+  if(loadingEl) loadingEl.style.display = 'none';
+  drillContainer.style.display = 'block';
+  
   document.getElementById('drillTitle').textContent   = stateName + ' — Municípios';
   document.getElementById('drillSub').textContent     = 'Carregando...';
   document.getElementById('drillLoading').style.display = 'block';
   document.getElementById('svg-map-drill').style.display = 'none';
-  document.getElementById('drillCityList').innerHTML  = '';
-  document.getElementById('drillTranspList').innerHTML = '';
-  document.getElementById('drillOverlay').classList.add('open');
 
   var code = UF_IBGE_CODES[uf];
   if(!code){
@@ -2109,36 +2129,16 @@ function renderDrillMap(geo, uf, stateName) {
   var transpMap = {};
   ufNotas.forEach(function(n){ if(n.transportadora) transpMap[n.transportadora]=(transpMap[n.transportadora]||0)+1; });
   var transpList = Object.keys(transpMap).sort(function(a,b){ return transpMap[b]-transpMap[a]; });
-  var maxT = transpList.length ? transpMap[transpList[0]] : 1;
 
   // Cidades originais ordenadas
   var origCities = {};
   ufNotas.forEach(function(n){ var c=(n.cidade||'').split('/')[0].trim(); origCities[c]=(origCities[c]||0)+1; });
   var sortedCities = Object.keys(origCities).sort(function(a,b){ return origCities[b]-origCities[a]; });
-  var maxCity = sortedCities.length ? origCities[sortedCities[0]] : 1;
 
   // Sub-título
   document.getElementById('drillSub').textContent =
     ufNotas.length + ' NFs · ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
     ' · ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
-
-  // Lista cidades
-  document.getElementById('drillCityList').innerHTML = sortedCities.slice(0,20).map(function(city){
-    var n=origCities[city], pct=(n/maxCity)*100;
-    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'cidade\',\''+escDash(city)+'\')">' +
-      '<span class="drill-bar-label" title="'+escDash(city)+'">'+escDash(city)+'</span>' +
-      '<div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%"></div></div>' +
-      '<span class="drill-bar-count">'+n+'</span></div>';
-  }).join('') || '<p style="font-size:11px;color:var(--tm)">Sem cidades.</p>';
-
-  // Lista transportadoras
-  document.getElementById('drillTranspList').innerHTML = transpList.slice(0,10).map(function(t){
-    var n=transpMap[t], pct=(n/maxT)*100, clr=TRANSP_COLOR_MAP[t]||'#5c6bc0';
-    return '<div class="drill-bar-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')">' +
-      '<span class="drill-bar-label" title="'+escDash(t)+'">'+escDash(t)+'</span>' +
-      '<div class="drill-bar-track"><div class="drill-bar-fill" style="width:'+pct+'%;background:'+clr+'"></div></div>' +
-      '<span class="drill-bar-count">'+n+'</span></div>';
-  }).join('') || '<p style="font-size:11px;color:var(--tm)">–</p>';
 
   // Mapa
   var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
@@ -2182,7 +2182,9 @@ function renderDrillMap(geo, uf, stateName) {
       .on('mouseleave',hideMapTip)
       .on('click',function(){
         if(!hasData) return;
-        filterAndGoNFe('cidade', feature.properties.name||'');
+        // Ao clicar no município, filtra e vai para aba NF-e
+        var cityName = feature.properties.name||'';
+        filterAndGoNFe('cidade', cityName);
       });
 
     if(hasData){
@@ -2202,6 +2204,7 @@ function renderDrillMap(geo, uf, stateName) {
 
   document.getElementById('drillLoading').style.display = 'none';
   svgEl.style.display = 'block';
+  svgEl.closest('.map-svg-wrap').style.display = 'block';
 }
 
 function normalizeCity(s){
@@ -2209,7 +2212,21 @@ function normalizeCity(s){
 }
 
 function closeDrillModal(){
-  document.getElementById('drillOverlay').classList.remove('open');
+  // Voltar ao mapa do Brasil
+  var mode = _drillCurrentMode || 'nf';
+  var mapId = mode === 'transp' ? 'svg-map-transp' : mode === 'vendas' ? 'svg-map-vendas' : 'svg-map-nf';
+  var brazilSvg = document.getElementById(mapId);
+  if(!brazilSvg) return;
+  
+  var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
+  if(!mapCard) return;
+  
+  var drillContainer = mapCard.querySelector('.drill-container');
+  if(drillContainer) drillContainer.style.display = 'none';
+  
+  var mapWrap = brazilSvg.closest('.map-svg-wrap');
+  if(mapWrap) mapWrap.style.display = 'block';
+  
   _drillCurrentUF = null;
 }
 
@@ -2243,44 +2260,9 @@ renderMapVendas = function(notas){
 
 // Inicializar evento de fechar drill ao clicar fora (aguarda DOM)
 document.addEventListener('DOMContentLoaded', function(){
-  var drillOv = document.getElementById('drillOverlay');
-  if(drillOv){
-    drillOv.onclick = function(e){ if(e.target===this) closeDrillModal(); };
-  }
+  // Não precisa mais do overlay, drill agora substitui o mapa
 });
 
-// Hook nos mapas de estado
-var _origShowDetailNF=showDetailNF;
-showDetailNF=function(sigla,name,total,notas){ _origShowDetailNF(sigla,name,total,notas); openDrillModal(sigla,name,'nf'); };
-var _origShowDetailTransp=showDetailTransp;
-showDetailTransp=function(sigla,name,tm){ _origShowDetailTransp(sigla,name,tm); openDrillModal(sigla,name,'transp'); };
-
 </script>
-
-<!-- DRILL-DOWN MAPA MUNICIPAL -->
-<div class="drill-overlay" id="drillOverlay">
-  <div class="drill-modal">
-    <div class="drill-modal-head">
-      <button class="drill-back-btn" onclick="closeDrillModal()">← Voltar</button>
-      <div style="flex:1">
-        <div class="drill-modal-title" id="drillTitle">Estado</div>
-        <div class="drill-modal-sub" id="drillSub"></div>
-      </div>
-      <button style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1.1rem" onclick="closeDrillModal()">✕</button>
-    </div>
-    <div class="drill-modal-body">
-      <div class="drill-map-area">
-        <div class="drill-loading" id="drillLoading">⏳ Carregando mapa municipal...</div>
-        <svg id="svg-map-drill" viewBox="0 0 500 450" style="display:none"></svg>
-      </div>
-      <div class="drill-side">
-        <div class="drill-side-title">🏙️ Cidades</div>
-        <div id="drillCityList"></div>
-        <div class="drill-side-title" style="margin-top:8px">🚚 Transportadoras</div>
-        <div id="drillTranspList"></div>
-      </div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
