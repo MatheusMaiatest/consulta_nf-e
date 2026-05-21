@@ -2065,19 +2065,27 @@ function openDrillModal(uf, stateName, mode) {
   var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
   if(!mapCard) return;
   
+  // ID único para cada drill baseado no mode
+  var drillId = 'drill-' + mode;
+  var svgDrillId = 'svg-map-drill-' + mode;
+  var loadingId = 'drillLoading-' + mode;
+  var titleId = 'drillTitle-' + mode;
+  var subId = 'drillSub-' + mode;
+  
   // Criar container de drill se não existir
   var drillContainer = mapCard.querySelector('.drill-container');
   if(!drillContainer){
     drillContainer = document.createElement('div');
     drillContainer.className = 'drill-container';
+    drillContainer.id = drillId;
     drillContainer.style.display = 'none';
     drillContainer.innerHTML = 
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">' +
       '<button class="drill-back-btn" onclick="closeDrillModal()">← Voltar ao Brasil</button>' +
-      '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="drillTitle">Estado</div>' +
-      '<div class="drill-modal-sub" id="drillSub"></div></div></div>' +
-      '<div class="drill-loading" id="drillLoading">⏳ Carregando mapa municipal...</div>' +
-      '<div class="map-svg-wrap"><svg id="svg-map-drill" viewBox="0 0 500 450"></svg></div>';
+      '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="'+titleId+'">Estado</div>' +
+      '<div class="drill-modal-sub" id="'+subId+'"></div></div></div>' +
+      '<div class="drill-loading" id="'+loadingId+'">⏳ Carregando mapa municipal...</div>' +
+      '<div class="map-svg-wrap"><svg id="'+svgDrillId+'" viewBox="0 0 500 450"></svg></div>';
     mapCard.appendChild(drillContainer);
   }
   
@@ -2087,32 +2095,37 @@ function openDrillModal(uf, stateName, mode) {
   if(loadingEl) loadingEl.style.display = 'none';
   drillContainer.style.display = 'block';
   
-  document.getElementById('drillTitle').textContent   = stateName + ' — Municípios';
-  document.getElementById('drillSub').textContent     = 'Carregando...';
-  document.getElementById('drillLoading').style.display = 'block';
-  document.getElementById('svg-map-drill').style.display = 'none';
+  document.getElementById(titleId).textContent   = stateName + ' — Municípios';
+  document.getElementById(subId).textContent     = 'Carregando...';
+  document.getElementById(loadingId).style.display = 'block';
+  document.getElementById(svgDrillId).style.display = 'none';
 
   var code = UF_IBGE_CODES[uf];
   if(!code){
-    document.getElementById('drillLoading').textContent = 'Estado não disponível para drill-down.';
+    document.getElementById(loadingId).textContent = 'Estado não disponível para drill-down.';
     return;
   }
   if(_drillGeoCache[uf]){
-    renderDrillMap(_drillGeoCache[uf], uf, stateName);
+    renderDrillMap(_drillGeoCache[uf], uf, stateName, mode);
     return;
   }
   var url = 'https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json';
   fetch(url)
     .then(function(r){ return r.json(); })
-    .then(function(geo){ _drillGeoCache[uf] = geo; renderDrillMap(geo, uf, stateName); })
+    .then(function(geo){ _drillGeoCache[uf] = geo; renderDrillMap(geo, uf, stateName, mode); })
     .catch(function(){
-      document.getElementById('drillLoading').textContent = 'Não foi possível carregar o mapa municipal.';
+      document.getElementById(loadingId).textContent = 'Não foi possível carregar o mapa municipal.';
     });
 }
 
-function renderDrillMap(geo, uf, stateName) {
+function renderDrillMap(geo, uf, stateName, mode) {
   var notas = getDashData();
   var dark  = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  // IDs únicos para cada mode
+  var svgDrillId = 'svg-map-drill-' + mode;
+  var loadingId = 'drillLoading-' + mode;
+  var subId = 'drillSub-' + mode;
 
   // Filtra notas do estado
   var ufNotas = notas.filter(function(n){
@@ -2144,27 +2157,27 @@ function renderDrillMap(geo, uf, stateName) {
   var sortedCities = Object.keys(origCities).sort(function(a,b){ return origCities[b]-origCities[a]; });
 
   // Sub-título
-  document.getElementById('drillSub').textContent =
+  document.getElementById(subId).textContent =
     ufNotas.length + ' NFs · ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
     ' · ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
 
   // Mapa
   var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
   var maxFat   = Math.max.apply(null, Object.values(cityFat).concat([1]));
-  var useVal   = _drillCurrentMode === 'vendas';
+  var useVal   = mode === 'vendas';
   var colorScale = d3.scaleSequential()
     .domain([0, useVal ? maxFat : maxCount])
     .interpolator(dark
       ? d3.interpolate('#1e2130', useVal ? '#42a5f5' : '#5c6bc0')
       : d3.interpolate('#dde3ff', useVal ? '#1565c0' : '#3949ab'));
 
-  var svgEl = document.getElementById('svg-map-drill');
+  var svgEl = document.getElementById(svgDrillId);
   var W=500, H=450;
   var proj = d3.geoMercator().fitSize([W-20,H-20],{type:'FeatureCollection',features:geo.features});
   var t = proj.translate(); proj.translate([t[0]+10,t[1]+10]);
   var path = d3.geoPath().projection(proj);
 
-  var svg = d3.select('#svg-map-drill');
+  var svg = d3.select('#'+svgDrillId);
   svg.selectAll('*').remove();
   svg.attr('viewBox','0 0 '+W+' '+H);
 
@@ -2216,7 +2229,7 @@ function renderDrillMap(geo, uf, stateName) {
     }).join('') +
     '</div>';
 
-  document.getElementById('drillLoading').style.display = 'none';
+  document.getElementById(loadingId).style.display = 'none';
   svgEl.style.display = 'block';
   svgEl.closest('.map-svg-wrap').style.display = 'block';
 }
