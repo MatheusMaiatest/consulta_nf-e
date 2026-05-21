@@ -562,6 +562,7 @@
     </div>
   </div><script>// ── Estado global ──────────────────────────────────────────
   var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
+  var _filtroCupom = { com: true, sem: true };  // Filtro de cupom
   var G=function(id){return document.getElementById(id);};
 
   // ── Tema ───────────────────────────────────────────────────
@@ -634,11 +635,20 @@
 
   function applyFilters(){
     filteredNotas=allNotas.filter(function(n){
+      // Filtro origem
       if(!activeOrigens.has(n.origem))return false;
+      
+      // Filtro busca
       if(activeSearch){
         var h=[n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
         if(h.indexOf(activeSearch)<0)return false;
       }
+      
+      // Filtro cupom
+      var temCupom = !!(n.tray_cupom_nome);
+      if(temCupom && !_filtroCupom.com) return false;
+      if(!temCupom && !_filtroCupom.sem) return false;
+      
       return true;
     });
     G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
@@ -1250,7 +1260,6 @@
   G('trayOverlay').onclick = function(e){ if(e.target===G('trayOverlay')) G('trayOverlay').classList.remove('open'); };
 
   // ── Filtro Cupom ───────────────────────────────────────────
-  var _filtroCupom = { com: true, sem: true };
   ['com','sem'].forEach(function(tipo){
     var chip = document.querySelector('[data-cupom="'+tipo+'"]');
     if(!chip) return;
