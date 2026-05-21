@@ -586,19 +586,16 @@
       console.log('🏭 Clicou em origem:', o);
       console.log('Estado antes:', Array.from(activeOrigens));
       if(activeOrigens.has(o)){
-        if(activeOrigens.size>1){
-          activeOrigens.delete(o);
-          c.classList.remove('on');
-          console.log('❌ Removido:', o);
-        } else {
-          console.log('⚠️ Não pode remover o último');
-        }
+        activeOrigens.delete(o);
+        c.classList.remove('on');
+        console.log('❌ Removido:', o);
       } else {
         activeOrigens.add(o);
         c.classList.add('on');
         console.log('✅ Adicionado:', o);
       }
       console.log('Estado depois:', Array.from(activeOrigens));
+      console.log('Tamanho do Set:', activeOrigens.size);
       applyFilters();
     };
   });
@@ -659,8 +656,9 @@
     console.log('Busca:', activeSearch);
     
     filteredNotas=allNotas.filter(function(n){
-      // Filtro origem
-      if(!activeOrigens.has(n.origem)){
+      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
+      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)){
+        console.log('❌ Bloqueou nota origem:', n.origem, 'numero:', n.numero);
         return false;
       }
       
@@ -670,13 +668,23 @@
         if(h.indexOf(activeSearch)<0) return false;
       }
       
-      // Filtro cupom
+      // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
       var temCupom = !!(n.tray_cupom_nome);
-      if(temCupom && !_filtroCupom.com) {
-        return false;
-      }
-      if(!temCupom && !_filtroCupom.sem) {
-        return false;
+      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
+      
+      if(algumCupomAtivo){
+        // Se tem cupom mas filtro "com" está OFF, bloqueia
+        if(temCupom && !_filtroCupom.com) {
+          console.log('❌ Bloqueou nota COM cupom:', n.numero);
+          return false;
+        }
+        // Se NÃO tem cupom mas filtro "sem" está OFF, bloqueia
+        if(!temCupom && !_filtroCupom.sem) {
+          console.log('❌ Bloqueou nota SEM cupom:', n.numero);
+          return false;
+        }
+      } else {
+        console.log('⚠️ Nenhum filtro de cupom ativo, mostrando todos');
       }
       
       return true;
