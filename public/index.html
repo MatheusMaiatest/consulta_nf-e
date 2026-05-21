@@ -578,6 +578,61 @@
   // ── Painel ─────────────────────────────────────────────────
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
+  // ── Função de filtro (definida ANTES dos event listeners) ──
+  function applyFilters(){
+    console.log('═══════════════════════════════════════════════════');
+    console.log('🔍 APLICANDO FILTROS');
+    console.log('Total de notas:', allNotas.length);
+    console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
+    console.log('Filtro cupom:', _filtroCupom);
+    console.log('Busca:', activeSearch);
+    
+    var contadorBloqueios = { origem: 0, busca: 0, cupom: 0 };
+    
+    filteredNotas=allNotas.filter(function(n){
+      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
+      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)){
+        contadorBloqueios.origem++;
+        return false;
+      }
+      
+      // Filtro busca
+      if(activeSearch){
+        var h=[n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
+        if(h.indexOf(activeSearch)<0) {
+          contadorBloqueios.busca++;
+          return false;
+        }
+      }
+      
+      // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
+      var temCupom = !!(n.tray_cupom_nome);
+      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
+      
+      if(algumCupomAtivo){
+        // Se tem cupom mas filtro "com" está OFF, bloqueia
+        if(temCupom && !_filtroCupom.com) {
+          contadorBloqueios.cupom++;
+          return false;
+        }
+        // Se NÃO tem cupom mas filtro "sem" está OFF, bloqueia
+        if(!temCupom && !_filtroCupom.sem) {
+          contadorBloqueios.cupom++;
+          return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    console.log('📊 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', cupom=' + contadorBloqueios.cupom);
+    console.log('✅ Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
+    console.log('═══════════════════════════════════════════════════');
+    
+    G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
+    renderCards();
+  }
+
   // ── Origem toggle ──────────────────────────────────────────
   document.querySelectorAll('.tchip').forEach(function(c){
     c.onclick=function(){
@@ -649,60 +704,6 @@
     activeSearch=e.target.value.toLowerCase().trim();
     applyFilters();
   };
-
-  function applyFilters(){
-    console.log('═══════════════════════════════════════════════════');
-    console.log('🔍 APLICANDO FILTROS');
-    console.log('Total de notas:', allNotas.length);
-    console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
-    console.log('Filtro cupom:', _filtroCupom);
-    console.log('Busca:', activeSearch);
-    
-    var contadorBloqueios = { origem: 0, busca: 0, cupom: 0 };
-    
-    filteredNotas=allNotas.filter(function(n){
-      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
-      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)){
-        contadorBloqueios.origem++;
-        return false;
-      }
-      
-      // Filtro busca
-      if(activeSearch){
-        var h=[n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch)<0) {
-          contadorBloqueios.busca++;
-          return false;
-        }
-      }
-      
-      // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
-      var temCupom = !!(n.tray_cupom_nome);
-      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
-      
-      if(algumCupomAtivo){
-        // Se tem cupom mas filtro "com" está OFF, bloqueia
-        if(temCupom && !_filtroCupom.com) {
-          contadorBloqueios.cupom++;
-          return false;
-        }
-        // Se NÃO tem cupom mas filtro "sem" está OFF, bloqueia
-        if(!temCupom && !_filtroCupom.sem) {
-          contadorBloqueios.cupom++;
-          return false;
-        }
-      }
-      
-      return true;
-    });
-    
-    console.log('📊 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', cupom=' + contadorBloqueios.cupom);
-    console.log('✅ Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
-    console.log('═══════════════════════════════════════════════════');
-    
-    G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
-    renderCards();
-  }
 
   // ── Render cards com lazy load ─────────────────────────────
   var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
