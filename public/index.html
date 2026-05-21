@@ -583,7 +583,8 @@
     c.onclick=function(){
       var o=c.dataset.o;
       if(!o) return; // Ignora chips que não são de origem
-      console.log('🏭 Clicou em origem:', o);
+      console.log('═══════════════════════════════════════════════════');
+      console.log('🏭 CLICOU EM ORIGEM:', o);
       console.log('Estado antes:', Array.from(activeOrigens));
       if(activeOrigens.has(o)){
         activeOrigens.delete(o);
@@ -596,6 +597,7 @@
       }
       console.log('Estado depois:', Array.from(activeOrigens));
       console.log('Tamanho do Set:', activeOrigens.size);
+      console.log('Chamando applyFilters()...');
       applyFilters();
     };
   });
@@ -649,23 +651,29 @@
   };
 
   function applyFilters(){
-    console.log('🔍 Aplicando filtros...');
+    console.log('═══════════════════════════════════════════════════');
+    console.log('🔍 APLICANDO FILTROS');
     console.log('Total de notas:', allNotas.length);
-    console.log('Origens ativas:', Array.from(activeOrigens));
+    console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
     console.log('Filtro cupom:', _filtroCupom);
     console.log('Busca:', activeSearch);
+    
+    var contadorBloqueios = { origem: 0, busca: 0, cupom: 0 };
     
     filteredNotas=allNotas.filter(function(n){
       // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
       if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)){
-        console.log('❌ Bloqueou nota origem:', n.origem, 'numero:', n.numero);
+        contadorBloqueios.origem++;
         return false;
       }
       
       // Filtro busca
       if(activeSearch){
         var h=[n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch)<0) return false;
+        if(h.indexOf(activeSearch)<0) {
+          contadorBloqueios.busca++;
+          return false;
+        }
       }
       
       // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
@@ -675,22 +683,23 @@
       if(algumCupomAtivo){
         // Se tem cupom mas filtro "com" está OFF, bloqueia
         if(temCupom && !_filtroCupom.com) {
-          console.log('❌ Bloqueou nota COM cupom:', n.numero);
+          contadorBloqueios.cupom++;
           return false;
         }
         // Se NÃO tem cupom mas filtro "sem" está OFF, bloqueia
         if(!temCupom && !_filtroCupom.sem) {
-          console.log('❌ Bloqueou nota SEM cupom:', n.numero);
+          contadorBloqueios.cupom++;
           return false;
         }
-      } else {
-        console.log('⚠️ Nenhum filtro de cupom ativo, mostrando todos');
       }
       
       return true;
     });
     
-    console.log('✅ Notas filtradas:', filteredNotas.length);
+    console.log('📊 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', cupom=' + contadorBloqueios.cupom);
+    console.log('✅ Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
+    console.log('═══════════════════════════════════════════════════');
+    
     G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
     renderCards();
   }
@@ -1304,10 +1313,13 @@
     var chip = document.querySelector('[data-cupom="'+tipo+'"]');
     if(!chip) return;
     chip.onclick = function(){
+      console.log('═══════════════════════════════════════════════════');
+      console.log('🎟️ CLICOU EM CUPOM:', tipo);
+      console.log('Estado antes:', _filtroCupom);
       _filtroCupom[tipo] = !_filtroCupom[tipo];
       chip.classList.toggle('on', _filtroCupom[tipo]);
-      console.log('🎟️ Filtro Cupom:', tipo, '=', _filtroCupom[tipo]);
-      console.log('Estado completo:', _filtroCupom);
+      console.log('Estado depois:', _filtroCupom);
+      console.log('Chamando applyFilters()...');
       applyFilters();
     };
   });
