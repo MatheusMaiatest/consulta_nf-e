@@ -2081,7 +2081,7 @@ function openDrillModal(uf, stateName, mode) {
     drillContainer.style.display = 'none';
     drillContainer.innerHTML = 
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">' +
-      '<button class="drill-back-btn" onclick="closeDrillModal()">← Voltar ao Brasil</button>' +
+      '<button class="drill-back-btn" onclick="closeDrillModalByMode(\''+mode+'\')">← Voltar ao Brasil</button>' +
       '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="'+titleId+'">Estado</div>' +
       '<div class="drill-modal-sub" id="'+subId+'"></div></div></div>' +
       '<div class="drill-loading" id="'+loadingId+'">⏳ Carregando mapa municipal...</div>' +
@@ -2239,8 +2239,13 @@ function normalizeCity(s){
 }
 
 function closeDrillModal(){
-  // Voltar ao mapa do Brasil
+  // Voltar ao mapa do Brasil (usa _drillCurrentMode global)
   var mode = _drillCurrentMode || 'nf';
+  closeDrillModalByMode(mode);
+}
+
+function closeDrillModalByMode(mode){
+  // Voltar ao mapa do Brasil para um mode específico
   var mapId = mode === 'transp' ? 'svg-map-transp' : mode === 'vendas' ? 'svg-map-vendas' : 'svg-map-nf';
   var brazilSvg = document.getElementById(mapId);
   if(!brazilSvg) return;
@@ -2248,13 +2253,17 @@ function closeDrillModal(){
   var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
   if(!mapCard) return;
   
-  var drillContainer = mapCard.querySelector('.drill-container');
+  // Esconder drill container específico deste mode
+  var drillId = 'drill-' + mode;
+  var drillContainer = document.getElementById(drillId);
   if(drillContainer) drillContainer.style.display = 'none';
   
+  // Mostrar mapa do Brasil
   var mapWrap = brazilSvg.closest('.map-svg-wrap');
   if(mapWrap) mapWrap.style.display = 'block';
   
-  _drillCurrentUF = null;
+  // Limpar estado global se for o mode atual
+  if(_drillCurrentMode === mode) _drillCurrentUF = null;
 }
 
 // ── Patch: mapas chamam openDrillModal ao clicar no estado ─────
