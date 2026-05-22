@@ -145,6 +145,7 @@
   .sit-Aberto,.sit-Em\ andamento{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid #ff9800}
   .sit-default{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
   .obs-box{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:.82rem;color:var(--tp);line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow-y:auto}
+  .obs-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px;font-weight:700;display:block}
   .card-sit-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-left:4px}
   .card-sit-badge.ok{background:rgba(76,175,80,.2);color:#4caf50;border:1px solid rgba(76,175,80,.6)}
   .card-sit-badge.err{background:rgba(244,67,54,.2);color:#f44336;border:1px solid rgba(244,67,54,.6)}
@@ -873,59 +874,138 @@
   // ── Modal ──────────────────────────────────────────────────
   function abrirModal(n){
     var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
+    
+    // Badge de situação da NF
+    var nfSituacao = n.situacao || 'Autorizada';
+    var nfSitClass = 'ok'; // Verde por padrão (autorizada)
+    if(nfSituacao.toLowerCase().includes('cancelad')) nfSitClass = 'err';
+    else if(nfSituacao.toLowerCase().includes('denegad')) nfSitClass = 'err';
+    else if(nfSituacao.toLowerCase().includes('rejeitad')) nfSitClass = 'err';
+    
     G('mhead').innerHTML=
       '<div class="cbadge '+n.origem+'" style="margin-bottom:10px">'+ol+'</div>'+
       '<h2>'+esc(n.cliente||'—')+'</h2>'+
       '<div class="msub">NF '+esc(n.numero||'—')+' · '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">↩ Nota Reversa</span>':'')+' </div>';
+    
     G('mbody').innerHTML=
-      '<div class="dsec"><h3>📄 Dados da Nota</h3><div class="dgrid">'+
-        di('Número',n.numero)+di('Série',n.serie)+di('Data Emissão',fmtDate(n.dataemissao))+diCopy('Nº Pedido',n.numeropedido||'—')+
-        diV('Valor Total',brl(n.valor))+di('Valor Produtos',brl(n.valorProdutos))+
-        di('Desconto',brl(n.desconto))+di('Frete',brl(n.frete))+
-        '<div class="di"><label>Chave Acesso</label><span style="font-size:.7rem;word-break:break-all">'+esc(n.chaveacesso||'—')+'</span></div>'+
-      '</div></div>'+
-      '<div class="dsec"><h3>👤 Destinatário</h3><div class="dgrid">'+
-        di('Nome',n.cliente)+di('CPF/CNPJ',n.cpf)+di('E-mail',n.email)+
-        di('Telefone',n.telefone)+di('Endereço',n.endereco)+di('Número',n.endNumero)+
-        di('Bairro',n.bairro)+di('Cidade/UF',n.cidade)+di('CEP',n.cep)+di('Complemento',n.complemento)+
-      '</div></div>'+
-      '<div class="dsec"><h3>🚚 Transporte</h3><div class="dgrid">'+
-        di('Transportadora',n.transportadora)+di('CNPJ Transp.',n.transportadoraCnpj)+
-        di('Frete por conta',fpc(n.fretePorConta))+
-        di('Peso Bruto',n.pesoBruto?n.pesoBruto+' kg':'—')+
-        di('Peso Líquido',n.pesoLiquido?n.pesoLiquido+' kg':'—')+
-        di('Qtd Volumes',n.qtdVolumes||'—')+
-      '</div></div>'+
-      '<div class="dsec"><h3>🛒 Pedido de Venda</h3>'+
-      (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? '<div class="dgrid">'+
-        diCopy('Nº Pedido', n.numeropedido||'—')+
-        (n.pedido_situacao ? '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+(n.pedido_situacao||'default').replace(/\s/g,'\\ ')+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
-        di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
-      '</div>' : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">Nenhum pedido vinculado a esta nota.</div>')+
-      (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observações</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
-      (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="section-label" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px">Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
-    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
-      '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Pedido Bling</button>'+
-      (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">🛒 Obs. Cliente (Tray)</button>' : '')+
-    '</div>'+
-    '</div>'+
-    '<div class="dsec"><h3>💳 Pagamento</h3>'+
-      (n.formas_pagamento && n.formas_pagamento.length ?
-        n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
-        '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
-      (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
-      (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
-      '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
-      (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">🎟️ Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
-    '</div>'+
-    '<div class="dsec"><h3>📦 Produtos</h3><div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div></div>'+
-      '<div class="dsec"><h3>🔗 Links</h3><div class="dgrid">'+
-        (n.linkdanfe?'<div class="di"><label>DANFE</label><span><a href="'+esc(n.linkdanfe)+'" target="_blank" style="color:var(--ac)">Abrir DANFE</a></span></div>':'')+
-        (n.linkpdf?'<div class="di"><label>PDF</label><span><a href="'+esc(n.linkpdf)+'" target="_blank" style="color:var(--ac)">Abrir PDF</a></span></div>':'')+
-        (n.xmlUrl?'<div class="di"><label>XML</label><span><a href="'+esc(n.xmlUrl)+'" target="_blank" style="color:var(--ac)">Baixar XML</a></span></div>':'')+
-      '</div></div>';
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: NOTA FISCAL
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec" style="background:rgba(92,107,192,.05);border:2px solid var(--ac);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
+        '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">📄 NOTA FISCAL</h3>'+
+        '<div class="dgrid">'+
+          di('Número',n.numero)+
+          di('Série',n.serie)+
+          di('Data Emissão',fmtDate(n.dataemissao))+
+          '<div class="di"><label>Situação NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
+          diV('Valor Total',brl(n.valor))+
+          di('Valor Produtos',brl(n.valorProdutos))+
+          di('Desconto',brl(n.desconto))+
+          di('Frete',brl(n.frete))+
+          '<div class="di" style="grid-column:1/-1"><label>Chave de Acesso</label><span style="font-size:.7rem;word-break:break-all">'+esc(n.chaveacesso||'—')+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: PEDIDO DE VENDA
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
+        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">🛒 PEDIDO DE VENDA</h3>'+
+        (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? 
+          '<div class="dgrid">'+
+            diCopy('Nº Pedido Bling', n.numeropedido||'—')+
+            di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
+            (n.pedido_situacao ? '<div class="di"><label>Situação Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
+          '</div>'+
+          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">📝 Observações do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
+          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">🔒 Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
+          '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
+            '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Ver Detalhes Bling</button>'+
+            (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">🛒 Obs. Cliente (Tray)</button>' : '')+
+          '</div>'
+        : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">⚠️ Nenhum pedido vinculado a esta nota.</div>')+
+      '</div>'+
+      
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: DESTINATÁRIO
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec">'+
+        '<h3>👤 Destinatário</h3>'+
+        '<div class="dgrid">'+
+          di('Nome',n.cliente)+
+          di('CPF/CNPJ',n.cpf)+
+          di('E-mail',n.email)+
+          di('Telefone',n.telefone)+
+          di('Endereço',n.endereco)+
+          di('Número',n.endNumero)+
+          di('Bairro',n.bairro)+
+          di('Cidade/UF',n.cidade)+
+          di('CEP',n.cep)+
+          di('Complemento',n.complemento)+
+        '</div>'+
+      '</div>'+
+      
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: TRANSPORTE
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec">'+
+        '<h3>🚚 Transporte</h3>'+
+        '<div class="dgrid">'+
+          di('Transportadora',n.transportadora)+
+          di('CNPJ Transp.',n.transportadoraCnpj)+
+          di('Frete por conta',fpc(n.fretePorConta))+
+          di('Peso Bruto',n.pesoBruto?n.pesoBruto+' kg':'—')+
+          di('Peso Líquido',n.pesoLiquido?n.pesoLiquido+' kg':'—')+
+          di('Qtd Volumes',n.qtdVolumes||'—')+
+        '</div>'+
+      '</div>'+
+      
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: PAGAMENTO
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec">'+
+        '<h3>💳 Pagamento</h3>'+
+        (n.formas_pagamento && n.formas_pagamento.length ?
+          n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
+          '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
+        (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
+        (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
+        '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
+        (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">🎟️ Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
+      '</div>'+
+      
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: PRODUTOS
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec">'+
+        '<h3>📦 Produtos</h3>'+
+        '<div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div>'+
+      '</div>'+
+      
+      // ═══════════════════════════════════════════════════════════
+      // SEÇÃO: LINKS
+      // ═══════════════════════════════════════════════════════════
+      '<div class="dsec">'+
+        '<h3>🔗 Links</h3>'+
+        '<div class="dgrid">'+
+          (n.linkdanfe?'<div class="di"><label>DANFE</label><span><a href="'+esc(n.linkdanfe)+'" target="_blank" style="color:var(--ac)">Abrir DANFE</a></span></div>':'')+
+          (n.linkpdf?'<div class="di"><label>PDF</label><span><a href="'+esc(n.linkpdf)+'" target="_blank" style="color:var(--ac)">Abrir PDF</a></span></div>':'')+
+          (n.xmlUrl?'<div class="di"><label>XML</label><span><a href="'+esc(n.xmlUrl)+'" target="_blank" style="color:var(--ac)">Baixar XML</a></span></div>':'')+
+        '</div>'+
+      '</div>';
+    
     G('moverlay').classList.add('open');
     carregarProdutos(n);
+  }
+  
+  // Helper para determinar classe de cor da situação
+  function getSitClass(sit){
+    if(!sit) return 'info';
+    var s = sit.toLowerCase();
+    if(s.includes('finalizado') || s.includes('atendido') || s.includes('aprovado')) return 'ok';
+    if(s.includes('cancelado') || s.includes('rejeitado')) return 'err';
+    if(s.includes('aberto') || s.includes('andamento') || s.includes('pendente')) return 'warn';
+    return 'info';
   }
 
   async function carregarProdutos(n){
