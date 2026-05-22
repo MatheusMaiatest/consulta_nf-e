@@ -225,22 +225,22 @@ app.get('/api/pedidos', async (req, res) => {
       const ids = pedidos.map(p => p.id);
       const ph = ids.map(() => '?').join(',');
 
-      // Itens E-commerce com JOIN para pegar nome do produto
+      // Itens E-commerce com JOIN para pegar nome e SKU do produto
       const [itensE] = await conn2.execute(
         `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
                 i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
-                p.nome AS produto_nome
+                p.nome AS produto_nome, p.codigo AS produto_sku
          FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
          LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
          WHERE i.pedido_venda_id IN (${ph})`,
         ids
       ).catch(() => [[]]);
 
-      // Itens Distribuição com JOIN para pegar nome do produto
+      // Itens Distribuição com JOIN para pegar nome e SKU do produto
       const [itensD] = await conn2.execute(
         `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
                 i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
-                p.nome AS produto_nome
+                p.nome AS produto_nome, p.codigo AS produto_sku
          FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
          LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
          WHERE i.pedido_venda_id IN (${ph})`,
@@ -255,6 +255,7 @@ app.get('/api/pedidos', async (req, res) => {
         if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
         itensMap[item.pedido_venda_id].push({
           codigo: item.itens_codigo,
+          sku: item.produto_sku || item.itens_codigo || '—',
           nome: item.produto_nome || item.itens_codigo || 'Produto sem nome',
           id: item.itens_id,
           produto_id: item.itens_produto_id,
@@ -342,7 +343,7 @@ app.get('/api/notas', async (req, res) => {
                 ''                            AS pedido_observacoesinternas,
                 'ecommerce'                   AS origem
          FROM \`bling_nfe_saida_detalhes_ecommerce\` n
-         LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.id
+         LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.numero
          WHERE n.dataemissao BETWEEN ? AND ?
          ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
         [d1, d2]
@@ -360,7 +361,7 @@ app.get('/api/notas', async (req, res) => {
                 COALESCE(p.observacoesinternas, '')  AS pedido_observacoesinternas,
                 'distribuidor'                       AS origem
          FROM \`bling_nfe_saida_detalhes_distribuicao\` n
-         LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.id
+         LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.numero
          WHERE n.dataemissao BETWEEN ? AND ?
          ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
         [d1, d2]
