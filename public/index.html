@@ -580,66 +580,9 @@
 
   // ── Função de filtro (definida ANTES dos event listeners) ──
   function applyFilters(){
-    window.APPLY_FILTERS_CALLED = (window.APPLY_FILTERS_CALLED || 0) + 1;
-    alert('applyFilters chamada ' + window.APPLY_FILTERS_CALLED + ' vezes');
-    
-    try {
-      console.log('═══════════════════════════════════════════════════');
-      console.log('🔍 APLICANDO FILTROS');
-      console.log('Total de notas:', allNotas.length);
-      console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
-      console.log('Filtro cupom:', _filtroCupom);
-      console.log('Busca:', activeSearch);
-      
-      var contadorBloqueios = { origem: 0, busca: 0, cupom: 0 };
-      
-      filteredNotas=allNotas.filter(function(n){
-        // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
-        if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)){
-          contadorBloqueios.origem++;
-          return false;
-        }
-        
-        // Filtro busca
-        if(activeSearch){
-          var h=[n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-          if(h.indexOf(activeSearch)<0) {
-            contadorBloqueios.busca++;
-            return false;
-          }
-        }
-        
-        // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
-        var temCupom = !!(n.tray_cupom_nome);
-        var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
-        
-        if(algumCupomAtivo){
-          // Se tem cupom mas filtro "com" está OFF, bloqueia
-          if(temCupom && !_filtroCupom.com) {
-            contadorBloqueios.cupom++;
-            return false;
-          }
-          // Se NÃO tem cupom mas filtro "sem" está OFF, bloqueia
-          if(!temCupom && !_filtroCupom.sem) {
-            contadorBloqueios.cupom++;
-            return false;
-          }
-        }
-        
-        return true;
-      });
-      
-      console.log('📊 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', cupom=' + contadorBloqueios.cupom);
-      console.log('✅ Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
-      console.log('═══════════════════════════════════════════════════');
-      
-      G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
-      renderCards();
-    } catch(err) {
-      console.error('❌ ERRO em applyFilters():', err);
-      console.error('Stack:', err.stack);
-      alert('ERRO: ' + err.message);
-    }
+    console.log('⚠️ applyFilters BASE chamada (será sobrescrita)');
+    G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
+    renderCards();
   }
 
   // ── Origem toggle ──────────────────────────────────────────
@@ -1070,10 +1013,13 @@
   // Sobrescreve applyFilters para incluir filtros avançados
   var _applyFiltersBase = applyFilters;
   applyFilters = function(){
+    console.log('⚠️ applyFilters INTERMEDIÁRIA chamada (será sobrescrita novamente)');
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
 
     filteredNotas = allNotas.filter(function(n){
-      if(!activeOrigens.has(n.origem)) return false;
+      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
+      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) return false;
+      
       if(activeSearch){
         var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
         if(h.indexOf(activeSearch) < 0) return false;
@@ -1410,13 +1356,33 @@
   // Sobrescreve applyFilters para incluir filtros cupom e pagamento
   var _applyFiltersAnterior = applyFilters;
   applyFilters = function(){
+    console.log('═══════════════════════════════════════════════════');
+    console.log('🔍 APLICANDO FILTROS (versão final)');
+    console.log('Total de notas:', allNotas.length);
+    console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
+    console.log('Filtro cupom:', _filtroCupom);
+    console.log('Busca:', activeSearch);
+    
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
+    var contadorBloqueios = { origem: 0, busca: 0, fex: 0, cupom: 0, pagamento: 0 };
+    
     filteredNotas = allNotas.filter(function(n){
-      if(!activeOrigens.has(n.origem)) return false;
+      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
+      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) {
+        contadorBloqueios.origem++;
+        return false;
+      }
+      
+      // Filtro busca
       if(activeSearch){
         var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch) < 0) return false;
+        if(h.indexOf(activeSearch) < 0) {
+          contadorBloqueios.busca++;
+          return false;
+        }
       }
+      
+      // Filtros avançados
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
           if(_fexSel[key].size === 0) return true;
@@ -1424,21 +1390,45 @@
           var val = (n[campo]||'').toString().trim();
           return _fexSel[key].has(val);
         });
-        if(!ok) return false;
+        if(!ok) {
+          contadorBloqueios.fex++;
+          return false;
+        }
       }
-      // Filtro cupom
+      
+      // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
       var temCupom = !!(n.tray_cupom_nome);
-      if(temCupom && !_filtroCupom.com) return false;
-      if(!temCupom && !_filtroCupom.sem) return false;
+      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
+      
+      if(algumCupomAtivo){
+        if(temCupom && !_filtroCupom.com) {
+          contadorBloqueios.cupom++;
+          return false;
+        }
+        if(!temCupom && !_filtroCupom.sem) {
+          contadorBloqueios.cupom++;
+          return false;
+        }
+      }
+      
       // Filtro forma de pagamento
       if(_pagAtivo && _pagSelecionados.size > 0){
         var formasNota = (n.formas_pagamento||[]).map(function(fp){ return fp.tipo; });
         if(n.tray_payment_form) formasNota.push(n.tray_payment_form);
         var match = formasNota.some(function(f){ return _pagSelecionados.has(f); });
-        if(!match) return false;
+        if(!match) {
+          contadorBloqueios.pagamento++;
+          return false;
+        }
       }
+      
       return true;
     });
+    
+    console.log('📊 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
+    console.log('✅ Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
+    console.log('═══════════════════════════════════════════════════');
+    
     G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
     renderCards();
   };
@@ -2400,4 +2390,3 @@
   </script>
   </body>
   </html>
-  
