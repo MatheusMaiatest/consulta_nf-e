@@ -593,6 +593,8 @@
       console.log('═══════════════════════════════════════════════════');
       console.log('🏭 CLICOU EM ORIGEM:', o);
       console.log('Estado antes:', Array.from(activeOrigens));
+      console.log('Classes antes:', c.className);
+      
       if(activeOrigens.has(o)){
         activeOrigens.delete(o);
         c.classList.remove('on');
@@ -602,7 +604,10 @@
         c.classList.add('on');
         console.log('✅ Adicionado:', o);
       }
+      
       console.log('Estado depois:', Array.from(activeOrigens));
+      console.log('Classes depois:', c.className);
+      console.log('Tem classe "on"?', c.classList.contains('on'));
       console.log('Tamanho do Set:', activeOrigens.size);
       console.log('Chamando applyFilters()...');
       console.log('Tipo de applyFilters:', typeof applyFilters);
@@ -1272,14 +1277,23 @@
   // ── Filtro Cupom ───────────────────────────────────────────
   ['com','sem'].forEach(function(tipo){
     var chip = document.querySelector('[data-cupom="'+tipo+'"]');
-    if(!chip) return;
+    if(!chip) {
+      console.error('❌ Chip não encontrado para cupom:', tipo);
+      return;
+    }
+    console.log('✅ Chip encontrado para cupom:', tipo, 'classes:', chip.className);
     chip.onclick = function(){
       console.log('═══════════════════════════════════════════════════');
       console.log('🎟️ CLICOU EM CUPOM:', tipo);
-      console.log('Estado antes:', _filtroCupom);
+      console.log('Estado antes:', JSON.stringify(_filtroCupom));
+      console.log('Classes antes:', chip.className);
+      
       _filtroCupom[tipo] = !_filtroCupom[tipo];
       chip.classList.toggle('on', _filtroCupom[tipo]);
-      console.log('Estado depois:', _filtroCupom);
+      
+      console.log('Estado depois:', JSON.stringify(_filtroCupom));
+      console.log('Classes depois:', chip.className);
+      console.log('Tem classe "on"?', chip.classList.contains('on'));
       console.log('Chamando applyFilters()...');
       console.log('Tipo de applyFilters:', typeof applyFilters);
       if(typeof applyFilters === 'function') {
