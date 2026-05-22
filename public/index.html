@@ -270,6 +270,7 @@
     <span class="logo">📦 NF-e Viewer</span>
     <nav class="tab-nav">
       <button class="tab-btn active" onclick="switchView('nfe',this)">📋 NF-e</button>
+      <button class="tab-btn" onclick="switchView('pedidos',this)">🛒 Pedidos</button>
       <button class="tab-btn" onclick="switchView('transporte',this)">🚚 Transporte</button>
       <button class="tab-btn" onclick="switchView('vendas',this)">📊 Vendas</button>
     </nav>
@@ -374,6 +375,40 @@
     </main>
   </div>
   </div><!-- /view-nfe -->
+
+  <!-- VIEW PEDIDOS -->
+  <div id="view-pedidos" class="view-section">
+  <div class="layout">
+    <aside class="panel" id="panel-pedidos">
+      <div class="panel-title">Painel de Controle</div>
+      <div class="psec">
+        <span class="plabel">📅 Período</span>
+        <div class="date-row">
+          <div class="fg"><label>De</label><input type="date" id="dtFromPed"/></div>
+          <div class="fg"><label>Até</label><input type="date" id="dtToPed"/></div>
+        </div>
+      </div>
+      <div class="psec">
+        <span class="plabel">🏭 Origem</span>
+        <div class="tog-grp">
+          <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
+          <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnBuscarPed">🔍 Buscar Pedidos</button>
+      <div class="statusbar" id="statusPed">Aguardando busca...</div>
+    </aside>
+    <main class="main">
+      <div class="fbar">
+        <input type="text" class="sinput" id="searchPed" placeholder="🔎 Buscar por cliente, pedido, CPF..."/>
+        <span class="rcount" id="rcountPed"></span>
+      </div>
+      <div class="grid" id="gridPed">
+        <div class="empty"><div class="empty-icon">📋</div><p>Selecione um período e clique em <strong>Buscar Pedidos</strong></p></div>
+      </div>
+    </main>
+  </div>
+  </div><!-- /view-pedidos -->
 
   <!-- VIEW TRANSPORTE -->
   <div id="view-transporte" class="view-section">
@@ -566,9 +601,24 @@
       <div class="pedido-modal-head" id="trayHead"></div>
       <div class="pedido-modal-body" id="trayBody"></div>
     </div>
-  </div><script>// ── Estado global ──────────────────────────────────────────
+  </div>
+  
+  <!-- MODAL PEDIDO -->
+  <div class="moverlay" id="moverlayPed">
+    <div class="modal">
+      <button class="mclose" id="mclosePed">✕</button>
+      <div class="mhead" id="mheadPed"></div>
+      <div class="mbody" id="mbodyPed"></div>
+    </div>
+  </div>
+  
+  <script>// ── Estado global ──────────────────────────────────────────
   var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
   var _filtroCupom = { com: true, sem: true };  // Filtro de cupom
+  
+  // Estado global PEDIDOS
+  var allPedidos=[], filteredPedidos=[], activeSearchPed='', activeOrigensPed=new Set(['ecommerce','distribuidor']);
+  
   var G=function(id){return document.getElementById(id);};
 
   // ── Tema ───────────────────────────────────────────────────
@@ -1002,9 +1052,9 @@
   function getSitClass(sit){
     if(!sit) return 'info';
     var s = sit.toLowerCase();
-    if(s.includes('finalizado') || s.includes('atendido') || s.includes('aprovado')) return 'ok';
-    if(s.includes('cancelado') || s.includes('rejeitado')) return 'err';
-    if(s.includes('aberto') || s.includes('andamento') || s.includes('pendente')) return 'warn';
+    if(s.includes('finalizado') || s.includes('atendido') || s.includes('aprovado') || s.includes('verificado')) return 'ok';
+    if(s.includes('cancelado') || s.includes('rejeitado') || s.includes('devolucao') || s.includes('avaria')) return 'err';
+    if(s.includes('aberto') || s.includes('andamento') || s.includes('pendente') || s.includes('aguardando')) return 'warn';
     return 'info';
   }
 
@@ -1437,9 +1487,9 @@
   function sitBadgeCard(sit){
     if(!sit) return '';
     var cls='info';
-    if(sit==='Finalizado'||sit==='Atendido') cls='ok';
-    else if(sit==='Cancelado') cls='err';
-    else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
+    if(sit==='Finalizado'||sit==='Atendido'||sit==='Verificado') cls='ok';
+    else if(sit==='Cancelado'||sit.includes('Devolucao')||sit.includes('Avaria')) cls='err';
+    else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento'||sit.includes('Aguardando')) cls='warn';
     return '<span class="card-sit-badge '+cls+'">'+esc(sit)+'</span>';
   }
 
@@ -2687,6 +2737,174 @@
   document.addEventListener('DOMContentLoaded', function(){
     // Não precisa mais do overlay, drill agora substitui o mapa
   });
+
+  // ═══════════════════════════════════════════════════════════
+  // ABA PEDIDOS DE VENDA
+  // ═══════════════════════════════════════════════════════════
+  
+  var allPedidos = [], filteredPedidos = [], activeSearchPed = '';
+  var activePedOrigens = new Set(['ecommerce', 'distribuidor']);
+  
+  // Buscar pedidos
+  G('btnBuscarPed').onclick = buscarPedidos;
+  
+  function buscarPedidos(){
+    var f = G('dtFromPed').value, t = G('dtToPed').value;
+    if(!f || !t){ setStatusPed('⚠️ Selecione o período.', 'warn'); return; }
+    if(f > t){ setStatusPed('⚠️ Data inicial maior que final.', 'warn'); return; }
+    
+    allPedidos = [];
+    loadingPed(true);
+    setStatusPed('Buscando pedidos...');
+    
+    fetch(API_BASE + '/api/pedidos?from=' + f + '&to=' + t)
+      .then(r => r.json())
+      .then(d => {
+        if(d.error){ setStatusPed('❌ ' + d.error, 'err'); loadingPed(false); return; }
+        allPedidos = d.pedidos || [];
+        setStatusPed('✅ ' + allPedidos.length + ' pedidos carregados.');
+        loadingPed(false);
+        applyFiltersPed();
+      })
+      .catch(e => {
+        setStatusPed('❌ ' + e.message, 'err');
+        loadingPed(false);
+      });
+  }
+  
+  // Filtros de pedidos
+  function applyFiltersPed(){
+    filteredPedidos = allPedidos.filter(function(p){
+      // Filtro origem
+      if(activePedOrigens.size > 0 && !activePedOrigens.has(p.origem)) return false;
+      
+      // Filtro busca
+      if(activeSearchPed){
+        var h = [p.cliente, p.numero, p.cpf, p.situacao].join(' ').toLowerCase();
+        if(h.indexOf(activeSearchPed) < 0) return false;
+      }
+      
+      return true;
+    });
+    
+    G('rcountPed').textContent = filteredPedidos.length + ' pedido' + (filteredPedidos.length !== 1 ? 's' : '');
+    renderCardsPed();
+  }
+  
+  // Busca rápida
+  G('searchPed').oninput = function(e){
+    activeSearchPed = e.target.value.toLowerCase().trim();
+    applyFiltersPed();
+  };
+  
+  // Render cards de pedidos
+  function renderCardsPed(){
+    var grid = G('gridPed');
+    grid.innerHTML = '';
+    
+    if(!filteredPedidos.length){
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>Nenhum pedido encontrado.</p></div>';
+      return;
+    }
+    
+    filteredPedidos.forEach(function(p){
+      grid.appendChild(buildCardPed(p));
+    });
+  }
+  
+  // Construir card de pedido
+  function buildCardPed(p){
+    var d = document.createElement('div');
+    d.className = 'card ' + p.origem;
+    var ol = p.origem === 'ecommerce' ? '🛒 E-commerce' : '🏭 Distribuidor';
+    var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
+    
+    d.innerHTML =
+      '<div class="cbadge ' + p.origem + '">' + ol + '</div>' +
+      '<div class="ccliente">' + esc(p.cliente || '—') + '</div>' +
+      '<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">' +
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">🛒 Pedido ' + esc(p.numero) + '</span>' +
+        sitBadgeCard(p.situacao) +
+        (temNF ? ' <span class="card-sit-badge ok" style="margin-left:4px">✓ NF</span>' : '') +
+      '</div>' +
+      '<div class="cvalor">' + brl(p.valor) + '</div>' +
+      '<div class="cmeta">' +
+        '<span class="cdata">' + fmtDate(p.data) + '</span>' +
+        '<span class="ctransp" title="' + esc(p.transportadora || '') + '">' + esc(p.transportadora || '—') + '</span>' +
+      '</div>';
+    
+    d.onclick = function(){ abrirModalPed(p); };
+    return d;
+  }
+  
+  // Abrir modal de pedido
+  function abrirModalPed(p){
+    var ol = p.origem === 'ecommerce' ? '🛒 E-commerce' : '🏭 Distribuidor';
+    var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
+    
+    G('mheadPed').innerHTML =
+      '<div class="cbadge ' + p.origem + '" style="margin-bottom:10px">' + ol + '</div>' +
+      '<h2>' + esc(p.cliente || '—') + '</h2>' +
+      '<div class="msub">Pedido ' + esc(p.numero || '—') + ' · ' + fmtDate(p.data) + '</div>';
+    
+    G('mbodyPed').innerHTML =
+      // SEÇÃO: PEDIDO
+      '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">' +
+        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">🛒 PEDIDO DE VENDA</h3>' +
+        '<div class="dgrid">' +
+          di('Número', p.numero) +
+          di('Data Pedido', fmtDate(p.data)) +
+          di('Data Saída', fmtDate(p.datasaida)) +
+          '<div class="di"><label>Situação</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
+          diV('Valor Total', brl(p.valor)) +
+          di('Valor Produtos', brl(p.valorProdutos)) +
+          di('Desconto', brl(p.desconto)) +
+          di('Nº Loja', p.numeroloja || '—') +
+          (temNF ? '<div class="di"><label>Nota Fiscal</label><span><span class="card-sit-badge ok">✓ NF Vinculada (ID: ' + p.notafiscal_id + ')</span></span></div>' : '<div class="di"><label>Nota Fiscal</label><span style="color:var(--warn)">❌ Sem NF vinculada</span></div>') +
+        '</div>' +
+        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">📝 Observações</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
+        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">🔒 Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
+      '</div>' +
+      
+      // SEÇÃO: CLIENTE
+      '<div class="dsec">' +
+        '<h3>👤 Cliente</h3>' +
+        '<div class="dgrid">' +
+          di('Nome', p.cliente) +
+          di('CPF/CNPJ', p.cpf) +
+          di('Tipo Pessoa', p.tipoPessoa === 'F' ? 'Física' : p.tipoPessoa === 'J' ? 'Jurídica' : p.tipoPessoa) +
+        '</div>' +
+      '</div>' +
+      
+      // SEÇÃO: TRANSPORTE
+      '<div class="dsec">' +
+        '<h3>🚚 Transporte</h3>' +
+        '<div class="dgrid">' +
+          di('Transportadora', p.transportadora) +
+          diV('Frete', brl(p.frete)) +
+          di('Peso Bruto', p.pesoBruto ? p.pesoBruto + ' kg' : '—') +
+        '</div>' +
+      '</div>';
+    
+    G('moverlayPed').classList.add('open');
+  }
+  
+  // Fechar modal de pedido
+  G('mclosePed').onclick = fecharModalPed;
+  G('moverlayPed').onclick = function(e){ if(e.target === G('moverlayPed')) fecharModalPed(); };
+  function fecharModalPed(){ G('moverlayPed').classList.remove('open'); }
+  
+  // Helpers
+  function setStatusPed(m, t){
+    var s = G('statusPed');
+    s.textContent = m;
+    s.style.color = t === 'err' ? 'var(--err)' : t === 'warn' ? 'var(--warn)' : 'var(--tm)';
+  }
+  
+  function loadingPed(on){
+    // Reutiliza o loading overlay
+    G('loverlay').classList.toggle('on', on);
+  }
 
   </script>
   </body>
