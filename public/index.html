@@ -580,6 +580,9 @@
 
   // ── Função de filtro (definida ANTES dos event listeners) ──
   function applyFilters(){
+    window.APPLY_FILTERS_CALLED = (window.APPLY_FILTERS_CALLED || 0) + 1;
+    alert('applyFilters chamada ' + window.APPLY_FILTERS_CALLED + ' vezes');
+    
     try {
       console.log('═══════════════════════════════════════════════════');
       console.log('🔍 APLICANDO FILTROS');
@@ -635,6 +638,7 @@
     } catch(err) {
       console.error('❌ ERRO em applyFilters():', err);
       console.error('Stack:', err.stack);
+      alert('ERRO: ' + err.message);
     }
   }
 
@@ -2396,3 +2400,4 @@
   </script>
   </body>
   </html>
+  
