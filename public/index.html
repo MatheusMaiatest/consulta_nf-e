@@ -1810,6 +1810,17 @@
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
     document.getElementById('view-' + view).classList.add('active');
     if(btn) btn.classList.add('active');
+    
+    // Sincroniza datas ao trocar de aba
+    if(view === 'pedidos') {
+      G('dtFromPed').value = G('dtFrom').value;
+      G('dtToPed').value = G('dtTo').value;
+    }
+    if(view === 'nfe') {
+      G('dtFrom').value = G('dtFromPed').value;
+      G('dtTo').value = G('dtToPed').value;
+    }
+    
     if(view === 'transporte') buildDashTransporte();
     if(view === 'vendas')     buildDashVendas();
   }
@@ -2744,6 +2755,12 @@
   
   var allPedidos = [], filteredPedidos = [], activeSearchPed = '';
   var activePedOrigens = new Set(['ecommerce', 'distribuidor']);
+  
+  // Sincronizar datas entre abas NF-e e Pedidos
+  G('dtFrom').onchange = function(){ G('dtFromPed').value = this.value; };
+  G('dtTo').onchange = function(){ G('dtToPed').value = this.value; };
+  G('dtFromPed').onchange = function(){ G('dtFrom').value = this.value; };
+  G('dtToPed').onchange = function(){ G('dtTo').value = this.value; };
   
   // Buscar pedidos
   G('btnBuscarPed').onclick = buscarPedidos;
