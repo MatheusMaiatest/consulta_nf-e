@@ -589,7 +589,17 @@
 
   // ── Origem toggle ──────────────────────────────────────────
   document.querySelectorAll('.tchip').forEach(function(c){
-    c.onclick=function(){
+    // Remove o checkbox interno para evitar conflitos
+    var checkbox = c.querySelector('input[type="checkbox"]');
+    if(checkbox) {
+      checkbox.style.display = 'none';
+      checkbox.disabled = true;
+    }
+    
+    c.onclick=function(e){
+      e.preventDefault(); // Previne comportamento padrão do label
+      e.stopPropagation(); // Para propagação do evento
+      
       var o=c.dataset.o;
       if(!o) return; // Ignora chips que não são de origem
       
@@ -1427,7 +1437,18 @@
       return;
     }
     console.log('✅ Chip encontrado para cupom:', tipo, 'classes:', chip.className);
-    chip.onclick = function(){
+    
+    // Remove o checkbox interno para evitar conflitos
+    var checkbox = chip.querySelector('input[type="checkbox"]');
+    if(checkbox) {
+      checkbox.style.display = 'none';
+      checkbox.disabled = true;
+    }
+    
+    chip.onclick = function(e){
+      e.preventDefault(); // Previne comportamento padrão do label
+      e.stopPropagation(); // Para propagação do evento
+      
       // Botão "TODAS" para cupom
       if(tipo === 'todas'){
         console.log('═══════════════════════════════════════════════════');
@@ -1456,7 +1477,13 @@
       if(btnTodas) btnTodas.classList.remove('on');
       
       _filtroCupom[tipo] = !_filtroCupom[tipo];
-      chip.classList.toggle('on', _filtroCupom[tipo]);
+      
+      // FORÇA atualização visual
+      if(_filtroCupom[tipo]) {
+        chip.classList.add('on');
+      } else {
+        chip.classList.remove('on');
+      }
       
       console.log('Estado depois:', JSON.stringify(_filtroCupom));
       console.log('Classes depois:', chip.className);
