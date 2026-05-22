@@ -704,8 +704,16 @@
     
     console.log('🗂️ Agrupamento:', grp);
     console.log('📊 Colunas visíveis:', Array.from(cols));
+    console.log('🎯 Grid element:', grid);
+    console.log('🎯 Grid parent:', grid.parentElement);
+    console.log('🎯 Grid display:', window.getComputedStyle(grid).display);
+    console.log('🎯 Grid visibility:', window.getComputedStyle(grid).visibility);
     
-    grid.innerHTML='';
+    // FORÇA limpeza do grid
+    while(grid.firstChild) {
+      grid.removeChild(grid.firstChild);
+    }
+    
     _renderIdx=0;
 
     // Desconecta observer anterior
@@ -727,17 +735,27 @@
     
     console.log('📦 Total de itens a renderizar:', _renderList.length);
 
-    // Renderiza primeiro lote
-    renderLote(cols, grid);
-
     // Sentinel para carregar mais ao rolar
     var sentinel=document.createElement('div');
     sentinel.style.height='1px';
+    sentinel.id='sentinel-' + Date.now(); // ID único
     grid.appendChild(sentinel);
-    _renderObs=new IntersectionObserver(function(entries){
-      if(entries[0].isIntersecting) renderLote(cols, grid);
-    },{rootMargin:'200px'});
-    _renderObs.observe(sentinel);
+    
+    console.log('✅ Sentinel adicionado ao grid');
+    console.log('✅ Grid children após sentinel:', grid.children.length);
+    
+    // Renderiza primeiro lote DEPOIS de adicionar o sentinel
+    requestAnimationFrame(function(){
+      console.log('🎬 requestAnimationFrame executando...');
+      renderLote(cols, grid);
+      
+      // Observer para lazy loading
+      _renderObs=new IntersectionObserver(function(entries){
+        if(entries[0].isIntersecting) renderLote(cols, grid);
+      },{rootMargin:'200px'});
+      _renderObs.observe(sentinel);
+      console.log('👁️ Observer configurado');
+    });
     
     console.log('✅ renderCards() concluída');
   }
@@ -766,10 +784,22 @@
     var sentinel=grid.lastElementChild;
     console.log('Sentinel:', sentinel);
     console.log('Grid antes:', grid.children.length, 'elementos');
+    console.log('Grid display:', window.getComputedStyle(grid).display);
+    console.log('Grid visibility:', window.getComputedStyle(grid).visibility);
+    console.log('Grid opacity:', window.getComputedStyle(grid).opacity);
     
     grid.insertBefore(frag, sentinel);
     
+    // FORÇA reflow do navegador
+    void grid.offsetHeight;
+    
     console.log('Grid depois:', grid.children.length, 'elementos');
+    console.log('Primeiro card:', grid.children[0]);
+    if(grid.children[0]) {
+      console.log('Primeiro card display:', window.getComputedStyle(grid.children[0]).display);
+      console.log('Primeiro card visibility:', window.getComputedStyle(grid.children[0]).visibility);
+      console.log('Primeiro card opacity:', window.getComputedStyle(grid.children[0]).opacity);
+    }
     
     _renderIdx=fim;
     if(_renderIdx>=_renderList.length && _renderObs){
@@ -781,6 +811,12 @@
   function buildCard(n,cols){
     var d=document.createElement('div');
     d.className='card '+n.origem;
+    // DEBUG: força visibilidade
+    d.style.display = 'block';
+    d.style.visibility = 'visible';
+    d.style.opacity = '1';
+    d.setAttribute('data-debug-card', 'true');
+    
     var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     d.innerHTML=
       (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
@@ -792,6 +828,16 @@
         (cols.has('transp')?'<span class="ctransp" title="'+esc(n.transportadora||'')+'">'+esc(n.transportadora||'—')+'</span>':'')+
       '</div>';
     d.onclick=function(){abrirModal(n);};
+    
+    console.log('🎴 Card criado:', {
+      cliente: n.cliente,
+      numero: n.numero,
+      origem: n.origem,
+      className: d.className,
+      display: d.style.display,
+      innerHTML_length: d.innerHTML.length
+    });
+    
     return d;
   }
 
@@ -1565,6 +1611,14 @@
     console.log('═══════════════════════════════════════════════════');
     
     G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
+    
+    // Scroll para o topo do grid para ver os resultados
+    var grid = G('grid');
+    if(grid && grid.parentElement) {
+      grid.parentElement.scrollTop = 0;
+      console.log('📜 Scroll para o topo do grid');
+    }
+    
     renderCards();
   };
 
