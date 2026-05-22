@@ -38,6 +38,143 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
+// ── /api/data-range ───────────────────────────────────────
+app.get('/api/data-range', async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    
+    // Busca a data mais antiga e mais recente de ambas as tabelas
+    const [[ecoRange]] = await conn.execute(
+      `SELECT 
+        MIN(dataemissao) AS min_data,
+        MAX(dataemissao) AS max_data,
+        COUNT(*) AS total
+       FROM \`bling_nfe_saida_detalhes_ecommerce\``
+    );
+    
+    const [[distRange]] = await conn.execute(
+      `SELECT 
+        MIN(dataemissao) AS min_data,
+        MAX(dataemissao) AS max_data,
+        COUNT(*) AS total
+       FROM \`bling_nfe_saida_detalhes_distribuicao\``
+    );
+    
+    conn.release();
+    
+    const minData = [ecoRange.min_data, distRange.min_data]
+      .filter(Boolean)
+      .sort()[0];
+    
+    const maxData = [ecoRange.max_data, distRange.max_data]
+      .filter(Boolean)
+      .sort()
+      .reverse()[0];
+    
+    res.json({
+      min_data: minData,
+      max_data: maxData,
+      total_ecommerce: ecoRange.total || 0,
+      total_distribuicao: distRange.total || 0,
+      total_geral: (ecoRange.total || 0) + (distRange.total || 0)
+    });
+    
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/pedidos ──────────────────────────────────────────
+app.get('/api/pedidos', async (req, res) => {
+  const { from, to, offset = 0 } = req.query;
+  if (!from || !to) return res.json({ error: 'Parametros from e to obrigatorios.' });
+
+  const d1  = from + ' 00:00:00';
+  const d2  = to   + ' 23:59:59';
+  const off = parseInt(offset) || 0;
+
+  try {
+    const conn = await pool.getConnection();
+    let total = null;
+
+    if (off === 0) {
+      const [[row]] = await conn.execute(
+        `SELECT
+          (SELECT COUNT(*) FROM \`bling_pedidos_venda_detalhes_ecommerce\`    WHERE data BETWEEN ? AND ?) +
+          (SELECT COUNT(*) FROM \`bling_pedidos_venda_detalhes_distribuicao\` WHERE data BETWEEN ? AND ?) AS total`,
+        [d1, d2, d1, d2]
+      );
+      total = row.total;
+    }
+
+    const [[{ countEco }]] = await conn.execute(
+      `SELECT COUNT(*) AS countEco FROM \`bling_pedidos_venda_detalhes_ecommerce\` WHERE data BETWEEN ? AND ?`,
+      [d1, d2]
+    );
+
+    let pedidos = [];
+    let offE = 0, limE = 0, offD = 0, limD = 0;
+
+    if (off < countEco) {
+      offE = off; limE = PAGE;
+      limD = PAGE - Math.min(PAGE, countEco - off);
+      offD = 0;
+    } else {
+      offD = off - countEco; limD = PAGE;
+    }
+
+    if (limE > 0) {
+      const [rows] = await conn.execute(
+        `SELECT 
+          id, numero, data, datasaida, situacao_nome, situacao_id,
+          contato_nome, contato_numerodocumento, contato_tipopessoa,
+          total, totalprodutos, desconto_valor,
+          transporte_contato_nome, transporte_frete, transporte_pesobruto,
+          notafiscal_id, numeroloja, loja_id,
+          'ecommerce' AS origem
+         FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+         WHERE data BETWEEN ? AND ?
+         ORDER BY data DESC LIMIT ${limE} OFFSET ${offE}`,
+        [d1, d2]
+      );
+      pedidos = pedidos.concat(rows.map(r => montarPedido(r)));
+    }
+
+    if (limD > 0) {
+      const [rows] = await conn.execute(
+        `SELECT 
+          id, numero, data, datasaida, situacao_nome, situacao_id,
+          contato_nome, contato_numerodocumento, contato_tipopessoa,
+          total, totalprodutos, desconto_valor,
+          transporte_contato_nome, transporte_frete, transporte_pesobruto,
+          notafiscal_id, numeroloja, loja_id,
+          observacoes, observacoesinternas,
+          'distribuidor' AS origem
+         FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+         WHERE data BETWEEN ? AND ?
+         ORDER BY data DESC LIMIT ${limD} OFFSET ${offD}`,
+        [d1, d2]
+      );
+      pedidos = pedidos.concat(rows.map(r => montarPedido(r)));
+    }
+
+    conn.release();
+
+    pedidos.sort((a, b) => {
+      const da = a.data ? new Date(a.data).getTime() : 0;
+      const db = b.data ? new Date(b.data).getTime() : 0;
+      return db - da;
+    });
+
+    res.json({ pedidos, offset: off, pageSize: PAGE, total, hasMore: pedidos.length === PAGE });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
 // ── /api/notas ────────────────────────────────────────────
 app.get('/api/notas', async (req, res) => {
   const { from, to, offset = 0 } = req.query;
@@ -423,6 +560,32 @@ function montarNota(r) {
     pesoBruto:          null,
     pesoLiquido:        null,
     qtdVolumes:         null
+  };
+}
+
+function montarPedido(r) {
+  return {
+    id:                 r.id,
+    origem:             r.origem,
+    numero:             r.numero,
+    data:               r.data ? new Date(r.data).toISOString() : null,
+    datasaida:          r.datasaida ? new Date(r.datasaida).toISOString() : null,
+    situacao:           r.situacao_nome,
+    situacao_id:        r.situacao_id,
+    cliente:            r.contato_nome,
+    cpf:                r.contato_numerodocumento,
+    tipoPessoa:         r.contato_tipopessoa,
+    valor:              r.total || null,
+    valorProdutos:      r.totalprodutos || null,
+    desconto:           r.desconto_valor || null,
+    transportadora:     r.transporte_contato_nome,
+    frete:              r.transporte_frete || null,
+    pesoBruto:          r.transporte_pesobruto || null,
+    notafiscal_id:      r.notafiscal_id,
+    numeroloja:         r.numeroloja,
+    loja_id:            r.loja_id,
+    observacoes:        r.observacoes && r.observacoes.trim() ? r.observacoes.trim() : null,
+    observacoesinternas: r.observacoesinternas && r.observacoesinternas.trim() ? r.observacoesinternas.trim() : null
   };
 }
 
