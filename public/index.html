@@ -743,7 +743,12 @@
   }
 
   function renderLote(cols, grid){
+    console.log('🎨 renderLote() chamada');
+    console.log('_renderIdx:', _renderIdx, '_renderBatch:', _renderBatch, '_renderList.length:', _renderList.length);
+    
     var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
+    console.log('Renderizando de', _renderIdx, 'até', fim);
+    
     var frag=document.createDocumentFragment();
     for(var i=_renderIdx;i<fim;i++){
       var item=_renderList[i];
@@ -754,12 +759,22 @@
         frag.appendChild(buildCard(item.nota,cols));
       }
     }
+    
+    console.log('Fragment criado com', frag.childNodes.length, 'elementos');
+    
     // Insere antes do sentinel
     var sentinel=grid.lastElementChild;
+    console.log('Sentinel:', sentinel);
+    console.log('Grid antes:', grid.children.length, 'elementos');
+    
     grid.insertBefore(frag, sentinel);
+    
+    console.log('Grid depois:', grid.children.length, 'elementos');
+    
     _renderIdx=fim;
     if(_renderIdx>=_renderList.length && _renderObs){
       _renderObs.disconnect(); _renderObs=null;
+      console.log('✅ Todos os itens renderizados, observer desconectado');
     }
   }
 
