@@ -2925,10 +2925,11 @@
         (p.itens && p.itens.length ? 
           '<div class="plist">' +
             p.itens.map(function(item){
+              var valorTotal = (item.quantidade || 0) * (item.valor || 0);
               return '<div class="pitem">' +
                 '<span class="pnome">' + esc(item.nome || item.codigo || '—') + '</span>' +
-                '<span class="pqtd">' + item.quantidade + ' ' + (item.unidade || 'un') + '</span>' +
-                '<span class="pval">' + brl(item.valorTotal) + '</span>' +
+                '<span class="pqtd">' + item.quantidade + ' ' + (item.unidade || 'un') + ' × ' + brl(item.valor) + '</span>' +
+                '<span class="pval">' + brl(valorTotal) + '</span>' +
               '</div>';
             }).join('') +
           '</div>'
