@@ -928,7 +928,7 @@
     var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     
     // Badge de situação da NF
-    var nfSituacao = n.situacao || 'Autorizada';
+    var nfSituacao = n.situacao ? String(n.situacao) : 'Autorizada';
     var nfSitClass = 'ok'; // Verde por padrão (autorizada)
     if(nfSituacao.toLowerCase().includes('cancelad')) nfSitClass = 'err';
     else if(nfSituacao.toLowerCase().includes('denegad')) nfSitClass = 'err';
