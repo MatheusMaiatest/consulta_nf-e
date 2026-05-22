@@ -300,6 +300,7 @@
       <div class="psec">
         <span class="plabel">🏭 Origem</span>
         <div class="tog-grp">
+          <label class="tchip" id="chipTodasOrigens" data-o="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>✓ Todas</label>
           <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
           <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
         </div>
@@ -320,6 +321,7 @@
       <div class="psec">
         <span class="plabel">🎟️ Cupom</span>
         <div class="tog-grp">
+          <label class="tchip" id="chipTodosCupons" data-cupom="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>✓ Todas</label>
           <label class="tchip on" id="chipComCupom" data-cupom="com"><input type="checkbox" checked/>Com cupom</label>
           <label class="tchip on" id="chipSemCupom" data-cupom="sem"><input type="checkbox" checked/>Sem cupom</label>
         </div>
@@ -590,10 +592,32 @@
     c.onclick=function(){
       var o=c.dataset.o;
       if(!o) return; // Ignora chips que não são de origem
+      
+      // Botão "TODAS" para origem
+      if(o === 'todas'){
+        console.log('═══════════════════════════════════════════════════');
+        console.log('✓ CLICOU EM TODAS (ORIGEM)');
+        // Limpa todos os filtros de origem
+        activeOrigens.clear();
+        // Remove classe "on" de todos os botões de origem
+        document.querySelectorAll('[data-o="ecommerce"], [data-o="distribuidor"]').forEach(function(chip){
+          chip.classList.remove('on');
+        });
+        // Adiciona classe "on" no botão TODAS
+        c.classList.add('on');
+        console.log('Todas as origens limpas, mostrando TODAS as notas');
+        applyFilters();
+        return;
+      }
+      
       console.log('═══════════════════════════════════════════════════');
       console.log('🏭 CLICOU EM ORIGEM:', o);
       console.log('Estado antes:', Array.from(activeOrigens));
       console.log('Classes antes:', c.className);
+      
+      // Remove classe "on" do botão TODAS
+      var btnTodas = document.getElementById('chipTodasOrigens');
+      if(btnTodas) btnTodas.classList.remove('on');
       
       if(activeOrigens.has(o)){
         activeOrigens.delete(o);
@@ -1335,18 +1359,40 @@
   G('trayOverlay').onclick = function(e){ if(e.target===G('trayOverlay')) G('trayOverlay').classList.remove('open'); };
 
   // ── Filtro Cupom ───────────────────────────────────────────
-  ['com','sem'].forEach(function(tipo){
+  ['todas','com','sem'].forEach(function(tipo){
     var chip = document.querySelector('[data-cupom="'+tipo+'"]');
     if(!chip) {
-      console.error('❌ Chip não encontrado para cupom:', tipo);
+      if(tipo !== 'todas') console.error('❌ Chip não encontrado para cupom:', tipo);
       return;
     }
     console.log('✅ Chip encontrado para cupom:', tipo, 'classes:', chip.className);
     chip.onclick = function(){
+      // Botão "TODAS" para cupom
+      if(tipo === 'todas'){
+        console.log('═══════════════════════════════════════════════════');
+        console.log('✓ CLICOU EM TODAS (CUPOM)');
+        // Ativa ambos os filtros (mostra todas as notas)
+        _filtroCupom.com = true;
+        _filtroCupom.sem = true;
+        // Adiciona classe "on" em ambos os botões
+        document.querySelectorAll('[data-cupom="com"], [data-cupom="sem"]').forEach(function(c){
+          c.classList.add('on');
+        });
+        // Adiciona classe "on" no botão TODAS
+        chip.classList.add('on');
+        console.log('Todos os cupons ativos, mostrando TODAS as notas');
+        applyFilters();
+        return;
+      }
+      
       console.log('═══════════════════════════════════════════════════');
       console.log('🎟️ CLICOU EM CUPOM:', tipo);
       console.log('Estado antes:', JSON.stringify(_filtroCupom));
       console.log('Classes antes:', chip.className);
+      
+      // Remove classe "on" do botão TODAS
+      var btnTodas = document.getElementById('chipTodosCupons');
+      if(btnTodas) btnTodas.classList.remove('on');
       
       _filtroCupom[tipo] = !_filtroCupom[tipo];
       chip.classList.toggle('on', _filtroCupom[tipo]);
