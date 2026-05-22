@@ -923,6 +923,7 @@
 
   // ── Modal ──────────────────────────────────────────────────
   function abrirModal(n){
+    console.log('🔍 abrirModal chamada:', n);
     var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     
     // Badge de situação da NF
@@ -1044,7 +1045,10 @@
         '</div>'+
       '</div>';
     
+    console.log('✅ Modal HTML montado, abrindo overlay...');
+    console.log('moverlay element:', G('moverlay'));
     G('moverlay').classList.add('open');
+    console.log('✅ Classe "open" adicionada');
     carregarProdutos(n);
   }
   
@@ -2789,6 +2793,18 @@
       });
   }
   
+  // Quando buscar NFs, buscar pedidos automaticamente
+  var _buscarOrig = buscar;
+  buscar = function(){
+    _buscarOrig();
+    // Busca pedidos automaticamente se as datas estiverem preenchidas
+    setTimeout(function(){
+      if(G('dtFromPed').value && G('dtToPed').value){
+        buscarPedidos();
+      }
+    }, 100);
+  };
+  
   // Filtros de pedidos
   function applyFiltersPed(){
     filteredPedidos = allPedidos.filter(function(p){
@@ -2901,6 +2917,22 @@
           diV('Frete', brl(p.frete)) +
           di('Peso Bruto', p.pesoBruto ? p.pesoBruto + ' kg' : '—') +
         '</div>' +
+      '</div>' +
+      
+      // SEÇÃO: PRODUTOS
+      '<div class="dsec">' +
+        '<h3>📦 Produtos</h3>' +
+        (p.itens && p.itens.length ? 
+          '<div class="plist">' +
+            p.itens.map(function(item){
+              return '<div class="pitem">' +
+                '<span class="pnome">' + esc(item.nome || item.codigo || '—') + '</span>' +
+                '<span class="pqtd">' + item.quantidade + ' ' + (item.unidade || 'un') + '</span>' +
+                '<span class="pval">' + brl(item.valorTotal) + '</span>' +
+              '</div>';
+            }).join('') +
+          '</div>'
+        : '<div style="color:var(--tm);font-size:.82rem">Nenhum produto encontrado.</div>') +
       '</div>';
     
     G('moverlayPed').classList.add('open');
