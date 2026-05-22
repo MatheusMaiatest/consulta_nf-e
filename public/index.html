@@ -145,10 +145,10 @@
   .sit-Aberto,.sit-Em\ andamento{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid #ff9800}
   .sit-default{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
   .obs-box{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:.82rem;color:var(--tp);line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow-y:auto}
-  .card-sit-badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-left:4px}
-  .card-sit-badge.ok{background:rgba(76,175,80,.15);color:#4caf50;border:1px solid rgba(76,175,80,.4)}
-  .card-sit-badge.err{background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.4)}
-  .card-sit-badge.warn{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.4)}
+  .card-sit-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-left:4px}
+  .card-sit-badge.ok{background:rgba(76,175,80,.2);color:#4caf50;border:1px solid rgba(76,175,80,.6)}
+  .card-sit-badge.err{background:rgba(244,67,54,.2);color:#f44336;border:1px solid rgba(244,67,54,.6)}
+  .card-sit-badge.warn{background:rgba(255,152,0,.2);color:#ff9800;border:1px solid rgba(255,152,0,.6)}
   .card-sit-badge.info{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
   .badge-reversa{display:inline-flex;align-items:center;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:.5px;background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.5);margin-left:4px}
   .badge-cupom{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(255,193,7,.15);color:#ffc107;border:1px solid rgba(255,193,7,.4)}
@@ -831,7 +831,12 @@
     d.innerHTML=
       (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
       (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+(n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px"><span style="color:var(--ac);font-size:.72rem;font-weight:600">🛒 '+esc(n.numeropedido)+'</span>'+sitBadgeCard(n.pedido_situacao)+(n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">🎟️</span>':'')+' </div>':'')+
+      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' · Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+
+      (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">🛒 Pedido '+esc(n.numeropedido)+'</span>'+
+        sitBadgeCard(n.pedido_situacao)+
+        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">🎟️</span>':'')+
+      '</div>':'')+
       (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
       '<div class="cmeta">'+
         (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
