@@ -622,9 +622,8 @@ function montarNota(r) {
   // Extrair número do pedido do campo x_infadic_infcpl se não vier do JOIN
   let numeropedido = r.numeropedido || null;
   if (!numeropedido && r.x_infadic_infcpl) {
-    // Procura por padrões como "Pedido: 12345" ou "Ped: 12345" ou "PV: 12345" ou apenas números
-    const match = r.x_infadic_infcpl.match(/(?:pedido|ped|pv)[:\s]*(\d+)/i) || 
-                  r.x_infadic_infcpl.match(/\b(\d{4,})\b/);
+    // Procura por padrões específicos de pedido (evita pegar números de leis como LC 123/2006)
+    const match = r.x_infadic_infcpl.match(/(?:pedido|ped|pv|order)[:\s#]*(\d{5,})/i);
     if (match) numeropedido = match[1];
   }
   
