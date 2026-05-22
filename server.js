@@ -167,6 +167,53 @@ app.get('/api/pedidos', async (req, res) => {
       return db - da;
     });
 
+    // ── Buscar itens dos pedidos ──────────────────────────────
+    if (pedidos.length > 0) {
+      const conn2 = await pool.getConnection();
+      const ids = pedidos.map(p => p.id);
+      const ph = ids.map(() => '?').join(',');
+
+      // Itens E-commerce
+      const [itensE] = await conn2.execute(
+        `SELECT pedido_venda_id, produto_codigo, produto_nome, produto_unidade, 
+                produto_quantidade, produto_valorunidade, produto_valortotal, produto_desconto
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\`
+         WHERE pedido_venda_id IN (${ph})`,
+        ids
+      ).catch(() => [[]]);
+
+      // Itens Distribuição
+      const [itensD] = await conn2.execute(
+        `SELECT pedido_venda_id, produto_codigo, produto_nome, produto_unidade, 
+                produto_quantidade, produto_valorunidade, produto_valortotal, produto_desconto
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\`
+         WHERE pedido_venda_id IN (${ph})`,
+        ids
+      ).catch(() => [[]]);
+
+      conn2.release();
+
+      // Mapear itens por pedido
+      const itensMap = {};
+      [...itensE, ...itensD].forEach(item => {
+        if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
+        itensMap[item.pedido_venda_id].push({
+          codigo: item.produto_codigo,
+          nome: item.produto_nome,
+          unidade: item.produto_unidade,
+          quantidade: item.produto_quantidade,
+          valorUnitario: item.produto_valorunidade,
+          valorTotal: item.produto_valortotal,
+          desconto: item.produto_desconto
+        });
+      });
+
+      // Adicionar itens aos pedidos
+      pedidos.forEach(p => {
+        p.itens = itensMap[p.id] || [];
+      });
+    }
+
     res.json({ pedidos, offset: off, pageSize: PAGE, total, hasMore: pedidos.length === PAGE });
 
   } catch (err) {
