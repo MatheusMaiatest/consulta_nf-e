@@ -173,21 +173,25 @@ app.get('/api/pedidos', async (req, res) => {
       const ids = pedidos.map(p => p.id);
       const ph = ids.map(() => '?').join(',');
 
-      // Itens E-commerce
+      // Itens E-commerce com JOIN para pegar nome do produto
       const [itensE] = await conn2.execute(
-        `SELECT pedido_venda_id, produto_codigo, produto_nome, produto_unidade, 
-                produto_quantidade, produto_valorunidade, produto_valortotal, produto_desconto
-         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\`
-         WHERE pedido_venda_id IN (${ph})`,
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
+                i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
+                p.nome AS produto_nome
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
+         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${ph})`,
         ids
       ).catch(() => [[]]);
 
-      // Itens Distribuição
+      // Itens Distribuição com JOIN para pegar nome do produto
       const [itensD] = await conn2.execute(
-        `SELECT pedido_venda_id, produto_codigo, produto_nome, produto_unidade, 
-                produto_quantidade, produto_valorunidade, produto_valortotal, produto_desconto
-         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\`
-         WHERE pedido_venda_id IN (${ph})`,
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
+                i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
+                p.nome AS produto_nome
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
+         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${ph})`,
         ids
       ).catch(() => [[]]);
 
@@ -198,13 +202,14 @@ app.get('/api/pedidos', async (req, res) => {
       [...itensE, ...itensD].forEach(item => {
         if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
         itensMap[item.pedido_venda_id].push({
-          codigo: item.produto_codigo,
-          nome: item.produto_nome,
-          unidade: item.produto_unidade,
-          quantidade: item.produto_quantidade,
-          valorUnitario: item.produto_valorunidade,
-          valorTotal: item.produto_valortotal,
-          desconto: item.produto_desconto
+          codigo: item.itens_codigo,
+          nome: item.produto_nome || item.itens_codigo || 'Produto sem nome',
+          id: item.itens_id,
+          produto_id: item.itens_produto_id,
+          unidade: item.itens_unidade,
+          quantidade: item.itens_quantidade,
+          valor: item.itens_valor,
+          desconto: item.itens_desconto
         });
       });
 
