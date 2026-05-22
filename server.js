@@ -329,7 +329,7 @@ app.get('/api/notas', async (req, res) => {
       n.x_total_icmstot_vnf, n.x_total_icmstot_vprod,
       n.x_total_icmstot_vdesc, n.x_total_icmstot_vfrete,
       n.linkdanfe, n.linkpdf, n.xml,
-      n.x_ide_finnfe
+      n.x_ide_finnfe, n.x_infadic_infcpl
     `;
 
     if (limE > 0) {
@@ -618,6 +618,16 @@ app.get('/api/produtos', async (req, res) => {
 function montarNota(r) {
   const mun = r.contato_endereco_municipio || '';
   const uf  = r.contato_endereco_uf || '';
+  
+  // Extrair número do pedido do campo x_infadic_infcpl se não vier do JOIN
+  let numeropedido = r.numeropedido || null;
+  if (!numeropedido && r.x_infadic_infcpl) {
+    // Procura por padrões como "Pedido: 12345" ou "Ped: 12345" ou "PV: 12345" ou apenas números
+    const match = r.x_infadic_infcpl.match(/(?:pedido|ped|pv)[:\s]*(\d+)/i) || 
+                  r.x_infadic_infcpl.match(/\b(\d{4,})\b/);
+    if (match) numeropedido = match[1];
+  }
+  
   return {
     id:                 r.id,
     origem:             r.origem,
@@ -647,7 +657,7 @@ function montarNota(r) {
     linkdanfe:          r.linkdanfe,
     linkpdf:            r.linkpdf,
     xmlUrl:             r.xml,
-    numeropedido:       r.numeropedido      || null,
+    numeropedido:       numeropedido,
     pedido_situacao:    r.pedido_situacao   || null,
     pedido_numeroloja:  r.pedido_numeroloja || null,
     pedido_observacoes: r.pedido_observacoes && r.pedido_observacoes.trim() ? r.pedido_observacoes.trim() : null,
