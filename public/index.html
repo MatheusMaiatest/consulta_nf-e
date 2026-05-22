@@ -269,8 +269,8 @@
   <header class="topbar">
     <span class="logo">📦 NF-e Viewer</span>
     <nav class="tab-nav">
-      <button class="tab-btn active" onclick="switchView('nfe',this)">📋 NF-e</button>
-      <button class="tab-btn" onclick="switchView('pedidos',this)">🛒 Pedidos</button>
+      <button class="tab-btn active" onclick="switchView('nfe',this)">📋 NF-e <span id="count-nf" style="opacity:0.6;font-size:0.7rem;margin-left:4px"></span></button>
+      <button class="tab-btn" onclick="switchView('pedidos',this)">🛒 Pedidos <span id="count-pedidos" style="opacity:0.6;font-size:0.7rem;margin-left:4px"></span></button>
       <button class="tab-btn" onclick="switchView('transporte',this)">🚚 Transporte</button>
       <button class="tab-btn" onclick="switchView('vendas',this)">📊 Vendas</button>
     </nav>
@@ -717,6 +717,11 @@
     _buscarFrom=f; _buscarTo=t; _buscarOffset=0; _buscarTotal=0; _buscarAtivo=true;
     loading(true); setStatus('Buscando...');
     buscarPagina();
+    
+    // SINCRONIZAÇÃO: Buscar pedidos automaticamente com as mesmas datas
+    G('dtFromPed').value = f;
+    G('dtToPed').value = t;
+    setTimeout(function(){ buscarPedidos(); }, 200);
   }
 
   async function buscarPagina(){
@@ -739,6 +744,8 @@
         loading(false);
         _buscarAtivo=false;
         setStatus('✅ '+allNotas.length+' notas carregadas.');
+        // Atualizar contador no botão
+        G('count-nf').textContent = '(' + allNotas.length + ')';
       }
     }catch(e){
       setStatus('❌ '+e.message,'err');
@@ -750,6 +757,10 @@
   G('search').oninput=function(e){
     activeSearch=e.target.value.toLowerCase().trim();
     applyFilters();
+    // SINCRONIZAÇÃO: Aplicar mesma busca nos pedidos
+    G('searchPed').value = e.target.value;
+    activeSearchPed = activeSearch;
+    applyFiltersPed();
   };
 
   // ── Render cards com lazy load ─────────────────────────────
@@ -2769,41 +2780,55 @@
   // Buscar pedidos
   G('btnBuscarPed').onclick = buscarPedidos;
   
+  var _buscarPedFrom, _buscarPedTo, _buscarPedOffset = 0, _buscarPedTotal = 0, _buscarPedAtivo = false;
+  
   function buscarPedidos(){
     var f = G('dtFromPed').value, t = G('dtToPed').value;
     if(!f || !t){ setStatusPed('⚠️ Selecione o período.', 'warn'); return; }
     if(f > t){ setStatusPed('⚠️ Data inicial maior que final.', 'warn'); return; }
     
     allPedidos = [];
+    _buscarPedFrom = f; _buscarPedTo = t; _buscarPedOffset = 0; _buscarPedTotal = 0; _buscarPedAtivo = true;
     loadingPed(true);
     setStatusPed('Buscando pedidos...');
+    buscarPedidosPagina();
     
-    fetch(API_BASE + '/api/pedidos?from=' + f + '&to=' + t)
-      .then(r => r.json())
-      .then(d => {
-        if(d.error){ setStatusPed('❌ ' + d.error, 'err'); loadingPed(false); return; }
-        allPedidos = d.pedidos || [];
-        setStatusPed('✅ ' + allPedidos.length + ' pedidos carregados.');
-        loadingPed(false);
-        applyFiltersPed();
-      })
-      .catch(e => {
-        setStatusPed('❌ ' + e.message, 'err');
-        loadingPed(false);
-      });
+    // SINCRONIZAÇÃO REVERSA: Buscar NFs automaticamente se as datas forem diferentes
+    if(G('dtFrom').value !== f || G('dtTo').value !== t){
+      G('dtFrom').value = f;
+      G('dtTo').value = t;
+      setTimeout(function(){ buscar(); }, 200);
+    }
   }
   
-  // Quando buscar NFs, buscar pedidos automaticamente
-  var _buscarOrig = buscar;
-  buscar = function(){
-    _buscarOrig();
-    // Busca pedidos automaticamente se as datas estiverem preenchidas
-    setTimeout(function(){
-      if(G('dtFromPed').value && G('dtToPed').value){
-        buscarPedidos();
+  async function buscarPedidosPagina(){
+    if(!_buscarPedAtivo) return;
+    try{
+      var url = API_BASE + '/api/pedidos?from=' + _buscarPedFrom + '&to=' + _buscarPedTo + '&offset=' + _buscarPedOffset;
+      var resp = await fetch(url);
+      var d = await resp.json();
+      if(d.error){ setStatusPed('❌ ' + d.error, 'err'); loadingPed(false); _buscarPedAtivo = false; return; }
+      var novos = d.pedidos || [];
+      allPedidos = allPedidos.concat(novos);
+      if(_buscarPedOffset === 0 && d.total > 0) _buscarPedTotal = d.total;
+      var pct = _buscarPedTotal > 0 ? Math.round(allPedidos.length / _buscarPedTotal * 100) : 0;
+      setStatusPed('⏳ Carregando... ' + allPedidos.length + (_buscarPedTotal > 0 ? ' / ' + _buscarPedTotal : '') + ' pedidos (' + pct + '%)');
+      applyFiltersPed();
+      if(d.hasMore){
+        _buscarPedOffset += novos.length;
+        buscarPedidosPagina();
+      } else {
+        loadingPed(false);
+        _buscarPedAtivo = false;
+        setStatusPed('✅ ' + allPedidos.length + ' pedidos carregados.');
+        // Atualizar contador no botão
+        G('count-pedidos').textContent = '(' + allPedidos.length + ')';
       }
-    }, 100);
-  };
+    }catch(e){
+      setStatusPed('❌ ' + e.message, 'err');
+      loadingPed(false); _buscarPedAtivo = false;
+    }
+  }
   
   // Filtros de pedidos
   function applyFiltersPed(){
@@ -2828,6 +2853,10 @@
   G('searchPed').oninput = function(e){
     activeSearchPed = e.target.value.toLowerCase().trim();
     applyFiltersPed();
+    // SINCRONIZAÇÃO REVERSA: Aplicar mesma busca nas NFs
+    G('search').value = e.target.value;
+    activeSearch = activeSearchPed;
+    applyFilters();
   };
   
   // Render cards de pedidos
