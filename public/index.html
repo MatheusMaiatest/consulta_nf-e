@@ -2946,7 +2946,10 @@
             p.itens.map(function(item){
               var valorTotal = (item.quantidade || 0) * (item.valor || 0);
               return '<div class="pitem">' +
-                '<span class="pnome">' + esc(item.nome || item.codigo || '—') + '</span>' +
+                '<span class="pnome">' + 
+                  (item.sku ? '<span style="color:var(--tm);font-size:.7rem;margin-right:6px">[' + esc(item.sku) + ']</span>' : '') +
+                  esc(item.nome || item.codigo || '—') + 
+                '</span>' +
                 '<span class="pqtd">' + item.quantidade + ' ' + (item.unidade || 'un') + ' × ' + brl(item.valor) + '</span>' +
                 '<span class="pval">' + brl(valorTotal) + '</span>' +
               '</div>';
