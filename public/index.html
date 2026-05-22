@@ -671,9 +671,16 @@
   var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
 
   function renderCards(){
+    console.log('🎨 renderCards() chamada');
+    console.log('📋 filteredNotas.length:', filteredNotas.length);
+    
     var grp=document.querySelector('input[name=grp]:checked').value||'nf';
     var cols=getCols();
     var grid=G('grid');
+    
+    console.log('🗂️ Agrupamento:', grp);
+    console.log('📊 Colunas visíveis:', Array.from(cols));
+    
     grid.innerHTML='';
     _renderIdx=0;
 
@@ -682,6 +689,7 @@
 
     if(!filteredNotas.length){
       grid.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma nota encontrada.</p></div>';
+      console.log('⚠️ Nenhuma nota para renderizar');
       return;
     }
 
@@ -692,6 +700,8 @@
       if(groups.length>1) _renderList.push({type:'hdr',label:g.label});
       g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
     });
+    
+    console.log('📦 Total de itens a renderizar:', _renderList.length);
 
     // Renderiza primeiro lote
     renderLote(cols, grid);
@@ -704,6 +714,8 @@
       if(entries[0].isIntersecting) renderLote(cols, grid);
     },{rootMargin:'200px'});
     _renderObs.observe(sentinel);
+    
+    console.log('✅ renderCards() concluída');
   }
 
   function renderLote(cols, grid){
@@ -1159,18 +1171,62 @@
   var _notasProdCache={};
   async function filtrarNotasPorProdutos(){
     if(!_prodFiltroAtivo||_prodSelecionados.size===0){applyFilters();return;}
+    
+    console.log('🔎 Filtrando por produtos...');
     setStatus('🔎 Filtrando por produtos...');
-    var notasBase=allNotas.filter(function(n){
-      if(!activeOrigens.has(n.origem))return false;
+    
+    // Primeiro aplica todos os outros filtros (origem, busca, cupom, pagamento, etc)
+    // Isso popula filteredNotas com as notas que passaram nos outros filtros
+    var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
+    
+    var notasBase = allNotas.filter(function(n){
+      // Filtro origem
+      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) return false;
+      
+      // Filtro busca
       if(activeSearch){
-        var h=[n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch)<0)return false;
+        var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
+        if(h.indexOf(activeSearch) < 0) return false;
       }
+      
+      // Filtros avançados
+      if(temFex){
+        var ok = Object.keys(_fexSel).every(function(key){
+          if(_fexSel[key].size === 0) return true;
+          var campo = _fexConfig[key].campo;
+          var val = (n[campo]||'').toString().trim();
+          return _fexSel[key].has(val);
+        });
+        if(!ok) return false;
+      }
+      
+      // Filtro cupom
+      var temCupom = !!(n.tray_cupom_nome);
+      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
+      if(algumCupomAtivo){
+        if(temCupom && !_filtroCupom.com) return false;
+        if(!temCupom && !_filtroCupom.sem) return false;
+      }
+      
+      // Filtro forma de pagamento
+      if(_pagAtivo && _pagSelecionados.size > 0){
+        var formasNota = (n.formas_pagamento||[]).map(function(fp){ return fp.tipo; });
+        if(n.tray_payment_form) formasNota.push(n.tray_payment_form);
+        var match = formasNota.some(function(f){ return _pagSelecionados.has(f); });
+        if(!match) return false;
+      }
+      
       return true;
     });
+    
+    console.log('📦 Notas após outros filtros:', notasBase.length);
+    
     // Para cada nota, verifica se tem produto selecionado
     var resultado=[];
     var pendentes=notasBase.filter(function(n){return n.xmlUrl && !_notasProdCache[n.id];});
+    
+    console.log('📦 Notas pendentes de buscar produtos:', pendentes.length);
+    
     // Busca XMLs em lotes de 10
     for(var i=0;i<pendentes.length;i+=10){
       var lote=pendentes.slice(i,i+10);
@@ -1182,11 +1238,15 @@
         }catch(e){_notasProdCache[n.id]=[];}
       }));
     }
+    
     notasBase.forEach(function(n){
       var prods=_notasProdCache[n.id]||[];
       var tem=prods.some(function(k){return _prodSelecionados.has(k);});
       if(tem)resultado.push(n);
     });
+    
+    console.log('📦 Notas com produtos selecionados:', resultado.length);
+    
     filteredNotas=resultado;
     G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
     renderCards();
