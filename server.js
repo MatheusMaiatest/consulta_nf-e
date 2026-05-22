@@ -38,6 +38,58 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
+// ── /api/stats ────────────────────────────────────────────
+app.get('/api/stats', async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    
+    // Pedidos
+    const [[pedEco]] = await conn.execute(
+      'SELECT MIN(data) as min_data, MAX(data) as max_data, COUNT(*) as total FROM `bling_pedidos_venda_detalhes_ecommerce`'
+    );
+    const [[pedDist]] = await conn.execute(
+      'SELECT MIN(data) as min_data, MAX(data) as max_data, COUNT(*) as total FROM `bling_pedidos_venda_detalhes_distribuicao`'
+    );
+    
+    // NF-e
+    const [[nfeEco]] = await conn.execute(
+      'SELECT MIN(dataemissao) as min_data, MAX(dataemissao) as max_data, COUNT(*) as total FROM `bling_nfe_saida_detalhes_ecommerce`'
+    );
+    const [[nfeDist]] = await conn.execute(
+      'SELECT MIN(dataemissao) as min_data, MAX(dataemissao) as max_data, COUNT(*) as total FROM `bling_nfe_saida_detalhes_distribuicao`'
+    );
+    
+    // Pedidos com NF vinculada
+    const [[vinculoEco]] = await conn.execute(
+      'SELECT COUNT(*) as com_nf FROM `bling_pedidos_venda_detalhes_ecommerce` WHERE notafiscal_id IS NOT NULL AND notafiscal_id != "" AND notafiscal_id != "0"'
+    );
+    const [[vinculoDist]] = await conn.execute(
+      'SELECT COUNT(*) as com_nf FROM `bling_pedidos_venda_detalhes_distribuicao` WHERE notafiscal_id IS NOT NULL AND notafiscal_id != "" AND notafiscal_id != "0"'
+    );
+    
+    conn.release();
+    
+    res.json({
+      pedidos: {
+        ecommerce: { total: pedEco.total, min_data: pedEco.min_data, max_data: pedEco.max_data },
+        distribuicao: { total: pedDist.total, min_data: pedDist.min_data, max_data: pedDist.max_data },
+        total: (pedEco.total || 0) + (pedDist.total || 0),
+        com_nf: (vinculoEco.com_nf || 0) + (vinculoDist.com_nf || 0),
+        sem_nf: ((pedEco.total || 0) + (pedDist.total || 0)) - ((vinculoEco.com_nf || 0) + (vinculoDist.com_nf || 0))
+      },
+      nfe: {
+        ecommerce: { total: nfeEco.total, min_data: nfeEco.min_data, max_data: nfeEco.max_data },
+        distribuicao: { total: nfeDist.total, min_data: nfeDist.min_data, max_data: nfeDist.max_data },
+        total: (nfeEco.total || 0) + (nfeDist.total || 0)
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+
 // ── /api/data-range ───────────────────────────────────────
 app.get('/api/data-range', async (req, res) => {
   try {
