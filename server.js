@@ -99,67 +99,74 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     return res.json({ error: 'Status obrigatório (array).' });
   }
 
+  // Timeout de 25 segundos
+  req.setTimeout(25000);
+
   try {
     const conn = await pool.getConnection();
     
-    // Limitar a apenas 1 status por vez se houver muitos
-    const statusToQuery = status.slice(0, 2); // Máximo 2 status
-    const ph = statusToQuery.map(() => '?').join(',');
+    // Apenas 1 status por vez
+    const statusToQuery = [status[0]];
+    const ph = '?';
     
-    // Apenas 200 pedidos para resposta instantânea
-    const LIMIT = 200;
+    // Apenas 100 pedidos
+    const LIMIT = 100;
     
-    // Query super simplificada - apenas o essencial
-    const query = `
-      SELECT id, numero, data, situacao_nome, contato_nome, total, ? AS origem
-      FROM ?? 
-      WHERE situacao_nome IN (${ph})
-      ORDER BY data ASC 
-      LIMIT ${LIMIT}
-    `;
+    console.log('PCP: Buscando pedidos com status:', statusToQuery[0]);
     
+    // Query ultra simplificada
     const [pedidosE] = await conn.execute(
-      query.replace('??', '`bling_pedidos_venda_detalhes_ecommerce`').replace('?', "'ecommerce'"),
+      `SELECT id, numero, data, situacao_nome AS situacao, contato_nome AS cliente, total AS valor
+       FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+       WHERE situacao_nome = ?
+       ORDER BY data ASC 
+       LIMIT ${LIMIT}`,
       statusToQuery
-    ).catch(() => [[]]);
+    ).catch(err => { console.error('Erro E:', err); return [[]]; });
     
     const [pedidosD] = await conn.execute(
-      query.replace('??', '`bling_pedidos_venda_detalhes_distribuicao`').replace('?', "'distribuidor'"),
+      `SELECT id, numero, data, situacao_nome AS situacao, contato_nome AS cliente, total AS valor
+       FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+       WHERE situacao_nome = ?
+       ORDER BY data ASC 
+       LIMIT ${LIMIT}`,
       statusToQuery
-    ).catch(() => [[]]);
+    ).catch(err => { console.error('Erro D:', err); return [[]]; });
     
     let pedidos = [...pedidosE, ...pedidosD].map(r => ({
       id: r.id,
-      origem: r.origem,
+      origem: pedidosE.includes(r) ? 'ecommerce' : 'distribuidor',
       numero: r.numero,
       data: r.data ? new Date(r.data).toISOString() : null,
-      situacao: r.situacao_nome,
-      cliente: r.contato_nome,
-      valor: r.total || null,
+      situacao: r.situacao,
+      cliente: r.cliente,
+      valor: r.valor || null,
       itens: []
     }));
     
-    // Buscar itens apenas se houver pedidos
+    console.log('PCP: Encontrados', pedidos.length, 'pedidos');
+    
+    // Buscar itens SEM JOIN
     if (pedidos.length > 0) {
       const ids = pedidos.map(p => p.id);
       const phIds = ids.map(() => '?').join(',');
 
-      // Query simplificada de itens
       const [itensE] = await conn.execute(
         `SELECT pedido_venda_id, itens_codigo, itens_quantidade, itens_valor
          FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\`
          WHERE pedido_venda_id IN (${phIds})`,
         ids
-      ).catch(() => [[]]);
+      ).catch(err => { console.error('Erro itens E:', err); return [[]]; });
 
       const [itensD] = await conn.execute(
         `SELECT pedido_venda_id, itens_codigo, itens_quantidade, itens_valor
          FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\`
          WHERE pedido_venda_id IN (${phIds})`,
         ids
-      ).catch(() => [[]]);
+      ).catch(err => { console.error('Erro itens D:', err); return [[]]; });
 
-      // Mapear itens
+      console.log('PCP: Encontrados', itensE.length + itensD.length, 'itens');
+
       const itensMap = {};
       [...itensE, ...itensD].forEach(item => {
         if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
@@ -179,16 +186,18 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     
     conn.release();
     
+    console.log('PCP: Enviando resposta com', pedidos.length, 'pedidos');
+    
     res.json({ 
       pedidos, 
       total: pedidos.length, 
       limit: LIMIT,
-      statusProcessados: statusToQuery.length
+      status: statusToQuery[0]
     });
 
   } catch (err) {
     console.error('Erro PCP:', err);
-    res.status(500).json({ error: 'Erro ao processar. Tente com menos status.' });
+    res.status(500).json({ error: 'Timeout ou erro no servidor. Tente outro status.' });
   }
 });
 
