@@ -465,6 +465,27 @@
           </div>
         </div>
       </div>
+      <div class="psec">
+        <span class="plabel">&#x1F4E6; Saldo de Estoque</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div>
+            <div style="font-size:.72rem;color:var(--tm);margin-bottom:4px">&#x1F6D2; E-commerce</div>
+            <div id="pcp-estoque-eco-info" style="font-size:.72rem;color:var(--tm);font-style:italic;margin-bottom:4px">Nenhum arquivo importado</div>
+            <label class="btn-secondary" style="display:block;text-align:center;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--r);border:1px solid var(--bdr)">
+              &#x1F4C2; Importar CSV
+              <input type="file" id="inputEstoqueEco" accept=".csv" style="display:none"/>
+            </label>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--tm);margin-bottom:4px">&#x1F3ED; Distribuidor</div>
+            <div id="pcp-estoque-dist-info" style="font-size:.72rem;color:var(--tm);font-style:italic;margin-bottom:4px">Nenhum arquivo importado</div>
+            <label class="btn-secondary" style="display:block;text-align:center;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--r);border:1px solid var(--bdr)">
+              &#x1F4C2; Importar CSV
+              <input type="file" id="inputEstoqueDist" accept=".csv" style="display:none"/>
+            </label>
+          </div>
+        </div>
+      </div>
       <button class="btn-primary" id="btnProcessarPCP">🏭 Processar PCP</button>
       <div class="statusbar" id="statusPCP">Aguardando processamento...</div>
     </aside>
@@ -706,6 +727,8 @@
   var pcpProdutos=[], pcpStatusSelecionados=new Set(), pcpPrioridade='antigo';
   var pcpTodosPedidos=[];  // Cache de todos os pedidos para PCP
   var pcpOrigemFiltro = new Set(['ecommerce','distribuidor']); // ambos ativos por padrão
+  var estoqueEco  = {};  // mapa codigo -> saldo (e-commerce)
+  var estoqueDist = {};  // mapa codigo -> saldo (distribuidor)
   
   var G=function(id){return document.getElementById(id);};
 
@@ -3354,8 +3377,8 @@ function processarProdutosPCP(){
           sku: prodCD ? String(prodCD.sku) : key,          // SKU do CD ou código Bling
           skuCD: prodCD ? String(prodCD.sku) : null,       // SKU do CD (pode ser null)
           codigo: item.codigo,                              // Código Bling
-          nome: prodCD ? prodCD.descricao : (item.nome || item.codigo), // Nome real
           quantidadeTotal: 0,
+          saldoEstoque: null,   // preenchido após montar todos os pedidos
           pedidos: [],
           dataMinima: null
         };
@@ -3390,6 +3413,17 @@ function processarProdutosPCP(){
     });
   });
   
+
+  // Calcular saldo de estoque para cada produto
+  pcpProdutos.forEach(function(prod){
+    var cod = prod.codigo;
+    var sE = estoqueEco[cod]  ? (estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
+    var sD = estoqueDist[cod] ? (estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
+    if(sE !== null && sD !== null) prod.saldoEstoque = sE + sD;
+    else if(sE !== null)           prod.saldoEstoque = sE;
+    else if(sD !== null)           prod.saldoEstoque = sD;
+    else                           prod.saldoEstoque = null;
+  });
   pcpProdutos = Object.values(produtoMap);
   
   if(pcpPrioridade === 'antigo'){
@@ -3426,10 +3460,10 @@ function renderPCPGrid(lista){
   html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">'+
     '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:40px">#</th>'+
     '<th style="padding:8px 6px;color:var(--tm);font-weight:600">SKU</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>'+
     '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center">Pedidos</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">Qtd Total</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">Qtd Pedida</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">Saldo</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">'+  
       (pcpPrioridade === 'antigo' ? 'Mais Antigo' : 'Prioridade')+
     '</th>'+
   '</tr></thead><tbody>';
@@ -3466,12 +3500,13 @@ function renderPCPGrid(lista){
         esc(nomeDisplay)+
       '</td>'+
       '<td style="padding:10px 6px;text-align:center">'+
-        '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+
-          nPedidos+
-        '</span>'+
+        '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+nPedidos+'</span>'+
       '</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-weight:600;color:var(--ac)">'+
-        prod.quantidadeTotal.toFixed(0)+' un'+
+      '<td style="padding:10px 6px;text-align:right;font-weight:600;color:var(--ac)">'+prod.quantidadeTotal.toFixed(0)+' un</td>'+
+      '<td style="padding:10px 6px;text-align:right;font-size:.8rem">'+  
+        (prod.saldoEstoque !== null
+          ? '<span style="color:'+(prod.saldoEstoque <= 0 ? '#e74c3c' : prod.saldoEstoque < prod.quantidadeTotal ? '#f39c12' : '#2ecc71')+';font-weight:600">'+prod.saldoEstoque.toFixed(0)+' un</span>'
+          : '<span style="color:var(--tm)">—</span>')+
       '</td>'+
       '<td style="padding:10px 6px;text-align:right;font-size:.78rem;color:var(--tm)">'+
         prioVal+
@@ -3568,9 +3603,96 @@ G('searchPCP').oninput = function(){
            (p.codigo && p.codigo.toLowerCase().includes(q));
   });
   renderPCPGrid(filtered);
+// ── ESTOQUE: parse CSV ────────────────────────────────────
+function parseCsvEstoque(texto) {
+  var linhas = texto.split(/\r?\n/).filter(function(l){ return l.trim(); });
+  var dados = [];
+  // Pula cabeçalho (linha 0)
+  for (var i = 1; i < linhas.length; i++) {
+    var cols = linhas[i].split(';').map(function(c){ return c.replace(/^"|"$/g,'').trim(); });
+    if (cols.length < 5) continue;
+    var qtd = parseFloat(cols[4].replace(',','.')) || 0;
+    dados.push({ codigo: cols[0], ean: cols[1], produto: cols[2], unidade: cols[3], quantidade: qtd });
+  }
+  return dados;
+}
+
+function fmtEstoqueInfo(meta) {
+  if (!meta) return 'Nenhum arquivo importado';
+  var dt = meta.importadoEm ? new Date(meta.importadoEm).toLocaleString('pt-BR') : '';
+  return meta.nomeArquivo + ' (' + meta.totalItens + ' itens) — ' + dt;
+}
+
+// Carregar metadados dos caches ao iniciar
+async function carregarMetaEstoque() {
+  try {
+    var r = await fetch(API_BASE + '/api/estoque-cache');
+    var d = await r.json();
+    G('pcp-estoque-eco-info').textContent  = fmtEstoqueInfo(d.ecommerce);
+    G('pcp-estoque-dist-info').textContent = fmtEstoqueInfo(d.distribuidor);
+    // Carregar dados completos se existirem
+    if (d.ecommerce)    await carregarDadosEstoque('ecommerce');
+    if (d.distribuidor) await carregarDadosEstoque('distribuidor');
+  } catch(e) { console.warn('Estoque cache nao disponivel:', e.message); }
+}
+
+async function carregarDadosEstoque(origem) {
+  try {
+    var r = await fetch(API_BASE + '/api/estoque-dados?origem=' + origem);
+    var d = await r.json();
+    if (origem === 'ecommerce')    estoqueEco  = d.estoque || {};
+    if (origem === 'distribuidor') estoqueDist = d.estoque || {};
+  } catch(e) { console.warn('Erro ao carregar estoque ' + origem + ':', e.message); }
+}
+
+// Handler importação E-commerce
+G('inputEstoqueEco').onchange = async function() {
+  var file = this.files[0];
+  if (!file) return;
+  G('pcp-estoque-eco-info').textContent = 'Importando...';
+  var texto = await file.text();
+  var dados = parseCsvEstoque(texto);
+  try {
+    var r = await fetch(API_BASE + '/api/estoque-import', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ origem: 'ecommerce', nomeArquivo: file.name, dados: dados })
+    });
+    var d = await r.json();
+    if (d.error) { G('pcp-estoque-eco-info').textContent = 'Erro: ' + d.error; return; }
+    estoqueEco = {};
+    dados.forEach(function(item){ if(item.codigo) estoqueEco[item.codigo] = item; });
+    G('pcp-estoque-eco-info').textContent = file.name + ' (' + d.totalItens + ' itens)';
+    this.value = '';
+  } catch(e) { G('pcp-estoque-eco-info').textContent = 'Erro: ' + e.message; }
+};
+
+// Handler importação Distribuidor
+G('inputEstoqueDist').onchange = async function() {
+  var file = this.files[0];
+  if (!file) return;
+  G('pcp-estoque-dist-info').textContent = 'Importando...';
+  var texto = await file.text();
+  var dados = parseCsvEstoque(texto);
+  try {
+    var r = await fetch(API_BASE + '/api/estoque-import', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ origem: 'distribuidor', nomeArquivo: file.name, dados: dados })
+    });
+    var d = await r.json();
+    if (d.error) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + d.error; return; }
+    estoqueDist = {};
+    dados.forEach(function(item){ if(item.codigo) estoqueDist[item.codigo] = item; });
+    G('pcp-estoque-dist-info').textContent = file.name + ' (' + d.totalItens + ' itens)';
+    this.value = '';
+  } catch(e) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + e.message; }
+};
+
 };
 // Carregar status ao iniciar
 carregarStatusPCP();
+carregarMetaEstoque();
 
 </script>
   </body>
