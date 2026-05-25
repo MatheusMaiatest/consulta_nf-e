@@ -3265,6 +3265,11 @@ G('btnProcessarPCP').onclick = async function(){
     
     pcpTodosPedidos = d.pedidos || [];
     
+    // Avisar se atingiu o limite
+    if(pcpTodosPedidos.length >= 1000){
+      console.warn('⚠️ Limite de 1000 pedidos atingido. Resultados podem estar incompletos.');
+    }
+    
     // Processar produtos por prioridade
     processarProdutosPCP();
     
