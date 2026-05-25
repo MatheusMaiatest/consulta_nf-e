@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>NF-e Viewer</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1117'/%3E%3Crect x='6' y='4' width='16' height='20' rx='2' fill='%235c6bc0'/%3E%3Crect x='6' y='4' width='16' height='20' rx='2' fill='none' stroke='%237986cb' stroke-width='1'/%3E%3Cline x1='9' y1='10' x2='19' y2='10' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='9' y1='14' x2='19' y2='14' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='9' y1='18' x2='15' y2='18' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='24' r='7' fill='%234caf50'/%3E%3Cpath d='M21 24l2 2 4-4' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"/>
   <style>
   :root{--bg:#0f1117;--bg2:#1a1d27;--bgc:#1e2130;--bgch:#252840;--bgp:#161922;--bdr:#2a2d3e;--bdrf:#5c6bc0;--tp:#e8eaf6;--ts:#9fa8da;--tm:#5c6270;--ac:#5c6bc0;--ach:#7986cb;--acg:rgba(92,107,192,.25);--ok:#4caf50;--warn:#ff9800;--err:#f44336;--eco:#42a5f5;--dist:#ab47bc;--sh:0 4px 24px rgba(0,0,0,.4);--shc:0 2px 12px rgba(0,0,0,.3);--r:12px;--rs:8px;--t:.2s ease}
   [data-theme=light]{--bg:#f0f2f8;--bg2:#fff;--bgc:#fff;--bgch:#f5f7ff;--bgp:#fff;--bdr:#dde1f0;--tp:#1a1d2e;--ts:#4a5080;--tm:#9098b8;--ach:#3f51b5;--acg:rgba(92,107,192,.15);--sh:0 4px 24px rgba(0,0,0,.08);--shc:0 2px 12px rgba(0,0,0,.06)}
@@ -417,19 +418,13 @@
     <aside class="panel" id="panel-pcp">
       <div class="panel-title">🏭 Planejamento e Controle</div>
 
-      <!-- STATUS DOS PEDIDOS (retrátil) -->
+      <!-- STATUS DOS PEDIDOS (retratil) -->
       <div class="psec">
-        <button id="pcp-status-toggle" onclick="toggleStatusPCP()" style="
-          width:100%;display:flex;align-items:center;justify-content:space-between;
-          background:none;border:none;cursor:pointer;padding:0;color:var(--tp);
-          font-size:.8rem;font-weight:600;letter-spacing:.3px;transition:all .2s">
-          <span style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:.9rem">📌</span> Status dos Pedidos
-          </span>
-          <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">▼</span>
+        <button id="pcp-status-toggle" onclick="toggleStatusPCP()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:0;color:var(--tp);font-size:.8rem;font-weight:600;letter-spacing:.3px;transition:all .2s">
+          <span style="display:flex;align-items:center;gap:6px"><span style="font-size:.9rem">&#x1F4CC;</span> Status dos Pedidos</span>
+          <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">&#x25BC;</span>
+        </button>
         <div id="pcp-status-list" style="display:flex;flex-direction:column;gap:5px;margin-top:8px;overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
-          <!-- Status carregados dinamicamente -->
-          overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
           <!-- Status carregados dinamicamente -->
         </div>
       </div>
