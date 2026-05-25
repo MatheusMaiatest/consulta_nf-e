@@ -1,0 +1,1169 @@
+[
+  {
+    "SKU": 1,
+    "DESCRIÇÃO ": "Shampoo SOS Profissional 1L (Fase 01)",
+    "CÓD. DE BARRAS": 7899085324520,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 2,
+    "DESCRIÇÃO ": "Queratina em Gel SOS Profissional 300 ml (Fase 02)",
+    "CÓD. DE BARRAS": 7899085324117,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 3,
+    "DESCRIÇÃO ": "Hidratação SOS Profissional 1kg (Fase 04)",
+    "CÓD. DE BARRAS": 7899085324315,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 4,
+    "DESCRIÇÃO ": "Leave-in SOS Profissional 1L (Fase 05)",
+    "CÓD. DE BARRAS": 7899085324339,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 5,
+    "DESCRIÇÃO ": "Shampoo SOS Manutenção 300ml",
+    "CÓD. DE BARRAS": 7893595973193,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 6,
+    "DESCRIÇÃO ": "Condicionador SOS Manutenção 300ml",
+    "CÓD. DE BARRAS": 7893595973209,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 7,
+    "DESCRIÇÃO ": "Máscara SOS Manutenção 300g",
+    "CÓD. DE BARRAS": 7893595973223,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 8,
+    "DESCRIÇÃO ": "Leave-in SOS Manutenção 300ml",
+    "CÓD. DE BARRAS": 7893595973216,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 9,
+    "DESCRIÇÃO ": "Shampoo Banho de Seda Profissional 1L",
+    "CÓD. DE BARRAS": 7899085324087,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  },
+  {
+    "SKU": 10,
+    "DESCRIÇÃO ": "Hidratação Banho de Seda Profissional 1kg",
+    "CÓD. DE BARRAS": 7899085324322,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  },
+  {
+    "SKU": 13,
+    "DESCRIÇÃO ": "Shampoo Banho de Seda Manutenção 500ml",
+    "CÓD. DE BARRAS": 7899085324148,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  },
+  {
+    "SKU": 14,
+    "DESCRIÇÃO ": "Hidratação Banho de Seda Manutenção 300g",
+    "CÓD. DE BARRAS": 7899085324155,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  },
+  {
+    "SKU": 16,
+    "DESCRIÇÃO ": "Cistina SOS Forcer 500ml (Fase 03)",
+    "CÓD. DE BARRAS": 7899085324247,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "SOS"
+  },
+  {
+    "SKU": 18,
+    "DESCRIÇÃO ": "Shampoo Enroulé Tradicional 500ml",
+    "CÓD. DE BARRAS": 7893595973117,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 19,
+    "DESCRIÇÃO ": "Condicionador Enroulé Tradicional 500ml",
+    "CÓD. DE BARRAS": 7893595973124,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 20,
+    "DESCRIÇÃO ": "Hidratação Enroulé Tradicional 500g",
+    "CÓD. DE BARRAS": 7893595973131,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 21,
+    "DESCRIÇÃO ": "Ativador de Cachos TEIA Enroulé Tradicional 1L",
+    "CÓD. DE BARRAS": 7893595973162,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 22,
+    "DESCRIÇÃO ": "Ativador de Cachos NORMAL Enroulé Tradicional 1L",
+    "CÓD. DE BARRAS": 7893595973148,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 23,
+    "DESCRIÇÃO ": "Gelatina Enroulé Tradicional 500ml",
+    "CÓD. DE BARRAS": 7893595973186,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 24,
+    "DESCRIÇÃO ": "Ativador de Cachos TEIA Enroulé Tradicional 2,5L",
+    "CÓD. DE BARRAS": 7893595973179,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 25,
+    "DESCRIÇÃO ": "Ativador de Cachos NORMAL Enroulé Tradicional 2,5L",
+    "CÓD. DE BARRAS": 7893595973155,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 30,
+    "DESCRIÇÃO ": "Shampoo Blond Décolorer 300 ml",
+    "CÓD. DE BARRAS": 7899085324056,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 31,
+    "DESCRIÇÃO ": "Hidratação Blond Décolorer 500g",
+    "CÓD. DE BARRAS": 7899085324063,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 33,
+    "DESCRIÇÃO ": "Pó Descolorante Blond 500g",
+    "CÓD. DE BARRAS": 7893595973445,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 34,
+    "DESCRIÇÃO ": "Ox 05 Volumes (1,5%) 900ml",
+    "CÓD. DE BARRAS": 7899085324254,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 35,
+    "DESCRIÇÃO ": "Ox 10 Volumes (4%) 900ml",
+    "CÓD. DE BARRAS": 7899085324261,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 36,
+    "DESCRIÇÃO ": "Ox 20 Volumes (6%) 900ml",
+    "CÓD. DE BARRAS": 7899085324278,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 37,
+    "DESCRIÇÃO ": "Ox 30 Volumes (8,25%) 900ml",
+    "CÓD. DE BARRAS": 7899085324285,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 39,
+    "DESCRIÇÃO ": "Ox 40 Volumes (11,5%) 900ml",
+    "CÓD. DE BARRAS": 7899085324292,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DECOLORÉR"
+  },
+  {
+    "SKU": 40,
+    "DESCRIÇÃO ": "Reconstrução Cronograma Pote 300g",
+    "CÓD. DE BARRAS": 7893595973254,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 41,
+    "DESCRIÇÃO ": "Reconstrução Cronograma 1kg",
+    "CÓD. DE BARRAS": 7899085324216,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 42,
+    "DESCRIÇÃO ": "Nutrição Cronograma Pote 300g",
+    "CÓD. DE BARRAS": 7893595973247,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 43,
+    "DESCRIÇÃO ": "Nutrição Cronograma 1 kg",
+    "CÓD. DE BARRAS": 7899085324179,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 44,
+    "DESCRIÇÃO ": "Hidratação Cronograma Pote 300g",
+    "CÓD. DE BARRAS": 7893595973230,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 45,
+    "DESCRIÇÃO ": "Hidratação Cronograma 1 kg",
+    "CÓD. DE BARRAS": 7899085324162,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 65,
+    "DESCRIÇÃO ": "Retexturizador Plastique Ácido Hialurônico Profissional 1 L",
+    "CÓD. DE BARRAS": 7899085324025,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "PLASTIQUE"
+  },
+  {
+    "SKU": 67,
+    "DESCRIÇÃO ": "Shampoo Plastique 500ml",
+    "CÓD. DE BARRAS": 7899085324018,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "PLASTIQUE"
+  },
+  {
+    "SKU": 68,
+    "DESCRIÇÃO ": "Máscara Plastique 500g",
+    "CÓD. DE BARRAS": 7899085324209,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "PLASTIQUE"
+  },
+  {
+    "SKU": 80,
+    "DESCRIÇÃO ": "Óleo de Abacate 60ml",
+    "CÓD. DE BARRAS": 7893595973476,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 82,
+    "DESCRIÇÃO ": "Óleo de Macadâmia 60ml",
+    "CÓD. DE BARRAS": 7899085324582,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 84,
+    "DESCRIÇÃO ": "Bio Gloss Tradicional Alinhamento Capilar Profissional 1kg",
+    "CÓD. DE BARRAS": 7899085324049,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 85,
+    "DESCRIÇÃO ": "Master Blend Cachos Enroulé Redutor de Volume e Frizz 500g",
+    "CÓD. DE BARRAS": 7899085325596,
+    "SITUAÇÃO": "ATIVO"
+  },
+  {
+    "SKU": 90,
+    "DESCRIÇÃO ": "Hidratação Manteiga Artesanal 200g",
+    "CÓD. DE BARRAS": 7893595973322,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 91,
+    "DESCRIÇÃO ": "Hidratação Manteiga Artesanal 1kg",
+    "CÓD. DE BARRAS": 7893595973308,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 92,
+    "DESCRIÇÃO ": "Hidratação Manteiga ARTESANAL 500g",
+    "CÓD. DE BARRAS": 7893595973032,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 93,
+    "DESCRIÇÃO ": "Shampoo Enroulé MANTEIGA ARTESANAL 500ml",
+    "CÓD. DE BARRAS": 7893595973018,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 94,
+    "DESCRIÇÃO ": "Condicionador Enroulé MANTEIGA ARTESANAL 500ml",
+    "CÓD. DE BARRAS": 7893595973025,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 95,
+    "DESCRIÇÃO ": "Creme de Pentear Enroulé MANTEIGA ARTESANAL 500ml",
+    "CÓD. DE BARRAS": 7893595973049,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 97,
+    "DESCRIÇÃO ": "Shampoo Enroulé MANTEIGA ARTESANAL 1L",
+    "CÓD. DE BARRAS": 7893595973056,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 98,
+    "DESCRIÇÃO ": "Condicionador Enroulé MANTEIGA ARTESANAL 1L",
+    "CÓD. DE BARRAS": 7893595973063,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 99,
+    "DESCRIÇÃO ": "Creme de Pentear Enroulé MANTEIGA ARTESANAL 1L",
+    "CÓD. DE BARRAS": 7893595973070,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 107,
+    "DESCRIÇÃO ": "Shampoo Argan Galão 2L",
+    "CÓD. DE BARRAS": 7897990104176,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 108,
+    "DESCRIÇÃO ": "Condicionador Argan Galão 2L",
+    "CÓD. DE BARRAS": 7897990104183,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 109,
+    "DESCRIÇÃO ": "Shampoo Queratina Galão 2L",
+    "CÓD. DE BARRAS": 7897990104213,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 116,
+    "DESCRIÇÃO ": "Condicionador Queratina Galão 2L",
+    "CÓD. DE BARRAS": 7897990104220,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 118,
+    "DESCRIÇÃO ": "Shampoo Menta Anti-Resíduos Galão 2L",
+    "CÓD. DE BARRAS": 7897990104206,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 119,
+    "DESCRIÇÃO ": "Hidratação Balde Queratina Galão 2kg",
+    "CÓD. DE BARRAS": 7897990104237,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 120,
+    "DESCRIÇÃO ": "Hidratação Balde Argan Galão 2kg",
+    "CÓD. DE BARRAS": 7897990104190,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 121,
+    "DESCRIÇÃO ": "Umidificante de Cachos Enroulé Tradicional 1kg",
+    "CÓD. DE BARRAS": 7897990104145,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 123,
+    "DESCRIÇÃO ": "Gelatina Enroulé Tradicional Alta Fixação 1L",
+    "CÓD. DE BARRAS": 7897990104169,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 124,
+    "DESCRIÇÃO ": "Água do Dia Seguinte Enroulé Tradicional (Day After) 340ml",
+    "CÓD. DE BARRAS": 7897990104152,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 125,
+    "DESCRIÇÃO ": "Retexturizador Banho de Seda Profissional 1L",
+    "CÓD. DE BARRAS": 7897990104138,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  },
+  {
+    "SKU": 127,
+    "DESCRIÇÃO ": "Bio Gloss Banho de Seda Alinhamento Capilar Profissional 1kg",
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  },
+  {
+    "SKU": 129,
+    "DESCRIÇÃO ": "Shampoo Luxo Imperial 500 ml",
+    "CÓD. DE BARRAS": 7897990105159,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "LUXO IMPERIAL"
+  },
+  {
+    "SKU": 130,
+    "DESCRIÇÃO ": "Hidratação Líquida Luxo Imperial 60 ml",
+    "CÓD. DE BARRAS": 7897990105166,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "LUXO IMPERIAL"
+  },
+  {
+    "SKU": 131,
+    "DESCRIÇÃO ": "Leave In Protetor Luxo Imperial 300ml",
+    "CÓD. DE BARRAS": 7897990105173,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "LUXO IMPERIAL"
+  },
+  {
+    "SKU": 133,
+    "DESCRIÇÃO ": "Umidificante Enroulé Tradicional TEENS 400ml",
+    "CÓD. DE BARRAS": 7897990105210,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 134,
+    "DESCRIÇÃO ": "Shampoo Queratina Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105470,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - QUERATINA 1L"
+  },
+  {
+    "SKU": 135,
+    "DESCRIÇÃO ": "Condicionador Queratina Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105487,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - QUERATINA 1L"
+  },
+  {
+    "SKU": 136,
+    "DESCRIÇÃO ": "Hidratação Queratina Dia a Dia 1kg",
+    "CÓD. DE BARRAS": 7897990105494,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - QUERATINA 1L"
+  },
+  {
+    "SKU": 137,
+    "DESCRIÇÃO ": "Shampoo Argan Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105449,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ARGAN 1L"
+  },
+  {
+    "SKU": 138,
+    "DESCRIÇÃO ": "Condicionador Argan Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105456,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ARGAN 1L"
+  },
+  {
+    "SKU": 143,
+    "DESCRIÇÃO ": "Óleo de Abacate 300ml",
+    "CÓD. DE BARRAS": 7899085324452,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 144,
+    "DESCRIÇÃO ": "Óleo de Macadâmia 300ml",
+    "CÓD. DE BARRAS": 7893595973469,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MANTEIGA ARTESANAL"
+  },
+  {
+    "SKU": 152,
+    "DESCRIÇÃO ": "Shampoo Cabelão 300ml",
+    "CÓD. DE BARRAS": 7899085324766,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 153,
+    "DESCRIÇÃO ": "Máscara Cabelão 300ml",
+    "CÓD. DE BARRAS": 7899085324780,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 154,
+    "DESCRIÇÃO ": "Tônico Cabelão em Gel 60ml",
+    "CÓD. DE BARRAS": 7899085324803,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 158,
+    "DESCRIÇÃO ": "Tônico Cabelão em Spray 120ml",
+    "CÓD. DE BARRAS": 7897990104480,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 170,
+    "DESCRIÇÃO ": "Hidratação Argan Dia a Dia 1kg",
+    "CÓD. DE BARRAS": 7897990105463,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ARGAN 1L"
+  },
+  {
+    "SKU": 171,
+    "DESCRIÇÃO ": "Shampoo Manteiga Capilar Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105500,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MANTEIGA CAPILAR 1L"
+  },
+  {
+    "SKU": 172,
+    "DESCRIÇÃO ": "Condicionador Manteiga Capilar Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105517,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MANTEIGA CAPILAR 1L"
+  },
+  {
+    "SKU": 173,
+    "DESCRIÇÃO ": "Hidratação Manteiga Capilar Dia a Dia 1kg",
+    "CÓD. DE BARRAS": 7897990105524,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MANTEIGA CAPILAR 1L"
+  },
+  {
+    "SKU": 174,
+    "DESCRIÇÃO ": "Shampoo Menta Dia a Dia 1L",
+    "CÓD. DE BARRAS": 7897990105432,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MENTA 1L"
+  },
+  {
+    "SKU": 191,
+    "DESCRIÇÃO ": "Retexturizador Orgânica Profissional 1 L",
+    "CÓD. DE BARRAS": 7899085324070,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ORGÂNICA"
+  },
+  {
+    "SKU": 200,
+    "DESCRIÇÃO ": "Shampoo Queratina Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7893595973506,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - QUERATINA 300ML"
+  },
+  {
+    "SKU": 201,
+    "DESCRIÇÃO ": "Condicionador Queratina Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7899085324094,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - QUERATINA 300ML"
+  },
+  {
+    "SKU": 202,
+    "DESCRIÇÃO ": "Hidratação Queratina Dia a Dia 300g",
+    "CÓD. DE BARRAS": 7899085324100,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - QUERATINA 300ML"
+  },
+  {
+    "SKU": 203,
+    "DESCRIÇÃO ": "Shampoo Argan Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7893595973452,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ARGAN 300ML"
+  },
+  {
+    "SKU": 204,
+    "DESCRIÇÃO ": "Condicionador Argan Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7893595973483,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ARGAN 300ML"
+  },
+  {
+    "SKU": 205,
+    "DESCRIÇÃO ": "Hidratação Argan Dia a Dia 300g",
+    "CÓD. DE BARRAS": 7893595973490,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ARGAN 300ML"
+  },
+  {
+    "SKU": 206,
+    "DESCRIÇÃO ": "Shampoo Manteiga Capilar Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7899085324896,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MANTEIGA CAPILAR 300ML"
+  },
+  {
+    "SKU": 207,
+    "DESCRIÇÃO ": "Condicionador Manteiga Capilar Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7899085324902,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MANTEIGA CAPILAR 300ML"
+  },
+  {
+    "SKU": 208,
+    "DESCRIÇÃO ": "Hidratação Manteiga Capilar Dia a Dia 300g",
+    "CÓD. DE BARRAS": 7899085324988,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MANTEIGA CAPILAR 300ML"
+  },
+  {
+    "SKU": 209,
+    "DESCRIÇÃO ": "Shampoo Menta Dia a Dia 300ml",
+    "CÓD. DE BARRAS": 7899085324995,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - MENTA 300ML"
+  },
+  {
+    "SKU": 501,
+    "DESCRIÇÃO ": "Shampoo Volume OFF 300ml",
+    "CÓD. DE BARRAS": 7899085325053,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "VOLUME OFF"
+  },
+  {
+    "SKU": 502,
+    "DESCRIÇÃO ": "Condicionador Volume OFF 300ml",
+    "CÓD. DE BARRAS": 7899085325060,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "VOLUME OFF"
+  },
+  {
+    "SKU": 503,
+    "DESCRIÇÃO ": "Hidratação Volume OFF 300g",
+    "CÓD. DE BARRAS": 7899085325077,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "VOLUME OFF"
+  },
+  {
+    "SKU": 504,
+    "DESCRIÇÃO ": "Leave-in Volume OFF 300ml",
+    "CÓD. DE BARRAS": 7899085325084,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "VOLUME OFF"
+  },
+  {
+    "SKU": 505,
+    "DESCRIÇÃO ": "Shampoo Enroulé Mel Modelador 300ml",
+    "CÓD. DE BARRAS": 7897990105746,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 506,
+    "DESCRIÇÃO ": "Condicionador Enroulé Mel Modelador 300ml",
+    "CÓD. DE BARRAS": 7897990105753,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 507,
+    "DESCRIÇÃO ": "Hidratação Enroulé Mel Modelador 300g",
+    "CÓD. DE BARRAS": 7897990105760,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 508,
+    "DESCRIÇÃO ": "Mel Modelador Enroulé 500g",
+    "CÓD. DE BARRAS": 7897990105685,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 520,
+    "DESCRIÇÃO ": "Shampoo Dia a Dia Organic 500ml",
+    "CÓD. DE BARRAS": 7897990105784,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ORGANIC"
+  },
+  {
+    "SKU": 521,
+    "DESCRIÇÃO ": "Condicionador Dia a Dia Organic 500ml",
+    "CÓD. DE BARRAS": 7897990105791,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ORGANIC"
+  },
+  {
+    "SKU": 522,
+    "DESCRIÇÃO ": "Hidratação Dia a Dia Organic 500g",
+    "CÓD. DE BARRAS": 7897990105807,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ORGANIC"
+  },
+  {
+    "SKU": 523,
+    "DESCRIÇÃO ": "Leave-in Creme de Pentear Dia a Dia Organic 500ml",
+    "CÓD. DE BARRAS": 7897990105814,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - ORGANIC"
+  },
+  {
+    "SKU": 525,
+    "DESCRIÇÃO ": "Ativador de Cachos TEIA Enroulé Tradicional 300ml",
+    "CÓD. DE BARRAS": 7897990105944,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 526,
+    "DESCRIÇÃO ": "Ativador de Cachos NORMAL Enroulé Tradicional 300ml",
+    "CÓD. DE BARRAS": 7897990105951,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 527,
+    "DESCRIÇÃO ": "Ativador de Cachos UMIDIFICANTE Enroulé Tradicional 300ml",
+    "CÓD. DE BARRAS": 7897990105968,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULÉ TRADICIONAL"
+  },
+  {
+    "SKU": 601,
+    "DESCRIÇÃO ": "Body Splash 1 VIE 120ml",
+    "CÓD. DE BARRAS": 7899085325114,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 602,
+    "DESCRIÇÃO ": "Body Splash 2 GIRL 120ml",
+    "CÓD. DE BARRAS": 7899085325121,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 603,
+    "DESCRIÇÃO ": "Body Splash 3 JAD 120ml",
+    "CÓD. DE BARRAS": 7899085325138,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 604,
+    "DESCRIÇÃO ": "Body Splash 4 ROSÊ 120ml",
+    "CÓD. DE BARRAS": 7899085325145,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 605,
+    "DESCRIÇÃO ": "Body Splash 5 IDOL 120ml",
+    "CÓD. DE BARRAS": 7899085325152,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 606,
+    "DESCRIÇÃO ": "Body Splash 6 LINT 120ml",
+    "CÓD. DE BARRAS": 7897990104244,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 607,
+    "DESCRIÇÃO ": "Body Splash 7 OLYM 120ml",
+    "CÓD. DE BARRAS": 7897990104251,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 608,
+    "DESCRIÇÃO ": "Body Splash 8 SEXY 120ml",
+    "CÓD. DE BARRAS": 7897990104268,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 609,
+    "DESCRIÇÃO ": "Body Splash 9 LADY 120ml",
+    "CÓD. DE BARRAS": 7897990104275,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 611,
+    "DESCRIÇÃO ": "Body Splash 1 ONE 120ml",
+    "CÓD. DE BARRAS": 7897990104282,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 612,
+    "DESCRIÇÃO ": "Body Splash 2 SAU 120ml",
+    "CÓD. DE BARRAS": 7897990104299,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 613,
+    "DESCRIÇÃO ": "Body Splash 3 INVC 120ml",
+    "CÓD. DE BARRAS": 7897990104305,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 621,
+    "DESCRIÇÃO ": "Reparador de Pontas 1 VIE 60ml",
+    "CÓD. DE BARRAS": 7897990104312,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 622,
+    "DESCRIÇÃO ": "Reparador de Pontas 2 GIRL 60ml",
+    "CÓD. DE BARRAS": 7897990104329,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 623,
+    "DESCRIÇÃO ": "Reparador de Pontas 3 JAD 60ml",
+    "CÓD. DE BARRAS": 7897990104336,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 624,
+    "DESCRIÇÃO ": "Reparador de Pontas 4 ROSÊ 60ml",
+    "CÓD. DE BARRAS": 7897990104343,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 625,
+    "DESCRIÇÃO ": "Reparador de Pontas 5 IDOL 60ml",
+    "CÓD. DE BARRAS": 7897990104350,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 626,
+    "DESCRIÇÃO ": "Reparador de Pontas 6 LINT 60ml",
+    "CÓD. DE BARRAS": 7897990104367,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 627,
+    "DESCRIÇÃO ": "Reparador de Pontas 7 OLYM 60ml",
+    "CÓD. DE BARRAS": 7897990104374,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 628,
+    "DESCRIÇÃO ": "Reparador de Pontas 8 SEXY 60ml",
+    "CÓD. DE BARRAS": 7897990104381,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 629,
+    "DESCRIÇÃO ": "Reparador de Pontas 9 LADY 60ml",
+    "CÓD. DE BARRAS": 7897990104398,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 631,
+    "DESCRIÇÃO ": "Reparador de Pontas 1 ONE 60ml",
+    "CÓD. DE BARRAS": 7897990104404,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 632,
+    "DESCRIÇÃO ": "Reparador de Pontas 2 SAU 60ml",
+    "CÓD. DE BARRAS": 7897990104411,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 633,
+    "DESCRIÇÃO ": "Reparador de Pontas 3 INVC 60ml",
+    "CÓD. DE BARRAS": 7897990104428,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "INTERNACIONAL"
+  },
+  {
+    "SKU": 634,
+    "DESCRIÇÃO ": "Shampoo Enroulé Mel Modelador 1L",
+    "CÓD. DE BARRAS": 7897990104442,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 635,
+    "DESCRIÇÃO ": "Condicionador Enroulé Mel Modelador 1L",
+    "CÓD. DE BARRAS": 7897990104459,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 636,
+    "DESCRIÇÃO ": "Hidratação Enroulé Mel Modelador 1kg",
+    "CÓD. DE BARRAS": 7897990104466,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 637,
+    "DESCRIÇÃO ": "Mel Modelador Enroulé 1kg",
+    "CÓD. DE BARRAS": 7897990104435,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 641,
+    "DESCRIÇÃO ": "Acidificante Capilar 5 em 1 Cronograma 300ml",
+    "CÓD. DE BARRAS": 7897990104473,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 650,
+    "DESCRIÇÃO ": "Shampoo Enroulé Mel Modelador 500ml",
+    "CÓD. DE BARRAS": 7897990104633,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 651,
+    "DESCRIÇÃO ": "Condicionador Enroulé Mel Modelador 500ml",
+    "CÓD. DE BARRAS": 7897990104640,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 652,
+    "DESCRIÇÃO ": "Hidratação Enroulé Mel Modelador 500g",
+    "CÓD. DE BARRAS": 7897990104657,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "MODELADOR"
+  },
+  {
+    "SKU": 700,
+    "DESCRIÇÃO ": "Detox Peeling Cabelão 300ml",
+    "CÓD. DE BARRAS": 7899085324810,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 701,
+    "DESCRIÇÃO ": "Detox Peeling Cabelão 500ml",
+    "CÓD. DE BARRAS": 7899085324827,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 702,
+    "DESCRIÇÃO ": "Shampoo Cabelão 500ml",
+    "CÓD. DE BARRAS": 7899085324773,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 703,
+    "DESCRIÇÃO ": "Máscara Cabelão 500ml",
+    "CÓD. DE BARRAS": 7899085324797,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CABELÃO"
+  },
+  {
+    "SKU": 708,
+    "DESCRIÇÃO ": "Reparador de Pontas VOLÁTIL 60 ml",
+    "CÓD. DE BARRAS": 7899085325312,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 709,
+    "DESCRIÇÃO ": "Reparador de Pontas CRISTAL Brilho Prolongado 60 ml",
+    "CÓD. DE BARRAS": 7899085325305,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 710,
+    "DESCRIÇÃO ": "Sérum Reparador de Pontas OURO 60 ml",
+    "CÓD. DE BARRAS": 7899085325299,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 711,
+    "DESCRIÇÃO ": "Sérum Reparador de Pontas AÇAÍ 60 ml",
+    "CÓD. DE BARRAS": 7899085325329,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 712,
+    "DESCRIÇÃO ": "Perfume Capilar IMPETUOSO 60ml",
+    "CÓD. DE BARRAS": 7899085325510,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 713,
+    "DESCRIÇÃO ": "Perfume Capilar LOVE 60ml",
+    "CÓD. DE BARRAS": 7899085325503,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 714,
+    "DESCRIÇÃO ": "Perfume Capilar CUPIDO 60ml",
+    "CÓD. DE BARRAS": 7899085325497,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "NACIONAL"
+  },
+  {
+    "SKU": 715,
+    "DESCRIÇÃO ": "Shampoo Maçã Cronograma 500ml",
+    "CÓD. DE BARRAS": 7899085325350,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 716,
+    "DESCRIÇÃO ": "Condicionador Maçã Cronograma 500ml",
+    "CÓD. DE BARRAS": 7899085325367,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 717,
+    "DESCRIÇÃO ": "Shampoo Maçã Cronograma 1L",
+    "CÓD. DE BARRAS": 7899085325336,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 718,
+    "DESCRIÇÃO ": "Condicionador Maçã Cronograma 1L",
+    "CÓD. DE BARRAS": 7899085325343,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "CRONOGRAMA"
+  },
+  {
+    "SKU": 2000,
+    "DESCRIÇÃO ": "Shampoo Enroulé OURO 500ml",
+    "CÓD. DE BARRAS": 7899085325589,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 2001,
+    "DESCRIÇÃO ": "Condicionador Enroulé OURO 500 ml",
+    "CÓD. DE BARRAS": 7899085325657,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 2002,
+    "DESCRIÇÃO ": "Hidratação Enroulé OURO 500g",
+    "CÓD. DE BARRAS": 7899085325619,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 2003,
+    "DESCRIÇÃO ": "Creme de Pentear (+Leve) Enroulé OURO 1L",
+    "CÓD. DE BARRAS": 7899085325640,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 2004,
+    "DESCRIÇÃO ": "Ativador de Cachos (+ Pesado) Enroulé OURO 1 L",
+    "CÓD. DE BARRAS": 7899085325626,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 2005,
+    "DESCRIÇÃO ": "Gelatina Enroulé OURO 500 ml",
+    "CÓD. DE BARRAS": 7899085325602,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 2006,
+    "DESCRIÇÃO ": "Ativador de Cachos (+ Pesado) Enroulé OURO 2,5 L",
+    "CÓD. DE BARRAS": 7899085325633,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "ENROULE OURO"
+  },
+  {
+    "SKU": 9095,
+    "DESCRIÇÃO ": "Creme de Pentear Potão Dia a Dia Queratina Proteínas e Tutano 1kg",
+    "CÓD. DE BARRAS": 7897990105982,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - POTÃO"
+  },
+  {
+    "SKU": 9096,
+    "DESCRIÇÃO ": "Creme de Pentear Potão Dia a Dia Manteiga Capilar Coco e Karité 1kg",
+    "CÓD. DE BARRAS": 7897990105999,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - POTÃO"
+  },
+  {
+    "SKU": 9097,
+    "DESCRIÇÃO ": "Creme de Pentear Potão Dia a Dia Argan Blend de Óleos 1kg",
+    "CÓD. DE BARRAS": 7897990106002,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "DIA A DIA - POTÃO"
+  },
+  {
+    "SKU": 110001,
+    "DESCRIÇÃO ": "BB Cream Finalizador Banho de Seda 300ml",
+    "CÓD. DE BARRAS": 7899085324353,
+    "SITUAÇÃO": "ATIVO",
+    "LINHA": "BANHO DE SEDA"
+  }
+]
