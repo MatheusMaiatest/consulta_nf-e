@@ -277,8 +277,8 @@
       <button class="tab-btn" onclick="switchView('vendas',this)">&#x1F4C8; Vendas</button>
     </nav>
     <div class="topbar-right">
-      <button class="btn-icon" id="btnTheme" title="Tema">📋</button>
-      <button class="btn-icon" id="btnPanel" title="Painel">📋</button>
+      <button class="btn-icon" id="btnTheme" title="Tema">&#x1F4CB;</button>
+      <button class="btn-icon" id="btnPanel" title="Painel">&#x1F4CB;</button>
     </div>
   </header>
   <div id="view-nfe" class="view-section active">
@@ -286,14 +286,14 @@
     <aside class="panel" id="panel">
       <div class="panel-title">Painel de Controle</div>
       <div class="psec">
-        <span class="plabel">📋 Período</span>
+        <span class="plabel">&#x1F4CB; Período</span>
         <div class="date-row">
           <div class="fg"><label>De</label><input type="date" id="dtFrom"/></div>
           <div class="fg"><label>At—</label><input type="date" id="dtTo"/></div>
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">📋? Agrupar por</span>
+        <span class="plabel">&#x1F4CB;? Agrupar por</span>
         <div class="group-opts">
           <label class="rcard"><input type="radio" name="grp" value="nf" checked/><span>Por NF-e</span></label>
           <label class="rcard"><input type="radio" name="grp" value="cliente"/><span>Por Cliente</span></label>
@@ -302,7 +302,7 @@
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">📋 Origem</span>
+        <span class="plabel">&#x1F4CB; Origem</span>
         <div class="tog-grp">
           <label class="tchip" id="chipTodasOrigens" data-o="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>? Todas</label>
           <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
@@ -310,7 +310,7 @@
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">📋 Filtrar:</span>
+        <span class="plabel">&#x1F4CB; Filtrar:</span>
         <div class="col-togs" id="colTogs">
           <label class="ctog"><input type="checkbox" data-c="cliente" checked/>Cliente</label>
           <label class="ctog"><input type="checkbox" data-c="valor" checked/>Valor NF</label>
@@ -323,7 +323,7 @@
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">📋? Cupom</span>
+        <span class="plabel">&#x1F4CB;? Cupom</span>
         <div class="tog-grp">
           <label class="tchip" id="chipTodosCupons" data-cupom="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>? Todas</label>
           <label class="tchip on" id="chipComCupom" data-cupom="com"><input type="checkbox" checked/>Com cupom</label>
@@ -331,48 +331,48 @@
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">📋 Forma de Pagamento</span>
+        <span class="plabel">&#x1F4CB; Forma de Pagamento</span>
         <button class="btn-filtro-extra" id="btnFiltroPag" style="justify-content:space-between">
           <span>Selecionar formas...</span><span class="fex-count" id="cntPag">0</span>
         </button>
         <div id="pagFiltroChip"></div>
       </div>
       <div class="psec">
-        <span class="plabel">📋 Filtrar por Produto</span>
-        <button class="btn-filtrar-prod" id="btnFiltrarProd">📋 Selecionar produtos... <span id="prodFiltroCount"></span></button>
+        <span class="plabel">&#x1F4CB; Filtrar por Produto</span>
+        <button class="btn-filtrar-prod" id="btnFiltrarProd">&#x1F4CB; Selecionar produtos... <span id="prodFiltroCount"></span></button>
         <div id="prodFiltroChip"></div>
       </div>
       <div class="psec">
-        <span class="plabel">📋 Filtros AvaNºados</span>
+        <span class="plabel">&#x1F4CB; Filtros AvaNºados</span>
         <div class="filtros-extra">
           <button class="btn-filtro-extra" data-filtro="numero" id="btnFiltroNumero">
-            <span>📋 Nºmero NF</span><span class="fex-count" id="cntNumero">0</span>
+            <span>&#x1F4CB; Nºmero NF</span><span class="fex-count" id="cntNumero">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="cliente" id="btnFiltroCliente">
-            <span>📋 Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
+            <span>&#x1F4CB; Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="cpf" id="btnFiltroCpf">
-            <span>📋 CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
+            <span>&#x1F4CB; CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="telefone" id="btnFiltroTelefone">
-            <span>📋 Telefone</span><span class="fex-count" id="cntTelefone">0</span>
+            <span>&#x1F4CB; Telefone</span><span class="fex-count" id="cntTelefone">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="email" id="btnFiltroEmail">
-            <span>📋 E-mail</span><span class="fex-count" id="cntEmail">0</span>
+            <span>&#x1F4CB; E-mail</span><span class="fex-count" id="cntEmail">0</span>
           </button>
         </div>
         <div id="filtrosChips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
       </div>
-      <button class="btn-primary" id="btnBuscar">📋 Buscar Notas</button>
+      <button class="btn-primary" id="btnBuscar">&#x1F4CB; Buscar Notas</button>
       <div class="statusbar" id="status">Aguardando busca...</div>
     </aside>
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="search" placeholder="📋 Buscar por cliente, NF, CPF..."/>
+        <input type="text" class="sinput" id="search" placeholder="&#x1F4CB; Buscar por cliente, NF, CPF..."/>
         <span class="rcount" id="rcount"></span>
       </div>
       <div class="grid" id="grid">
-        <div class="empty"><div class="empty-icon">📋</div><p>Selecione um Período e clique em <strong>Buscar Notas</strong></p></div>
+        <div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Selecione um Período e clique em <strong>Buscar Notas</strong></p></div>
       </div>
     </main>
   </div>
@@ -384,29 +384,29 @@
     <aside class="panel" id="panel-pedidos">
       <div class="panel-title">Painel de Controle</div>
       <div class="psec">
-        <span class="plabel">📋 Período</span>
+        <span class="plabel">&#x1F4CB; Período</span>
         <div class="date-row">
           <div class="fg"><label>De</label><input type="date" id="dtFromPed"/></div>
           <div class="fg"><label>At—</label><input type="date" id="dtToPed"/></div>
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">📋 Origem</span>
+        <span class="plabel">&#x1F4CB; Origem</span>
         <div class="tog-grp">
           <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
           <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
         </div>
       </div>
-      <button class="btn-primary" id="btnBuscarPed">📋 Buscar Pedidos</button>
+      <button class="btn-primary" id="btnBuscarPed">&#x1F4CB; Buscar Pedidos</button>
       <div class="statusbar" id="statusPed">Aguardando busca...</div>
     </aside>
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="searchPed" placeholder="📋 Buscar por cliente, pedido, CPF..."/>
+        <input type="text" class="sinput" id="searchPed" placeholder="&#x1F4CB; Buscar por cliente, pedido, CPF..."/>
         <span class="rcount" id="rcountPed"></span>
       </div>
       <div class="grid" id="gridPed">
-        <div class="empty"><div class="empty-icon">📋</div><p>Selecione um Período e clique em <strong>Buscar Pedidos</strong></p></div>
+        <div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Selecione um Período e clique em <strong>Buscar Pedidos</strong></p></div>
       </div>
     </main>
   </div>
@@ -416,7 +416,7 @@
   <div id="view-pcp" class="view-section">
   <div class="layout">
     <aside class="panel" id="panel-pcp">
-      <div class="panel-title">🏭 Planejamento e Controle</div>
+      <div class="panel-title">&#x1F3ED; Planejamento e Controle</div>
 
       <!-- STATUS DOS PEDIDOS (retratil) -->
       <div class="psec">
@@ -431,41 +431,41 @@
 
       <!-- PRIORIDADE -->
       <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>⚡</span> Prioridade</span>
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>&#x26A1;</span> Prioridade</span>
         <div class="tog-grp" style="flex-direction:column;gap:6px;margin-top:6px">
           <label class="tchip on pcp-prio-chip" data-prio="antigo" style="transition:all .18s;cursor:pointer">
             <input type="radio" name="Prioridade" value="antigo" checked/>
-            🕐 Mais Antigo
+            &#x1F550; Mais Antigo
           </label>
           <label class="tchip pcp-prio-chip" data-prio="volume" style="transition:all .18s;cursor:pointer">
             <input type="radio" name="Prioridade" value="volume"/>
-            📦 Solta Mais Pedidos
+            &#x1F4E6; Solta Mais Pedidos
           </label>
         </div>
       </div>
 
       <!-- ORIGEM DOS PEDIDOS (cores padrão) -->
       <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>🔀</span> Origem dos Pedidos</span>
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>&#x1F500;</span> Origem dos Pedidos</span>
         <div class="tog-grp" style="flex-direction:column;gap:6px;margin-top:6px">
           <label id="chip-origem-ecommerce" data-origem="ecommerce" class="tchip on" style="
             transition:all .18s;cursor:pointer;
             background:rgba(66,165,245,.15);border-color:var(--eco);color:var(--eco)">
             <input type="checkbox" value="ecommerce" checked/>
-            🛒 E-commerce
+            &#x1F6D2; E-commerce
           </label>
           <label id="chip-origem-distribuidor" data-origem="distribuidor" class="tchip on" style="
             transition:all .18s;cursor:pointer;
             background:rgba(171,71,188,.15);border-color:var(--dist);color:var(--dist)">
             <input type="checkbox" value="distribuidor" checked/>
-            🏭 Distribuidor
+            &#x1F3ED; Distribuidor
           </label>
         </div>
       </div>
 
       <!-- PERÍODO -->
       <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>📅</span> Período dos Pedidos</span>
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>&#x1F4C5;</span> Período dos Pedidos</span>
         <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
           <div style="display:flex;flex-direction:column;gap:3px">
             <label style="font-size:.72rem;color:var(--tm)">De</label>
@@ -480,7 +480,7 @@
 
       <!-- SALDO DE ESTOQUE -->
       <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>📦</span> Saldo de Estoque</span>
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>&#x1F4E6;</span> Saldo de Estoque</span>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
           <div style="border:1px solid rgba(66,165,245,.25);border-radius:var(--rs);padding:8px">
             <div style="font-size:.72rem;color:var(--eco);font-weight:600;margin-bottom:4px">&#x1F6D2; E-commerce</div>
@@ -509,12 +509,12 @@
 
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="searchPCP" placeholder="🔍 Buscar produto, SKU..."/>
+        <input type="text" class="sinput" id="searchPCP" placeholder="&#x1F50D; Buscar produto, SKU..."/>
         <span class="rcount" id="rcountPCP"></span>
       </div>
       <div id="gridPCP">
         <div class="empty">
-          <div class="empty-icon">🏭</div>
+          <div class="empty-icon">&#x1F3ED;</div>
           <p>Selecione o status e a prioridade, depois clique em <strong>Processar PCP</strong></p>
         </div>
       </div>
@@ -531,48 +531,48 @@
     <div class="dash-kpi-row" id="kpi-transp"></div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Fatia de Mercado por Transportadora</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Fatia de Mercado por Transportadora</div>
         <div class="dash-chart-wrap"><canvas id="chart-market"></canvas></div>
         <div class="legend-row" id="legend-market"></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Peso Bruto por Transportadora (kg)</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Peso Bruto por Transportadora (kg)</div>
         <div class="dash-chart-wrap"><canvas id="chart-peso-transp"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Top NFs por Peso Bruto</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Top NFs por Peso Bruto</div>
         <div class="dash-chart-wrap"><canvas id="chart-peso-nf"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> NFs por Origem</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> NFs por Origem</div>
         <div class="dash-chart-wrap"><canvas id="chart-nf-source"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-3">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Peso Bruto vs L—quido M—dio / Transportadora</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Peso Bruto vs L—quido M—dio / Transportadora</div>
         <div class="dash-chart-wrap"><canvas id="chart-pb-pl"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Distribui📋o de Peso Bruto (faixas)</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Distribui&#x1F4CB;o de Peso Bruto (faixas)</div>
         <div class="dash-chart-wrap"><canvas id="chart-hist"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋?</span> Fator PL—PB por Transportadora</div>
+        <div class="dash-card-title"><span>&#x1F4CB;?</span> Fator PL—PB por Transportadora</div>
         <div class="dash-chart-wrap"><canvas id="chart-fator"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="map-card">
-        <div class="dash-card-title"><span>📋?</span> NFs por Estado</div>
+        <div class="dash-card-title"><span>&#x1F4CB;?</span> NFs por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-nf" viewBox="0 0 460 400"></svg></div>
         <div id="map-nf-loading" class="dash-empty">Carregando mapa...</div>
         <div id="detail-nf" class="drill-panel">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <strong id="detail-nf-flag" style="font-size:1.1rem"></strong>
-            <button onclick="closeStateDetail('nf')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">?</button>
+            <button onclick="closeStateDetail('nf')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">&#x2715;</button>
           </div>
           <div id="detail-nf-name" style="font-size:.8rem;color:var(--ts)"></div>
           <div id="detail-nf-count" style="font-size:.75rem;color:var(--tm)"></div>
@@ -580,14 +580,14 @@
         </div>
       </div>
       <div class="map-card">
-        <div class="dash-card-title"><span>📋?</span> Transportadora Dominante por Estado</div>
+        <div class="dash-card-title"><span>&#x1F4CB;?</span> Transportadora Dominante por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-transp" viewBox="0 0 460 400"></svg></div>
         <div id="map-transp-loading" class="dash-empty">Carregando mapa...</div>
         <div class="legend-row" id="transp-map-legend-items"></div>
         <div id="detail-transp" class="drill-panel">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <strong id="detail-transp-flag" style="font-size:1.1rem"></strong>
-            <button onclick="closeStateDetail('transp')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">?</button>
+            <button onclick="closeStateDetail('transp')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">&#x2715;</button>
           </div>
           <div id="detail-transp-name" style="font-size:.8rem;color:var(--ts)"></div>
           <div id="detail-transp-count" style="font-size:.75rem;color:var(--tm)"></div>
@@ -604,46 +604,46 @@
     <div class="dash-kpi-row" id="kpi-vendas"></div>
     <div class="dash-row cols-3">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Faturamento por Dia</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Faturamento por Dia</div>
         <div class="dash-chart-wrap"><canvas id="chart-fat-dia"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Faturamento por Unidade (Eco vs Dist)</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Faturamento por Unidade (Eco vs Dist)</div>
         <div class="dash-chart-wrap"><canvas id="chart-fat-unidade"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Ticket M—dio por Unidade</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Ticket M—dio por Unidade</div>
         <div class="dash-chart-wrap"><canvas id="chart-ticket-unidade"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Top Clientes por Valor</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Top Clientes por Valor</div>
         <div class="dash-chart-wrap"><canvas id="chart-top-clientes"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Formas de Pagamento</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Formas de Pagamento</div>
         <div class="dash-chart-wrap"><canvas id="chart-pagamento"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋?</span> Uso de Cupons</div>
+        <div class="dash-card-title"><span>&#x1F4CB;?</span> Uso de Cupons</div>
         <div class="dash-chart-wrap"><canvas id="chart-cupons"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>?</span> NFs Reversas vs Normais</div>
+        <div class="dash-card-title"><span>&#x1F504;</span> NFs Reversas vs Normais</div>
         <div class="dash-chart-wrap"><canvas id="chart-reversas"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋?</span> Faturamento por Estado</div>
+        <div class="dash-card-title"><span>&#x1F4CB;?</span> Faturamento por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-vendas" viewBox="0 0 460 400"></svg></div>
         <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Situa📋o dos Pedidos</div>
+        <div class="dash-card-title"><span>&#x1F4CB;</span> Situa&#x1F4CB;o dos Pedidos</div>
         <div class="dash-chart-wrap"><canvas id="chart-situacao"></canvas></div>
       </div>
     </div>
@@ -656,7 +656,7 @@
       <div class="pmod-head">
         <h3 id="fexTitulo">Filtro</h3>
         <input type="text" class="pmod-search" id="fexSearch" placeholder="Buscar..."/>
-        <button class="pmod-close" id="fexClose">?</button>
+        <button class="pmod-close" id="fexClose">&#x2715;</button>
       </div>
       <div class="pmod-actions">
         <button id="fexSelAll">Selecionar todos</button>
@@ -674,9 +674,9 @@
   <div class="pmod-overlay" id="pmodOverlay">
     <div class="pmod">
       <div class="pmod-head">
-        <h3>📋 Filtrar por Produto</h3>
+        <h3>&#x1F4CB; Filtrar por Produto</h3>
         <input type="text" class="pmod-search" id="pmodSearch" placeholder="Buscar produto..."/>
-        <button class="pmod-close" id="pmodClose">?</button>
+        <button class="pmod-close" id="pmodClose">&#x2715;</button>
       </div>
       <div class="pmod-actions">
         <button id="pmodSelAll">Selecionar todos</button>
@@ -692,7 +692,7 @@
 
   <div class="moverlay" id="moverlay">
     <div class="modal">
-      <button class="mclose" id="mclose">?</button>
+      <button class="mclose" id="mclose">&#x2715;</button>
       <div class="mhead" id="mhead"></div>
       <div class="mbody" id="mbody"></div>
     </div>
@@ -704,7 +704,7 @@
   <!-- SUB-MODAL BLING (pedido de venda) -->
   <div class="pedido-overlay" id="pedidoOverlay">
     <div class="pedido-modal">
-      <button class="pedido-modal-close" id="pedidoClose">?</button>
+      <button class="pedido-modal-close" id="pedidoClose">&#x2715;</button>
       <div class="pedido-modal-head" id="pedidoHead"></div>
       <div class="pedido-modal-body" id="pedidoBody"></div>
     </div>
@@ -712,7 +712,7 @@
   <!-- SUB-MODAL TRAY (obs do cliente) -->
   <div class="pedido-overlay" id="trayOverlay">
     <div class="pedido-modal">
-      <button class="pedido-modal-close" id="trayClose">?</button>
+      <button class="pedido-modal-close" id="trayClose">&#x2715;</button>
       <div class="pedido-modal-head" id="trayHead"></div>
       <div class="pedido-modal-body" id="trayBody"></div>
     </div>
@@ -721,7 +721,7 @@
   <!-- MODAL PEDIDO -->
   <div class="moverlay" id="moverlayPed">
     <div class="modal">
-      <button class="mclose" id="mclosePed">?</button>
+      <button class="mclose" id="mclosePed">&#x2715;</button>
       <div class="mhead" id="mheadPed"></div>
       <div class="mbody" id="mbodyPed"></div>
     </div>
@@ -730,7 +730,7 @@
   <!-- MODAL PCP - LISTA DE PEDIDOS DO PRODUTO -->
   <div class="moverlay" id="moverlayPCPProduto">
     <div class="modal">
-      <button class="mclose" id="mclosePCPProduto">?</button>
+      <button class="mclose" id="mclosePCPProduto">&#x2715;</button>
       <div class="mhead" id="mheadPCPProduto"></div>
       <div class="mbody" id="mbodyPCPProduto"></div>
     </div>
@@ -756,15 +756,15 @@
   G('btnTheme').onclick=function(){
     var h=document.documentElement, dark=h.getAttribute('data-theme')==='dark';
     h.setAttribute('data-theme',dark?'light':'dark');
-    G('btnTheme').textContent=dark?'📋':'📋';
+    G('btnTheme').textContent=dark?'&#x1F4CB;':'&#x1F4CB;';
   };
 
   // -- Painel -------------------------------------------------
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
-  // -- Fun📋o de filtro (definida ANTES dos event listeners) --
+  // -- Fun&#x1F4CB;o de filtro (definida ANTES dos event listeners) --
   function applyFilters(){
-    console.log('📋 applyFilters BASE chamada (ser— sobrescrita)');
+    console.log('&#x1F4CB; applyFilters BASE chamada (ser— sobrescrita)');
     G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
     renderCards();
   }
@@ -780,7 +780,7 @@
     
     c.onclick=function(e){
       e.preventDefault(); // Previne comportamento padrão do label
-      e.stopPropagation(); // Para propaga📋o do evento
+      e.stopPropagation(); // Para propaga&#x1F4CB;o do evento
       
       var o=c.dataset.o;
       if(!o) return; // Ignora chips que Nºo s—o de origem
@@ -803,7 +803,7 @@
       }
       
       console.log('---------------------------------------------------');
-      console.log('📋 CLICOU EM ORIGEM:', o);
+      console.log('&#x1F4CB; CLICOU EM ORIGEM:', o);
       console.log('Estado antes:', Array.from(activeOrigens));
       console.log('Classes antes:', c.className);
       
@@ -830,7 +830,7 @@
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
-        console.error('? applyFilters NºO — UMA FUN📋O!');
+        console.error('? applyFilters NºO — UMA FUN&#x1F4CB;O!');
       }
     };
   });
@@ -883,7 +883,7 @@
         const prod = produtosCD[sku];
         const descLimpa = (prod.descricao || '').toLowerCase().trim();
         
-        // Verifica se o nome do produto cont—m a descri📋o do JSON ou vice-versa
+        // Verifica se o nome do produto cont—m a descri&#x1F4CB;o do JSON ou vice-versa
         if (descLimpa.length > 10 && (nomeLimpo.includes(descLimpa) || descLimpa.includes(nomeLimpo))) {
           return prod;
         }
@@ -923,14 +923,14 @@
 
   function buscar(){
     var f=G('dtFrom').value, t=G('dtTo').value;
-    if(!f||!t){setStatus('📋 Selecione o Período.','warn');return;}
-    if(f>t){setStatus('📋 Data inicial maior que final.','warn');return;}
+    if(!f||!t){setStatus('&#x1F4CB; Selecione o Período.','warn');return;}
+    if(f>t){setStatus('&#x1F4CB; Data inicial maior que final.','warn');return;}
     allNotas=[];
     _buscarFrom=f; _buscarTo=t; _buscarOffset=0; _buscarTotal=0; _buscarAtivo=true;
     loading(true); setStatus('Buscando...');
     buscarPagina();
     
-    // SINCRONIZA📋O: Buscar pedidos automaticamente com as mesmas datas
+    // SINCRONIZA&#x1F4CB;O: Buscar pedidos automaticamente com as mesmas datas
     G('dtFromPed').value = f;
     G('dtToPed').value = t;
     setTimeout(function(){ buscarPedidos(); }, 200);
@@ -969,7 +969,7 @@
   G('search').oninput=function(e){
     activeSearch=e.target.value.toLowerCase().trim();
     applyFilters();
-    // SINCRONIZA📋O: Aplicar mesma busca nos pedidos
+    // SINCRONIZA&#x1F4CB;O: Aplicar mesma busca nos pedidos
     G('searchPed').value = e.target.value;
     activeSearchPed = activeSearch;
     applyFiltersPed();
@@ -979,19 +979,19 @@
   var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
 
   function renderCards(){
-    console.log('📋 renderCards() chamada');
-    console.log('📋 filteredNotas.length:', filteredNotas.length);
+    console.log('&#x1F4CB; renderCards() chamada');
+    console.log('&#x1F4CB; filteredNotas.length:', filteredNotas.length);
     
     var grp=document.querySelector('input[name=grp]:checked').value||'nf';
     var cols=getCols();
     var grid=G('grid');
     
-    console.log('📋? Agrupamento:', grp);
-    console.log('📋 Colunas vis—veis:', Array.from(cols));
-    console.log('📋 Grid element:', grid);
-    console.log('📋 Grid parent:', grid.parentElement);
-    console.log('📋 Grid display:', window.getComputedStyle(grid).display);
-    console.log('📋 Grid visibility:', window.getComputedStyle(grid).visibility);
+    console.log('&#x1F4CB;? Agrupamento:', grp);
+    console.log('&#x1F4CB; Colunas vis—veis:', Array.from(cols));
+    console.log('&#x1F4CB; Grid element:', grid);
+    console.log('&#x1F4CB; Grid parent:', grid.parentElement);
+    console.log('&#x1F4CB; Grid display:', window.getComputedStyle(grid).display);
+    console.log('&#x1F4CB; Grid visibility:', window.getComputedStyle(grid).visibility);
     
     // FOR—A limpeza do grid
     while(grid.firstChild) {
@@ -1004,8 +1004,8 @@
     if(_renderObs){_renderObs.disconnect();_renderObs=null;}
 
     if(!filteredNotas.length){
-      grid.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma nota encontrada.</p></div>';
-      console.log('📋 Nenhuma nota para renderizar');
+      grid.innerHTML='<div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Nenhuma nota encontrada.</p></div>';
+      console.log('&#x1F4CB; Nenhuma nota para renderizar');
       return;
     }
 
@@ -1017,7 +1017,7 @@
       g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
     });
     
-    console.log('📋 Total de itens a renderizar:', _renderList.length);
+    console.log('&#x1F4CB; Total de itens a renderizar:', _renderList.length);
 
     // Sentinel para carregar mais ao rolar
     var sentinel=document.createElement('div');
@@ -1030,7 +1030,7 @@
     
     // Renderiza primeiro lote DEPOIS de adicionar o sentinel
     requestAnimationFrame(function(){
-      console.log('📋 requestAnimationFrame executando...');
+      console.log('&#x1F4CB; requestAnimationFrame executando...');
       renderLote(cols, grid);
       
       // Observer para lazy loading
@@ -1038,14 +1038,14 @@
         if(entries[0].isIntersecting) renderLote(cols, grid);
       },{rootMargin:'200px'});
       _renderObs.observe(sentinel);
-      console.log('📋? Observer configurado');
+      console.log('&#x1F4CB;? Observer configurado');
     });
     
     console.log('? renderCards() conclu—da');
   }
 
   function renderLote(cols, grid){
-    console.log('📋 renderLote() chamada');
+    console.log('&#x1F4CB; renderLote() chamada');
     console.log('_renderIdx:', _renderIdx, '_renderBatch:', _renderBatch, '_renderList.length:', _renderList.length);
     
     var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
@@ -1096,15 +1096,15 @@
     var d=document.createElement('div');
     d.className='card '+n.origem;
     
-    var ol=n.origem==='ecommerce'?'📋 E-commerce':'📋 Distribuidor';
+    var ol=n.origem==='ecommerce'?'&#x1F4CB; E-commerce':'&#x1F4CB; Distribuidor';
     d.innerHTML=
       (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
       (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
       (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' — Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">? Reversa</span>':'')+' </div>':'')+
       (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido '+esc(n.numeropedido)+'</span>'+
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">&#x1F4CB; Pedido '+esc(n.numeropedido)+'</span>'+
         sitBadgeCard(n.pedido_situacao)+
-        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">📋?</span>':'')+
+        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">&#x1F4CB;?</span>':'')+
       '</div>':'')+
       (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
       '<div class="cmeta">'+
@@ -1113,7 +1113,7 @@
       '</div>';
     d.onclick=function(e){
       e.stopPropagation();
-      console.log('📋? Card clicado:', n.numero, n.cliente);
+      console.log('&#x1F4CB;? Card clicado:', n.numero, n.cliente);
       abrirModal(n);
     };
     
@@ -1127,7 +1127,7 @@
       var k='';
       if(grp==='cliente')k=n.cliente||'Sem cliente';
       if(grp==='transportadora')k=n.transportadora||'Sem transportadora';
-      if(grp==='unidade')k=n.origem==='ecommerce'?'📋 E-commerce':'📋 Distribuidor';
+      if(grp==='unidade')k=n.origem==='ecommerce'?'&#x1F4CB; E-commerce':'&#x1F4CB; Distribuidor';
       if(!m[k])m[k]=[];
       m[k].push(n);
     });
@@ -1136,10 +1136,10 @@
 
   // -- Modal --------------------------------------------------
   function abrirModal(n){
-    console.log('📋 abrirModal chamada:', n);
-    var ol=n.origem==='ecommerce'?'📋 E-commerce':'📋 Distribuidor';
+    console.log('&#x1F4CB; abrirModal chamada:', n);
+    var ol=n.origem==='ecommerce'?'&#x1F4CB; E-commerce':'&#x1F4CB; Distribuidor';
     
-    // Badge de situa📋o da NF
+    // Badge de situa&#x1F4CB;o da NF
     var nfSituacao = n.situacao ? String(n.situacao) : 'Autorizada';
     var nfSitClass = 'ok'; // Verde por padrão (autorizada)
     if(nfSituacao.toLowerCase().includes('cancelad')) nfSitClass = 'err';
@@ -1153,15 +1153,15 @@
     
     G('mbody').innerHTML=
       // -----------------------------------------------------------
-      // SE📋O: NOTA FISCAL
+      // SE&#x1F4CB;O: NOTA FISCAL
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(92,107,192,.05);border:2px solid var(--ac);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
-        '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">📋 NOTA FISCAL</h3>'+
+        '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">&#x1F4CB; NOTA FISCAL</h3>'+
         '<div class="dgrid">'+
           di('Nºmero',n.numero)+
           di('Série',n.serie)+
           di('Data Emissão',fmtDate(n.dataemissao))+
-          '<div class="di"><label>Situa📋o NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
+          '<div class="di"><label>Situa&#x1F4CB;o NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
           diV('Valor Total',brl(n.valor))+
           di('Valor Produtos',brl(n.valorProdutos))+
           di('Desconto',brl(n.desconto))+
@@ -1171,30 +1171,30 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE📋O: PEDIDO DE VENDA
+      // SE&#x1F4CB;O: PEDIDO DE VENDA
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
-        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>'+
+        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">&#x1F4CB; PEDIDO DE VENDA</h3>'+
         (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? 
           '<div class="dgrid">'+
             diCopy('Nº Pedido Bling', n.numeropedido||'—')+
             di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
-            (n.pedido_situacao ? '<div class="di"><label>Situa📋o Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
+            (n.pedido_situacao ? '<div class="di"><label>Situa&#x1F4CB;o Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
           '</div>'+
-          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">📋 Observa📋es do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
-          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">📋 Observa📋es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
+          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
+          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
           '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
-            '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Ver Detalhes Bling</button>'+
-            (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">📋 Obs. Cliente (Tray)</button>' : '')+
+            '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">&#x1F4CB; Ver Detalhes Bling</button>'+
+            (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">&#x1F4CB; Obs. Cliente (Tray)</button>' : '')+
           '</div>'
-        : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">📋 Nenhum pedido vinculado a esta nota.</div>')+
+        : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">&#x1F4CB; Nenhum pedido vinculado a esta nota.</div>')+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE📋O: DESTINAT—RIO
+      // SE&#x1F4CB;O: DESTINAT—RIO
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>📋 Destinat—rio</h3>'+
+        '<h3>&#x1F4CB; Destinat—rio</h3>'+
         '<div class="dgrid">'+
           di('Nome',n.cliente)+
           di('CPF/CNPJ',n.cpf)+
@@ -1210,10 +1210,10 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE📋O: TRANSPORTE
+      // SE&#x1F4CB;O: TRANSPORTE
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>📋 Transporte</h3>'+
+        '<h3>&#x1F4CB; Transporte</h3>'+
         '<div class="dgrid">'+
           di('Transportadora',n.transportadora)+
           di('CNPJ Transp.',n.transportadoraCnpj)+
@@ -1225,34 +1225,34 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE📋O: PAGAMENTO
+      // SE&#x1F4CB;O: PAGAMENTO
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>📋 Pagamento</h3>'+
+        '<h3>&#x1F4CB; Pagamento</h3>'+
         (n.formas_pagamento && n.formas_pagamento.length ?
           n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
           '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
         (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
         (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
         '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
-        (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">📋? Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
+        (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">&#x1F4CB;? Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE📋O: PRODUTOS
+      // SE&#x1F4CB;O: PRODUTOS
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>📋 Produtos</h3>'+
+        '<h3>&#x1F4CB; Produtos</h3>'+
         '<div class="plist" id="modal-produtos-list">'+
           '<div class="pload">? Carregando produtos...</div>'+
         '</div>'+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE📋O: LINKS
+      // SE&#x1F4CB;O: LINKS
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>📋 Links</h3>'+
+        '<h3>&#x1F4CB; Links</h3>'+
         '<div class="dgrid">'+
           (n.linkdanfe?'<div class="di"><label>DANFE</label><span><a href="'+esc(n.linkdanfe)+'" target="_blank" style="color:var(--ac)">Abrir DANFE</a></span></div>':'')+
           (n.linkpdf?'<div class="di"><label>PDF</label><span><a href="'+esc(n.linkpdf)+'" target="_blank" style="color:var(--ac)">Abrir PDF</a></span></div>':'')+
@@ -1267,7 +1267,7 @@
     carregarProdutosNF(n);
   }
   
-  // Helper para determinar classe de cor da situa📋o
+  // Helper para determinar classe de cor da situa&#x1F4CB;o
   function getSitClass(sit){
     if(!sit) return 'info';
     var s = sit.toLowerCase();
@@ -1372,14 +1372,14 @@
   function diCopy(l,v){
     var val=String(v||'—');
     var hasVal=(val!=='—'&&val!=='');
-    var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">📋</button>':'';
+    var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">&#x1F4CB;</button>':'';
     return'<div class="di"><label>'+l+'</label><div class="copy-row"><span>'+esc(val)+'</span>'+copyBtn+'</div></div>';
   }
   function copiarTexto(btn,texto){
     navigator.clipboard.writeText(texto).then(function(){
       btn.textContent='?';
       btn.classList.add('copiado');
-      setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
+      setTimeout(function(){btn.textContent='&#x1F4CB;';btn.classList.remove('copiado');},1500);
     }).catch(function(){
       // fallback para navegadores sem clipboard API
       var el=document.createElement('textarea');
@@ -1388,21 +1388,21 @@
       document.execCommand('copy');
       document.body.removeChild(el);
       btn.textContent='?'; btn.classList.add('copiado');
-      setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
+      setTimeout(function(){btn.textContent='&#x1F4CB;';btn.classList.remove('copiado');},1500);
     });
   }
   function setStatus(m,t){var s=G('status');s.textContent=m;s.style.color=t==='err'?'var(--err)':t==='warn'?'var(--warn)':'var(--tm)';}
   function loading(on){G('loverlay').classList.toggle('on',on);}
   // -- FILTROS AVANºADOS (numero, cliente, cpf, telefone, email) --
   var _fexConfig = {
-    numero:   { titulo:'📋 Nºmero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
-    cliente:  { titulo:'📋 Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
-    cpf:      { titulo:'📋 CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
-    telefone: { titulo:'📋 Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
-    email:    { titulo:'📋 E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
+    numero:   { titulo:'&#x1F4CB; Nºmero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
+    cliente:  { titulo:'&#x1F4CB; Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
+    cpf:      { titulo:'&#x1F4CB; CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
+    telefone: { titulo:'&#x1F4CB; Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
+    email:    { titulo:'&#x1F4CB; E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
   };
 
-  // Mapa de sele📋es: { numero: Set, cliente: Set, ... }
+  // Mapa de sele&#x1F4CB;es: { numero: Set, cliente: Set, ... }
   var _fexSel = { numero:new Set(), cliente:new Set(), cpf:new Set(), telefone:new Set(), email:new Set() };
   var _fexAtual = null; // qual filtro est— aberto agora
 
@@ -1441,7 +1441,7 @@
     G('fexTitulo').textContent = cfg.titulo;
     G('fexSearch').value = '';
     if(allNotas.length === 0){
-      G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">📋 Fa—a uma busca primeiro.</div>';
+      G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">&#x1F4CB; Fa—a uma busca primeiro.</div>';
       G('fexOverlay').classList.add('open');
       return;
     }
@@ -1516,7 +1516,7 @@
         var chip = document.createElement('div');
         chip.className = 'filtro-chip';
         chip.innerHTML = cfg.titulo.replace(/[^\w\s]/g,'').trim() + ': ' + _fexSel[key].size +
-          ' <button onclick="limparFex(\''+key+'\')">?</button>';
+          ' <button onclick="limparFex(\''+key+'\')">&#x2715;</button>';
         chips.appendChild(chip);
       }
     });
@@ -1532,7 +1532,7 @@
   // Sobrescreve applyFilters para incluir filtros avaNºados
   var _applyFiltersBase = applyFilters;
   applyFilters = function(){
-    console.log('📋 applyFilters INTERMEDI—RIA chamada (ser— sobrescrita novamente)');
+    console.log('&#x1F4CB; applyFilters INTERMEDI—RIA chamada (ser— sobrescrita novamente)');
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
 
     filteredNotas = allNotas.filter(function(n){
@@ -1598,7 +1598,7 @@
     if(_todosProdutos.length>0){renderProdList('');return;}
     var f=G('dtFrom').value, t=G('dtTo').value;
     if(!f||!t){
-      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">📋 Fa—a uma busca primeiro.</div>';
+      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">&#x1F4CB; Fa—a uma busca primeiro.</div>';
       return;
     }
     G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">? Carregando produtos...</div>';
@@ -1653,7 +1653,7 @@
     if(_prodFiltroAtivo && _prodSelecionados.size>0){
       cnt.textContent='('+_prodSelecionados.size+')';
       btn.classList.add('ativo');
-      chip.innerHTML='<div class="filtro-chip">'+_prodSelecionados.size+' produto(s) <button onclick="limparFiltroProd()">?</button></div>';
+      chip.innerHTML='<div class="filtro-chip">'+_prodSelecionados.size+' produto(s) <button onclick="limparFiltroProd()">&#x2715;</button></div>';
     } else {
       cnt.textContent='';
       btn.classList.remove('ativo');
@@ -1674,8 +1674,8 @@
   async function filtrarNotasPorProdutos(){
     if(!_prodFiltroAtivo||_prodSelecionados.size===0){applyFilters();return;}
     
-    console.log('📋 Filtrando por produtos...');
-    setStatus('📋 Filtrando por produtos...');
+    console.log('&#x1F4CB; Filtrando por produtos...');
+    setStatus('&#x1F4CB; Filtrando por produtos...');
     
     // Primeiro aplica todos os outros filtros (origem, busca, cupom, pagamento, etc)
     // Isso popula filteredNotas com as notas que passaram nos outros filtros
@@ -1721,13 +1721,13 @@
       return true;
     });
     
-    console.log('📋 Notas ap—s outros filtros:', notasBase.length);
+    console.log('&#x1F4CB; Notas ap—s outros filtros:', notasBase.length);
     
     // Para cada nota, verifica se tem produto selecionado
     var resultado=[];
     var pendentes=notasBase.filter(function(n){return n.xmlUrl && !_notasProdCache[n.id];});
     
-    console.log('📋 Notas pendentes de buscar produtos:', pendentes.length);
+    console.log('&#x1F4CB; Notas pendentes de buscar produtos:', pendentes.length);
     
     // Busca XMLs em lotes de 10
     for(var i=0;i<pendentes.length;i+=10){
@@ -1747,7 +1747,7 @@
       if(tem)resultado.push(n);
     });
     
-    console.log('📋 Notas com produtos selecionados:', resultado.length);
+    console.log('&#x1F4CB; Notas com produtos selecionados:', resultado.length);
     
     filteredNotas=resultado;
     G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
@@ -1755,7 +1755,7 @@
     setStatus('? '+filteredNotas.length+' notas com os produtos selecionados.');
   }
 
-  // -- Helper badge situa📋o no card --------------------------
+  // -- Helper badge situa&#x1F4CB;o no card --------------------------
   function sitBadgeCard(sit){
     if(!sit) return '';
     var cls='info';
@@ -1784,7 +1784,7 @@
     else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
 
     G('pedidoHead').innerHTML =
-      '<h3>📋 Pedido de Venda</h3>'+
+      '<h3>&#x1F4CB; Pedido de Venda</h3>'+
       '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
         (n.numeropedido ? '<span style="font-size:.95rem;font-weight:700;color:var(--ac)">#'+esc(n.numeropedido)+'</span>' : '')+
         (sit ? '<span class="card-sit-badge '+cls+'" style="font-size:.75rem;padding:3px 12px">'+esc(sit)+'</span>' : '')+
@@ -1793,21 +1793,21 @@
     var body = '<div class="dgrid">';
     if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
     if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
-    if(sit)                 body += '<div class="di"><label>Situa📋o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
+    if(sit)                 body += '<div class="di"><label>Situa&#x1F4CB;o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
     body += '</div>';
 
-    body += '<div><div class="obs-label">📋 Observa📋es</div>';
+    body += '<div><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es</div>';
     if(n.pedido_observacoes){
       body += '<div class="obs-box">'+esc(n.pedido_observacoes)+'</div>';
     } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa📋es.</div>';
+      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa&#x1F4CB;es.</div>';
     }
     body += '</div>';
-    body += '<div><div class="obs-label">📋 Observa📋es Internas</div>';
+    body += '<div><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es Internas</div>';
     if(n.pedido_observacoesinternas){
       body += '<div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div>';
     } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa📋es internas.</div>';
+      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa&#x1F4CB;es internas.</div>';
     }
     body += '</div>';
 
@@ -1821,14 +1821,14 @@
   function abrirModalTray(e, n){
     e.stopPropagation();
     if(!n) return;
-    G('trayHead').innerHTML = '<h3>📋 Observa📋o do Cliente (Tray)</h3>'+
+    G('trayHead').innerHTML = '<h3>&#x1F4CB; Observa&#x1F4CB;o do Cliente (Tray)</h3>'+
       (n.numeropedido ? '<div style="font-size:.8rem;color:var(--tm);margin-top:4px">Pedido #'+esc(n.numeropedido)+'</div>' : '')+
       (n.pedido_numeroloja ? '<div style="font-size:.8rem;color:var(--tm)">Loja: '+esc(n.pedido_numeroloja)+'</div>' : '');
     var body = '';
     if(n.tray_customer_note){
-      body += '<div><div class="obs-label">📋 Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
+      body += '<div><div class="obs-label">&#x1F4CB; Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
     } else {
-      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa📋o do cliente neste pedido.</div>';
+      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa&#x1F4CB;o do cliente neste pedido.</div>';
     }
     G('trayBody').innerHTML = body;
     G('trayOverlay').classList.add('open');
@@ -1854,7 +1854,7 @@
     
     chip.onclick = function(e){
       e.preventDefault(); // Previne comportamento padrão do label
-      e.stopPropagation(); // Para propaga📋o do evento
+      e.stopPropagation(); // Para propaga&#x1F4CB;o do evento
       
       // Bot—o "TODAS" para cupom
       if(tipo === 'todas'){
@@ -1875,7 +1875,7 @@
       }
       
       console.log('---------------------------------------------------');
-      console.log('📋? CLICOU EM CUPOM:', tipo);
+      console.log('&#x1F4CB;? CLICOU EM CUPOM:', tipo);
       console.log('Estado antes:', JSON.stringify(_filtroCupom));
       console.log('Classes antes:', chip.className);
       
@@ -1885,7 +1885,7 @@
       
       _filtroCupom[tipo] = !_filtroCupom[tipo];
       
-      // FOR—A atualiza📋o visual
+      // FOR—A atualiza&#x1F4CB;o visual
       if(_filtroCupom[tipo]) {
         chip.classList.add('on');
       } else {
@@ -1900,7 +1900,7 @@
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
-        console.error('? applyFilters NºO — UMA FUN📋O!');
+        console.error('? applyFilters NºO — UMA FUN&#x1F4CB;O!');
       }
     };
   });
@@ -1922,7 +1922,7 @@
     if(!lista.length){ alert('Fa—a uma busca primeiro.'); return; }
     // Reutiliza o modal geNºrico fexOverlay
     _fexAtual = '__pag__';
-    G('fexTitulo').textContent = '📋 Forma de Pagamento';
+    G('fexTitulo').textContent = '&#x1F4CB; Forma de Pagamento';
     G('fexSearch').value = '';
     var frag = document.createDocumentFragment();
     lista.forEach(function(v){
@@ -1954,7 +1954,7 @@
       if(_pagAtivo){ btn.classList.add('ativo'); cnt.style.display='inline'; }
       else { btn.classList.remove('ativo'); cnt.style.display='none'; }
       var chip = G('pagFiltroChip');
-      chip.innerHTML = _pagAtivo ? '<div class="filtro-chip">'+_pagSelecionados.size+' forma(s) <button onclick="limparFiltroPag()">?</button></div>' : '';
+      chip.innerHTML = _pagAtivo ? '<div class="filtro-chip">'+_pagSelecionados.size+' forma(s) <button onclick="limparFiltroPag()">&#x2715;</button></div>' : '';
       applyFilters();
     } else {
       _fexAplicarOrig && _fexAplicarOrig.call(this);
@@ -1972,7 +1972,7 @@
   var _applyFiltersAnterior = applyFilters;
   applyFilters = function(){
     console.log('---------------------------------------------------');
-    console.log('📋 APLICANDO FILTROS (vers—o final)');
+    console.log('&#x1F4CB; APLICANDO FILTROS (vers—o final)');
     console.log('Total de notas:', allNotas.length);
     console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
     console.log('Filtro cupom:', _filtroCupom);
@@ -2040,7 +2040,7 @@
       return true;
     });
     
-    console.log('📋 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
+    console.log('&#x1F4CB; Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
     console.log('? Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
     console.log('---------------------------------------------------');
     
@@ -2050,7 +2050,7 @@
     var grid = G('grid');
     if(grid && grid.parentElement) {
       grid.parentElement.scrollTop = 0;
-      console.log('📋 Scroll para o topo do grid');
+      console.log('&#x1F4CB; Scroll para o topo do grid');
     }
     
     renderCards();
@@ -2343,7 +2343,7 @@
       {label:'Total Descontos',    value:fmtBRL(totalDesc),        sub:'Descontos aplicados',         cls:'warn'},
       {label:'Total Frete',        value:fmtBRL(totalFrete),       sub:'Frete nas NFs',               cls:''},
       {label:'Com Cupom',          value:comCupom,                 sub:'NFs com cupom Tray',          cls:''},
-      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu📋o',          cls:'warn'}
+      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu&#x1F4CB;o',          cls:'warn'}
     ];
     document.getElementById('kpi-vendas').innerHTML = kpis.map(function(k){
       return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
@@ -2934,7 +2934,7 @@
     }
     
     var maxCity = sortedCities.length ? origCities[sortedCities[0]] : 1;
-    cityListEl.innerHTML = '<div class="drill-footer-title">📋? Cidades (' + sortedCities.length + ')</div>' +
+    cityListEl.innerHTML = '<div class="drill-footer-title">&#x1F4CB;? Cidades (' + sortedCities.length + ')</div>' +
       '<div class="drill-city-grid">' +
       sortedCities.map(function(city){
         var n = origCities[city];
@@ -3041,8 +3041,8 @@
   
   function buscarPedidos(){
     var f = G('dtFromPed').value, t = G('dtToPed').value;
-    if(!f || !t){ setStatusPed('📋 Selecione o Período.', 'warn'); return; }
-    if(f > t){ setStatusPed('📋 Data inicial maior que final.', 'warn'); return; }
+    if(!f || !t){ setStatusPed('&#x1F4CB; Selecione o Período.', 'warn'); return; }
+    if(f > t){ setStatusPed('&#x1F4CB; Data inicial maior que final.', 'warn'); return; }
     
     allPedidos = [];
     _buscarPedFrom = f; _buscarPedTo = t; _buscarPedOffset = 0; _buscarPedTotal = 0; _buscarPedAtivo = true;
@@ -3050,7 +3050,7 @@
     setStatusPed('Buscando pedidos...');
     buscarPedidosPagina();
     
-    // SINCRONIZA📋O REVERSA: Buscar NFs automaticamente se as datas forem diferentes
+    // SINCRONIZA&#x1F4CB;O REVERSA: Buscar NFs automaticamente se as datas forem diferentes
     if(G('dtFrom').value !== f || G('dtTo').value !== t){
       G('dtFrom').value = f;
       G('dtTo').value = t;
@@ -3110,7 +3110,7 @@
   G('searchPed').oninput = function(e){
     activeSearchPed = e.target.value.toLowerCase().trim();
     applyFiltersPed();
-    // SINCRONIZA📋O REVERSA: Aplicar mesma busca nas NFs
+    // SINCRONIZA&#x1F4CB;O REVERSA: Aplicar mesma busca nas NFs
     G('search').value = e.target.value;
     activeSearch = activeSearchPed;
     applyFilters();
@@ -3122,7 +3122,7 @@
     grid.innerHTML = '';
     
     if(!filteredPedidos.length){
-      grid.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhum pedido encontrado.</p></div>';
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Nenhum pedido encontrado.</p></div>';
       return;
     }
     
@@ -3135,14 +3135,14 @@
   function buildCardPed(p){
     var d = document.createElement('div');
     d.className = 'card ' + p.origem;
-    var ol = p.origem === 'ecommerce' ? '📋 E-commerce' : '📋 Distribuidor';
+    var ol = p.origem === 'ecommerce' ? '&#x1F4CB; E-commerce' : '&#x1F4CB; Distribuidor';
     var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
     
     d.innerHTML =
       '<div class="cbadge ' + p.origem + '">' + ol + '</div>' +
       '<div class="ccliente">' + esc(p.cliente || '—') + '</div>' +
       '<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">' +
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido ' + esc(p.numero) + '</span>' +
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">&#x1F4CB; Pedido ' + esc(p.numero) + '</span>' +
         sitBadgeCard(p.situacao) +
         (temNF ? ' <span class="card-sit-badge ok" style="margin-left:4px">? NF</span>' : '') +
       '</div>' +
@@ -3158,7 +3158,7 @@
   
   // Abrir modal de pedido
   function abrirModalPed(p){
-    var ol = p.origem === 'ecommerce' ? '📋 E-commerce' : '📋 Distribuidor';
+    var ol = p.origem === 'ecommerce' ? '&#x1F4CB; E-commerce' : '&#x1F4CB; Distribuidor';
     var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
     
     G('mheadPed').innerHTML =
@@ -3167,27 +3167,27 @@
       '<div class="msub">Pedido ' + esc(p.numero || '—') + ' — ' + fmtDate(p.data) + '</div>';
     
     G('mbodyPed').innerHTML =
-      // SE📋O: PEDIDO
+      // SE&#x1F4CB;O: PEDIDO
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">' +
-        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>' +
+        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">&#x1F4CB; PEDIDO DE VENDA</h3>' +
         '<div class="dgrid">' +
           di('Nºmero', p.numero) +
           di('Data Pedido', fmtDate(p.data)) +
           di('Data Saída', fmtDate(p.datasaida)) +
-          '<div class="di"><label>Situa📋o</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
+          '<div class="di"><label>Situa&#x1F4CB;o</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
           diV('Valor Total', brl(p.valor)) +
           di('Valor Produtos', brl(p.valorProdutos)) +
           di('Desconto', brl(p.desconto)) +
           di('Nº Loja', p.numeroloja || '—') +
           (temNF ? '<div class="di"><label>Nota Fiscal</label><span><span class="card-sit-badge ok">? NF Vinculada (ID: ' + p.notafiscal_id + ')</span></span></div>' : '<div class="di"><label>Nota Fiscal</label><span style="color:var(--warn)">? Sem NF vinculada</span></div>') +
         '</div>' +
-        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">📋 Observa📋es</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
-        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">📋 Observa📋es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
+        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
+        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
       '</div>' +
       
-      // SE📋O: CLIENTE
+      // SE&#x1F4CB;O: CLIENTE
       '<div class="dsec">' +
-        '<h3>📋 Cliente</h3>' +
+        '<h3>&#x1F4CB; Cliente</h3>' +
         '<div class="dgrid">' +
           di('Nome', p.cliente) +
           di('CPF/CNPJ', p.cpf) +
@@ -3195,9 +3195,9 @@
         '</div>' +
       '</div>' +
       
-      // SE📋O: TRANSPORTE
+      // SE&#x1F4CB;O: TRANSPORTE
       '<div class="dsec">' +
-        '<h3>📋 Transporte</h3>' +
+        '<h3>&#x1F4CB; Transporte</h3>' +
         '<div class="dgrid">' +
           di('Transportadora', p.transportadora) +
           diV('Frete', brl(p.frete)) +
@@ -3205,9 +3205,9 @@
         '</div>' +
       '</div>' +
       
-      // SE📋O: PRODUTOS
+      // SE&#x1F4CB;O: PRODUTOS
       '<div class="dsec">' +
-        '<h3>📋 Produtos</h3>' +
+        '<h3>&#x1F4CB; Produtos</h3>' +
         (p.itens && p.itens.length ? 
           '<div class="plist">' +
             p.itens.map(function(item){
@@ -3254,7 +3254,7 @@
 
   
 // ═══════════════════════════════════════════════════════════
-// PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÃO
+// PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÁO
 // ═══════════════════════════════════════════════════════════
 async function carregarStatusPCP(){
   try{
@@ -3479,14 +3479,14 @@ function renderPCPGrid(lista){
   var fonte = lista || pcpProdutos;
 
   if(fonte.length === 0){
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>Nenhum produto encontrado com os status selecionados</p></div>';
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4E6;</div><p>Nenhum produto encontrado com os status selecionados</p></div>';
     G('rcountPCP').textContent = '';
     return;
   }
 
   var prioHeader = pcpPrioridade === 'antigo'
-    ? '🕐 Ordenado por: Pedido mais antigo primeiro'
-    : '📦 Ordenado por: Produto que solta mais pedidos';
+    ? '&#x1F550; Ordenado por: Pedido mais antigo primeiro'
+    : '&#x1F4E6; Ordenado por: Produto que solta mais pedidos';
 
   var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:var(--tm);font-style:italic">'+prioHeader+'</div>';
   html += '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
@@ -3570,7 +3570,7 @@ function abrirPCPProduto(idx){
   
   prod.pedidos.forEach(function(p){
     var ped = p.pedido;
-    var ol = ped.origem === 'ecommerce' ? '🛒 E-commerce' : '🏭 Distribuidor';
+    var ol = ped.origem === 'ecommerce' ? '&#x1F6D2; E-commerce' : '&#x1F3ED; Distribuidor';
     var sitClass = getSitClass(ped.situacao);
     
     html += '<div class="pcp-pedido-item" onclick="abrirModalPedFromPCP('+ped.id+')" style="'+
