@@ -707,6 +707,22 @@
   // ── Buscar notas paginado (fetch direto na API) ────────────
   var _buscarFrom='', _buscarTo='', _buscarOffset=0, _buscarTotal=0, _buscarAtivo=false;
   var API_BASE = '';  // vazio = mesmo dominio (Railway serve tudo junto)
+  
+  // ── Carregar produtos do JSON ──────────────────────────────
+  var produtosCD = {};
+  fetch(API_BASE + '/api/produtos-cd')
+    .then(r => r.json())
+    .then(d => {
+      produtosCD = d;
+      console.log('✅ Produtos CD carregados:', Object.keys(produtosCD).length);
+    })
+    .catch(e => console.error('❌ Erro ao carregar produtos CD:', e));
+  
+  function buscarProdutoCD(codigoBling) {
+    // Tenta buscar pelo código do Bling no mapa de produtos
+    return produtosCD[codigoBling] || null;
+  }
+  
   G('btnBuscar').onclick=buscar;
 
   function buscar(){
@@ -1073,8 +1089,13 @@
       var ps=d.produtos||[];
       if(!ps.length){lista.innerHTML='<div class="pload">Nenhum produto no XML.</div>';return;}
       lista.innerHTML=ps.map(function(p){
+        var prodCD = buscarProdutoCD(p.codigo);
+        var skuDisplay = '';
+        if (prodCD) {
+          skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
+        }
         return '<div class="pitem">'+
-          '<span class="pnome">'+esc(p.nome||p.codigo||'—')+'</span>'+
+          '<span class="pnome">'+skuDisplay+esc(p.nome||p.codigo||'—')+'</span>'+
           '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
           '<span class="pval">'+brl(p.valor)+'</span>'+
         '</div>';
@@ -2945,9 +2966,16 @@
           '<div class="plist">' +
             p.itens.map(function(item){
               var valorTotal = (item.quantidade || 0) * (item.valor || 0);
+              var prodCD = buscarProdutoCD(item.sku || item.codigo);
+              var skuDisplay = '';
+              if (prodCD) {
+                skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
+              } else if (item.sku) {
+                skuDisplay = '<span style="color:var(--tm);font-size:.7rem;margin-right:6px">[' + esc(item.sku) + ']</span>';
+              }
               return '<div class="pitem">' +
                 '<span class="pnome">' + 
-                  (item.sku ? '<span style="color:var(--tm);font-size:.7rem;margin-right:6px">[' + esc(item.sku) + ']</span>' : '') +
+                  skuDisplay +
                   esc(item.nome || item.codigo || '—') + 
                 '</span>' +
                 '<span class="pqtd">' + item.quantidade + ' ' + (item.unidade || 'un') + ' × ' + brl(item.valor) + '</span>' +
