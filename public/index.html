@@ -452,6 +452,19 @@
           </label>
         </div>
       </div>
+      <div class="psec">
+        <span class="plabel">&#x1F4C5; Per&#237;odo dos Pedidos</span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <label style="font-size:.72rem;color:var(--tm)">De</label>
+            <input type="date" id="pcpDateFrom" class="sinput" style="padding:5px 8px;font-size:.8rem"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <label style="font-size:.72rem;color:var(--tm)">At&#233;</label>
+            <input type="date" id="pcpDateTo" class="sinput" style="padding:5px 8px;font-size:.8rem"/>
+          </div>
+        </div>
+      </div>
       <button class="btn-primary" id="btnProcessarPCP">🏭 Processar PCP</button>
       <div class="statusbar" id="statusPCP">Aguardando processamento...</div>
     </aside>
@@ -3284,51 +3297,41 @@ function aplicarFiltroOrigemPCP(){
   renderPCPGrid(filtrado);
 }
 
-// Processar PCP
 G('btnProcessarPCP').onclick = async function(){
   if(pcpStatusSelecionados.size === 0){
-    setStatusPCP('⚠️ Selecione pelo menos um status', 'warn');
+    setStatusPCP('Selecione pelo menos um status', 'warn');
     return;
   }
-  
-  // LIMITE: apenas 1 status por vez para performance
-  if(pcpStatusSelecionados.size > 1){
-    setStatusPCP('⚠️ Selecione apenas 1 status por vez (limite: 100 pedidos)', 'warn');
+  var from = G('pcpDateFrom').value;
+  var to   = G('pcpDateTo').value;
+  if(!from || !to){
+    setStatusPCP('Selecione o periodo (De / Ate)', 'warn');
     return;
   }
-  
+  if(from > to){
+    setStatusPCP('Data inicial nao pode ser maior que a final', 'warn');
+    return;
+  }
   loadingPed(true);
-  setStatusPCP('⏳ Processando PCP... (limite: 100 pedidos)');
-  
+  var nStatus = pcpStatusSelecionados.size;
+  setStatusPCP('Processando PCP... (' + nStatus + ' status | ' + from + ' a ' + to + ')');
   try{
-    // Buscar todos os pedidos com os status selecionados
     var statusArray = Array.from(pcpStatusSelecionados);
     var resp = await fetch(API_BASE+'/api/pcp-pedidos', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ status: statusArray })
+      body: JSON.stringify({ status: statusArray, from: from, to: to })
     });
-    
     var d = await resp.json();
-    if(d.error){ setStatusPCP('❌ '+d.error, 'err'); loadingPed(false); return; }
-    
+    if(d.error){ setStatusPCP('Erro: '+d.error, 'err'); loadingPed(false); return; }
     pcpTodosPedidos = d.pedidos || [];
-    
-    // Avisar se atingiu o limite
-    if(pcpTodosPedidos.length >= 100){
-      console.warn('⚠️ Limite de 100 pedidos atingido para performance.');
-    }
-    
-    // Processar produtos por Prioridade e aplicar filtro de origem
     processarProdutosPCP();
     aplicarFiltroOrigemPCP();
-    
-    setStatusPCP('✅ '+pcpProdutos.length+' produtos processados ('+pcpTodosPedidos.length+' pedidos)');
+    setStatusPCP(pcpProdutos.length+' produtos | '+pcpTodosPedidos.length+' pedidos | '+from+' a '+to);
     loadingPed(false);
-    
   } catch(err){
     console.error('Erro ao processar PCP:', err);
-    setStatusPCP('❌ Erro ao processar', 'err');
+    setStatusPCP('Erro ao processar', 'err');
     loadingPed(false);
   }
 };
