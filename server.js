@@ -1,10 +1,15 @@
 const express = require('express');
 const mysql   = require('mysql2/promise');
 const path    = require('path');
+const fs      = require('fs');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 const PAGE = 300;
+
+// Diretório de cache de estoque
+const ESTOQUE_DIR = path.join(__dirname, 'estoque-cache');
+if (!fs.existsSync(ESTOQUE_DIR)) fs.mkdirSync(ESTOQUE_DIR);
 
 const pool = mysql.createPool({
   host:            '162.240.228.36',
@@ -62,6 +67,81 @@ app.get('/api/produtos-cd', (req, res) => {
   } catch (err) {
     console.error('Erro ao ler produtos-cd.json:', err);
     res.json({});
+  }
+});
+
+// ── /api/estoque-import ──────────────────────────────────
+// Recebe: { origem: 'ecommerce'|'distribuidor', nomeArquivo: string, dados: [{codigo,ean,produto,unidade,quantidade}] }
+app.post('/api/estoque-import', (req, res) => {
+  try {
+    const { origem, nomeArquivo, dados } = req.body;
+    if (!origem || !nomeArquivo || !Array.isArray(dados)) {
+      return res.json({ error: 'Campos obrigatorios: origem, nomeArquivo, dados.' });
+    }
+    if (origem !== 'ecommerce' && origem !== 'distribuidor') {
+      return res.json({ error: 'origem deve ser ecommerce ou distribuidor.' });
+    }
+
+    // Monta mapa codigo → saldo
+    const mapaEstoque = {};
+    dados.forEach(item => {
+      const cod = String(item.codigo || '').trim();
+      const qtd = parseFloat(String(item.quantidade || '0').replace(',', '.')) || 0;
+      if (cod) mapaEstoque[cod] = { codigo: cod, ean: item.ean || '', produto: item.produto || '', unidade: item.unidade || 'Un', saldo: qtd };
+    });
+
+    const payload = {
+      origem,
+      nomeArquivo,
+      importadoEm: new Date().toISOString(),
+      totalItens: Object.keys(mapaEstoque).length,
+      estoque: mapaEstoque
+    };
+
+    // Salva como estoque-cache/<origem>.json (sempre sobrescreve — último importado)
+    const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), 'utf8');
+
+    console.log(`Estoque ${origem} importado: ${payload.totalItens} itens de "${nomeArquivo}"`);
+    res.json({ ok: true, origem, nomeArquivo, totalItens: payload.totalItens });
+  } catch (err) {
+    console.error('Erro estoque-import:', err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/estoque-cache ────────────────────────────────────
+// Retorna metadados dos caches salvos (sem os dados completos)
+app.get('/api/estoque-cache', (req, res) => {
+  try {
+    const result = {};
+    ['ecommerce', 'distribuidor'].forEach(origem => {
+      const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
+      if (fs.existsSync(filePath)) {
+        const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        result[origem] = { nomeArquivo: raw.nomeArquivo, importadoEm: raw.importadoEm, totalItens: raw.totalItens };
+      } else {
+        result[origem] = null;
+      }
+    });
+    res.json(result);
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/estoque-dados ────────────────────────────────────
+// Retorna o mapa completo de estoque para uso no frontend
+app.get('/api/estoque-dados', (req, res) => {
+  try {
+    const { origem } = req.query;
+    if (!origem) return res.json({ error: 'origem obrigatorio.' });
+    const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
+    if (!fs.existsSync(filePath)) return res.json({ estoque: {}, nomeArquivo: null });
+    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    res.json({ estoque: raw.estoque, nomeArquivo: raw.nomeArquivo, importadoEm: raw.importadoEm });
+  } catch (err) {
+    res.json({ error: err.message });
   }
 });
 
