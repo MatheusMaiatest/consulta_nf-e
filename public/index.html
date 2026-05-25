@@ -3458,14 +3458,16 @@ function renderPCPGrid(lista){
   var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:var(--tm);font-style:italic">'+prioHeader+'</div>';
   html += '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
   html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:40px">#</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">SKU</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center">Pedidos</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">Qtd Pedida</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">Saldo</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">'+  
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:36px">#</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:70px">SKU</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center;width:70px">Pedidos</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:90px">Qtd Pedida</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Saldo</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:100px">'+
       (pcpPrioridade === 'antigo' ? 'Mais Antigo' : 'Prioridade')+
     '</th>'+
+  '</tr></thead><tbody>';
   '</tr></thead><tbody>';
 
   fonte.forEach(function(prod, idx){
