@@ -424,7 +424,7 @@
           <span style="display:flex;align-items:center;gap:6px"><span style="font-size:.9rem">&#x1F4CC;</span> Status dos Pedidos</span>
           <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">&#x25BC;</span>
         </button>
-        <div id="pcp-status-list" style="display:flex;flex-direction:column;gap:5px;margin-top:8px;overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
+        <div id="pcp-status-list" style="display:flex;flex-direction:column;gap:5px;margin-top:8px;overflow-y:auto;max-height:220px;transition:max-height .3s ease,opacity .25s ease;opacity:1;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent">
           <!-- Status carregados dinamicamente -->
         </div>
       </div>
@@ -3293,17 +3293,18 @@ var pcpStatusAberto = true;
 function toggleStatusPCP(){
   pcpStatusAberto = !pcpStatusAberto;
   var lista = G('pcp-status-list');
-  var arrow = G('pcp-status-arrow');
   if(pcpStatusAberto){
-    lista.style.maxHeight = '400px';
+    lista.style.maxHeight = '220px';
+    lista.style.overflowY = 'auto';
     lista.style.opacity   = '1';
     arrow.style.transform = 'rotate(0deg)';
   } else {
     lista.style.maxHeight = '0';
+    lista.style.overflowY = 'hidden';
     lista.style.opacity   = '0';
     arrow.style.transform = 'rotate(-90deg)';
-  }
 }
+  }
 
 // Event listeners para Prioridade
 G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(lbl){
