@@ -655,9 +655,8 @@ function montarNota(r) {
   
   // Extrair produtos do XML se disponível
   let produtos = [];
-  if (r.xml) {
-    produtos = parseXmlProdutos(r.xml);
-  }
+  // NÃO parsear XML aqui - r.xml é uma URL, não o conteúdo XML
+  // Produtos serão carregados no frontend quando necessário
   
   return {
     id:                 r.id,
