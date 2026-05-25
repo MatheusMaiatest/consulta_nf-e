@@ -29,9 +29,11 @@ function nomeTpag(cod) {
   return TPAG[String(cod).padStart(2,'0')] || TPAG[String(cod)] || 'Outro ('+cod+')';
 }
 
+app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
 
