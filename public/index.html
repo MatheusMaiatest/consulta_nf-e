@@ -718,9 +718,27 @@
     })
     .catch(e => console.error('❌ Erro ao carregar produtos CD:', e));
   
-  function buscarProdutoCD(codigoBling) {
-    // Tenta buscar pelo código do Bling no mapa de produtos
-    return produtosCD[codigoBling] || null;
+  function buscarProdutoCD(codigoBling, nomeProduto) {
+    // Tenta buscar pelo código do Bling
+    if (codigoBling && produtosCD[codigoBling]) {
+      return produtosCD[codigoBling];
+    }
+    
+    // Se não encontrar, tenta buscar por similaridade no nome
+    if (nomeProduto) {
+      const nomeLimpo = nomeProduto.toLowerCase().trim();
+      for (const sku in produtosCD) {
+        const prod = produtosCD[sku];
+        const descLimpa = (prod.descricao || '').toLowerCase().trim();
+        
+        // Verifica se o nome do produto contém a descrição do JSON ou vice-versa
+        if (nomeLimpo.includes(descLimpa) || descLimpa.includes(nomeLimpo)) {
+          return prod;
+        }
+      }
+    }
+    
+    return null;
   }
   
   G('btnBuscar').onclick=buscar;
@@ -1047,7 +1065,22 @@
       // ═══════════════════════════════════════════════════════════
       '<div class="dsec">'+
         '<h3>📦 Produtos</h3>'+
-        '<div class="plist" id="plist"><div class="pload">⏳ Carregando...</div></div>'+
+        (n.produtos && n.produtos.length ? 
+          '<div class="plist">' +
+            n.produtos.map(function(p){
+              var prodCD = buscarProdutoCD(p.codigo, p.nome);
+              var skuDisplay = '';
+              if (prodCD) {
+                skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
+              }
+              return '<div class="pitem">'+
+                '<span class="pnome">'+skuDisplay+esc(p.nome||p.codigo||'—')+'</span>'+
+                '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
+                '<span class="pval">'+brl(p.valor)+'</span>'+
+              '</div>';
+            }).join('') +
+          '</div>'
+        : '<div class="plist"><div class="pload">Nenhum produto no XML.</div></div>') +
       '</div>'+
       
       // ═══════════════════════════════════════════════════════════
@@ -1066,7 +1099,7 @@
     console.log('moverlay element:', G('moverlay'));
     G('moverlay').classList.add('open');
     console.log('✅ Classe "open" adicionada');
-    carregarProdutos(n);
+    // Produtos já vêm na NF, não precisa carregar separadamente
   }
   
   // Helper para determinar classe de cor da situação
@@ -2966,7 +2999,7 @@
           '<div class="plist">' +
             p.itens.map(function(item){
               var valorTotal = (item.quantidade || 0) * (item.valor || 0);
-              var prodCD = buscarProdutoCD(item.sku || item.codigo);
+              var prodCD = buscarProdutoCD(item.sku || item.codigo, item.nome);
               var skuDisplay = '';
               if (prodCD) {
                 skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
