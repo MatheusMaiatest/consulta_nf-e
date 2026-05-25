@@ -653,6 +653,12 @@ function montarNota(r) {
     if (match) numeropedido = match[1];
   }
   
+  // Extrair produtos do XML se disponível
+  let produtos = [];
+  if (r.xml) {
+    produtos = parseXmlProdutos(r.xml);
+  }
+  
   return {
     id:                 r.id,
     origem:             r.origem,
@@ -682,6 +688,7 @@ function montarNota(r) {
     linkdanfe:          r.linkdanfe,
     linkpdf:            r.linkpdf,
     xmlUrl:             r.xml,
+    produtos:           produtos,  // ← PRODUTOS JÁ INCLUÍDOS
     numeropedido:       numeropedido,
     pedido_situacao:    r.pedido_situacao   || null,
     pedido_numeroloja:  r.pedido_numeroloja || null,
