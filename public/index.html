@@ -415,42 +415,42 @@
   <div id="view-pcp" class="view-section">
   <div class="layout">
     <aside class="panel" id="panel-pcp">
-      <div class="panel-title">📋 Planejamento e Controle</div>
+      <div class="panel-title">🏭 Planejamento e Controle</div>
       
       <div class="psec">
-        <span class="plabel">📋 Status dos Pedidos</span>
+        <span class="plabel">� Status dos Pedidos</span>
         <div id="pcp-status-list" class="tog-grp" style="flex-direction:column;gap:6px">
-          <!-- Status ser—o carregados dinamicamente -->
+          <!-- Status carregados dinamicamente -->
         </div>
       </div>
       
       <div class="psec">
-        <span class="plabel">📋 Prioridade</span>
+        <span class="plabel">⚡ Prioridade</span>
         <div class="tog-grp" style="flex-direction:column;gap:6px">
           <label class="tchip on" data-prio="antigo">
             <input type="radio" name="Prioridade" value="antigo" checked/>
-            📋 Mais Antigo
+            � Mais Antigo
           </label>
           <label class="tchip" data-prio="volume">
             <input type="radio" name="Prioridade" value="volume"/>
-            📋 Solta Mais Pedidos
+            � Solta Mais Pedidos
           </label>
         </div>
       </div>
       
-      <button class="btn-primary" id="btnProcessarPCP">📋 Processar PCP</button>
+      <button class="btn-primary" id="btnProcessarPCP">🏭 Processar PCP</button>
       <div class="statusbar" id="statusPCP">Aguardando processamento...</div>
     </aside>
     
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="searchPCP" placeholder="📋 Buscar produto..."/>
+        <input type="text" class="sinput" id="searchPCP" placeholder="� Buscar produto, SKU..."/>
         <span class="rcount" id="rcountPCP"></span>
       </div>
-      <div class="grid" id="gridPCP">
+      <div id="gridPCP">
         <div class="empty">
-          <div class="empty-icon">📋</div>
-          <p>Selecione os status e Prioridade, depois clique em <strong>Processar PCP</strong></p>
+          <div class="empty-icon">🏭</div>
+          <p>Selecione o status e a prioridade, depois clique em <strong>Processar PCP</strong></p>
         </div>
       </div>
     </main>
@@ -3347,34 +3347,80 @@ function processarProdutosPCP(){
   renderPCPGrid();
 }
 
-function renderPCPGrid(){
+function renderPCPGrid(lista){
   var grid = G('gridPCP');
-  if(pcpProdutos.length === 0){
+  var fonte = lista || pcpProdutos;
+
+  if(fonte.length === 0){
     grid.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>Nenhum produto encontrado com os status selecionados</p></div>';
     G('rcountPCP').textContent = '';
     return;
   }
-  
-  var html = pcpProdutos.map(function(prod, idx){
+
+  var prioHeader = pcpPrioridade === 'antigo'
+    ? '🕐 Ordenado por: Pedido mais antigo primeiro'
+    : '📦 Ordenado por: Produto que solta mais pedidos';
+
+  var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:var(--tm);font-style:italic">'+prioHeader+'</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
+  html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:40px">#</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">SKU</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center">Pedidos</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">Qtd Total</th>'+
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right">'+
+      (pcpPrioridade === 'antigo' ? 'Mais Antigo' : 'Prioridade')+
+    '</th>'+
+  '</tr></thead><tbody>';
+
+  fonte.forEach(function(prod, idx){
+    var realIdx = pcpProdutos.indexOf(prod);
     var prodCD = buscarProdutoCD(prod.codigo, prod.nome);
     var skuDisplay = prodCD ? prodCD.sku : (prod.sku || prod.codigo || '—');
-    
-    var prioLabel = pcpPrioridade === 'antigo' ? 
-      '🕐 ' + (prod.dataMinima ? fmtDate(prod.dataMinima.toISOString()) : '—') :
-      '📦 ' + prod.pedidos.length + ' pedido' + (prod.pedidos.length > 1 ? 's' : '');
-    
-    return '<div class="card" onclick="abrirPCPProduto('+idx+')" style="cursor:pointer">'+
-      '<div class="cbadge" style="background:var(--ac);color:white;margin-bottom:8px">SKU '+esc(skuDisplay)+'</div>'+
-      '<div class="cname">'+esc(prod.nome || '—')+'</div>'+
-      '<div class="cinfo">'+
-        '<span style="color:var(--ac);font-weight:600">'+prod.quantidadeTotal.toFixed(2)+' un</span>'+
-        '<span style="color:var(--tm);font-size:.75rem">'+prioLabel+'</span>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-  
+    var nPedidos = prod.pedidos.length;
+
+    var prioVal = pcpPrioridade === 'antigo'
+      ? (prod.dataMinima ? fmtDate(prod.dataMinima.toISOString()) : '—')
+      : nPedidos + ' pedido' + (nPedidos !== 1 ? 's' : '');
+
+    var rowBg = idx % 2 === 0 ? 'var(--bg)' : 'var(--bg2,var(--bg))';
+    var rankColor = idx === 0 ? '#f5a623' : idx === 1 ? '#9b9b9b' : idx === 2 ? '#c47a3a' : 'var(--tm)';
+
+    html += '<tr onclick="abrirPCPProduto('+realIdx+')" style="'+
+      'background:'+rowBg+';cursor:pointer;border-bottom:1px solid var(--bdr);'+
+      'transition:background .15s" '+
+      'onmouseover="this.style.background=\'var(--hover,#2a2a3a)\'" '+
+      'onmouseout="this.style.background=\''+rowBg+'\'"'+
+    '>'+
+      '<td style="padding:10px 6px;font-weight:700;color:'+rankColor+';text-align:center">'+
+        (idx+1)+
+      '</td>'+
+      '<td style="padding:10px 6px">'+
+        '<span style="background:var(--ac);color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;white-space:nowrap">'+
+          esc(skuDisplay)+
+        '</span>'+
+      '</td>'+
+      '<td style="padding:10px 6px;font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+
+        esc(prod.nome || '—')+
+      '</td>'+
+      '<td style="padding:10px 6px;text-align:center">'+
+        '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+
+          nPedidos+
+        '</span>'+
+      '</td>'+
+      '<td style="padding:10px 6px;text-align:right;font-weight:600;color:var(--ac)">'+
+        prod.quantidadeTotal.toFixed(0)+' un'+
+      '</td>'+
+      '<td style="padding:10px 6px;text-align:right;font-size:.78rem;color:var(--tm)">'+
+        prioVal+
+      '</td>'+
+    '</tr>';
+  });
+
+  html += '</tbody></table>';
   grid.innerHTML = html;
-  G('rcountPCP').textContent = pcpProdutos.length + ' produto' + (pcpProdutos.length > 1 ? 's' : '');
+  G('rcountPCP').textContent = fonte.length + ' produto' + (fonte.length !== 1 ? 's' : '');
 }
 
 function abrirPCPProduto(idx){
@@ -3449,43 +3495,13 @@ function setStatusPCP(m, t){
 G('searchPCP').oninput = function(){
   var q = this.value.toLowerCase().trim();
   if(!q){ renderPCPGrid(); return; }
-  
   var filtered = pcpProdutos.filter(function(p){
     return (p.nome && p.nome.toLowerCase().includes(q)) ||
            (p.sku && p.sku.toLowerCase().includes(q)) ||
            (p.codigo && p.codigo.toLowerCase().includes(q));
   });
-  
-  var grid = G('gridPCP');
-  if(filtered.length === 0){
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>Nenhum produto encontrado</p></div>';
-    G('rcountPCP').textContent = '0 produtos';
-    return;
-  }
-  
-  var html = filtered.map(function(prod){
-    var idx = pcpProdutos.indexOf(prod);
-    var prodCD = buscarProdutoCD(prod.codigo, prod.nome);
-    var skuDisplay = prodCD ? prodCD.sku : (prod.sku || prod.codigo || '—');
-    
-    var prioLabel = pcpPrioridade === 'antigo' ? 
-      '🕐 ' + (prod.dataMinima ? fmtDate(prod.dataMinima.toISOString()) : '—') :
-      '📦 ' + prod.pedidos.length + ' pedido' + (prod.pedidos.length > 1 ? 's' : '');
-    
-    return '<div class="card" onclick="abrirPCPProduto('+idx+')" style="cursor:pointer">'+
-      '<div class="cbadge" style="background:var(--ac);color:white;margin-bottom:8px">SKU '+esc(skuDisplay)+'</div>'+
-      '<div class="cname">'+esc(prod.nome || '—')+'</div>'+
-      '<div class="cinfo">'+
-        '<span style="color:var(--ac);font-weight:600">'+prod.quantidadeTotal.toFixed(2)+' un</span>'+
-        '<span style="color:var(--tm);font-size:.75rem">'+prioLabel+'</span>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-  
-  grid.innerHTML = html;
-  G('rcountPCP').textContent = filtered.length + ' produto' + (filtered.length > 1 ? 's' : '');
+  renderPCPGrid(filtered);
 };
-
 // Carregar status ao iniciar
 carregarStatusPCP();
 
