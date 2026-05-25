@@ -1,3733 +1,1058 @@
-  <!DOCTYPE html>
-  <html lang="pt-BR" data-theme="dark">
-  <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>NF-e Viewer</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1117'/%3E%3Crect x='6' y='4' width='16' height='20' rx='2' fill='%235c6bc0'/%3E%3Crect x='6' y='4' width='16' height='20' rx='2' fill='none' stroke='%237986cb' stroke-width='1'/%3E%3Cline x1='9' y1='10' x2='19' y2='10' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='9' y1='14' x2='19' y2='14' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='9' y1='18' x2='15' y2='18' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='24' r='7' fill='%234caf50'/%3E%3Cpath d='M21 24l2 2 4-4' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"/>
-  <style>
-  :root{--bg:#0f1117;--bg2:#1a1d27;--bgc:#1e2130;--bgch:#252840;--bgp:#161922;--bdr:#2a2d3e;--bdrf:#5c6bc0;--tp:#e8eaf6;--ts:#9fa8da;--tm:#5c6270;--ac:#5c6bc0;--ach:#7986cb;--acg:rgba(92,107,192,.25);--ok:#4caf50;--warn:#ff9800;--err:#f44336;--eco:#42a5f5;--dist:#ab47bc;--sh:0 4px 24px rgba(0,0,0,.4);--shc:0 2px 12px rgba(0,0,0,.3);--r:12px;--rs:8px;--t:.2s ease}
-  [data-theme=light]{--bg:#f0f2f8;--bg2:#fff;--bgc:#fff;--bgch:#f5f7ff;--bgp:#fff;--bdr:#dde1f0;--tp:#1a1d2e;--ts:#4a5080;--tm:#9098b8;--ach:#3f51b5;--acg:rgba(92,107,192,.15);--sh:0 4px 24px rgba(0,0,0,.08);--shc:0 2px 12px rgba(0,0,0,.06)}
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tp);min-height:100vh;overflow-x:hidden;transition:background var(--t),color var(--t)}
-  .topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100;box-shadow:var(--sh)}
-  .logo{font-size:1.1rem;font-weight:700;letter-spacing:.5px}
-  .topbar-right{display:flex;gap:8px}
-  .btn-icon{background:var(--bgc);border:1px solid var(--bdr);color:var(--tp);width:36px;height:36px;border-radius:var(--rs);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all var(--t)}
-  .btn-icon:hover{background:var(--ac);border-color:var(--ac);transform:translateY(-1px);box-shadow:0 4px 12px var(--acg)}
-  .layout{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
-  .panel{width:280px;min-width:280px;background:var(--bgp);border-right:1px solid var(--bdr);padding:20px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;transition:all var(--t);position:sticky;top:56px;height:calc(100vh - 56px);align-self:flex-start}
-  .panel.collapsed{width:0;min-width:0;padding:0;overflow:hidden}
-  .panel-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:12px}
-  .psec{margin-bottom:20px}
-  .plabel{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ts);margin-bottom:10px}
-  .date-row{display:flex;gap:8px}
-  .fg{flex:1;display:flex;flex-direction:column;gap:4px}
-  .fg label{font-size:.7rem;color:var(--tm)}
-  input[type=date],input[type=text]{background:var(--bgc);border:1px solid var(--bdr);color:var(--tp);border-radius:var(--rs);padding:8px 10px;font-size:.82rem;width:100%;transition:border-color var(--t),box-shadow var(--t);outline:none}
-  input[type=date]:focus,input[type=text]:focus{border-color:var(--bdrf);box-shadow:0 0 0 3px var(--acg)}
-  .group-opts{display:flex;flex-direction:column;gap:6px}
-  .rcard{display:flex;align-items:center;gap:10px;background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);padding:9px 12px;cursor:pointer;font-size:.83rem;transition:all var(--t)}
-  .rcard:hover{border-color:var(--ac);background:var(--bgch)}
-  .rcard input[type=radio]{accent-color:var(--ac);width:14px;height:14px}
-  .rcard:has(input:checked){border-color:var(--ac);background:var(--acg);color:var(--ach)}
-  .tog-grp{display:flex;gap:8px;flex-wrap:wrap}
-  .tchip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:var(--bgc);cursor:pointer;font-size:.8rem;transition:all var(--t);opacity:0.5}
-  .tchip input{display:none}
-  .tchip.on{opacity:1}
-  .tchip[data-o=ecommerce].on{background:rgba(66,165,245,.15);border-color:var(--eco);color:var(--eco)}
-  .tchip[data-o=distribuidor].on{background:rgba(171,71,188,.15);border-color:var(--dist);color:var(--dist)}
-  .tchip[data-cupom=com].on{background:rgba(255,193,7,.15);border-color:#ffc107;color:#ffc107}
-  .tchip[data-cupom=sem].on{background:rgba(158,158,158,.15);border-color:#9e9e9e;color:#9e9e9e}
-  .col-togs{display:flex;flex-direction:column;gap:6px}
-  .ctog{display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer;color:var(--ts);padding:4px 0}
-  .ctog input{accent-color:var(--ac);width:14px;height:14px}
-  .btn-primary{width:100%;padding:12px;background:var(--ac);color:#fff;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--t);margin-top:8px}
-  .btn-primary:hover{background:var(--ach);transform:translateY(-1px);box-shadow:0 6px 20px var(--acg)}
-  .btn-primary:active{transform:translateY(0)}
-  .statusbar{margin-top:10px;font-size:.75rem;color:var(--tm);text-align:center;min-height:18px}
-  .main{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
-  .fbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .sinput{flex:1;min-width:220px;padding:10px 14px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--tp);font-size:.88rem;outline:none;transition:border-color var(--t),box-shadow var(--t)}
-  .sinput:focus{border-color:var(--bdrf);box-shadow:0 0 0 3px var(--acg)}
-  .rcount{font-size:.78rem;color:var(--tm);white-space:nowrap;margin-left:auto}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-  .grp-hdr{grid-column:1/-1;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);padding:8px 4px 4px;border-bottom:1px solid var(--bdr);margin-top:8px}
-  .card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;cursor:pointer;transition:all var(--t);position:relative;overflow:hidden;animation:cardIn .25s ease both}
-  @keyframes cardIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
-  .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
-  .card.ecommerce::before{background:var(--eco)}
-  .card.distribuidor::before{background:var(--dist)}
-  .card:hover{background:var(--bgch);border-color:var(--ac);transform:translateY(-3px);box-shadow:var(--shc),0 0 0 1px var(--acg)}
-  .cbadge{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:2px 8px;border-radius:20px;margin-bottom:10px}
-  .cbadge.ecommerce{background:rgba(66,165,245,.15);color:var(--eco)}
-  .cbadge.distribuidor{background:rgba(171,71,188,.15);color:var(--dist)}
-  .ccliente{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
-  .cnumero{font-size:.72rem;color:var(--tm);margin-bottom:10px}
-  .cvalor{font-size:1.15rem;font-weight:700;color:var(--ok);letter-spacing:-.3px}
-  .cmeta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)}
-  .cdata{font-size:.72rem;color:var(--tm)}
-  .ctransp{font-size:.7rem;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;text-align:right}
-  .empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--tm);gap:12px}
-  .empty-icon{font-size:3rem}
-  .empty p{font-size:.9rem;text-align:center;line-height:1.6}
-  .moverlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
-  .moverlay.open{opacity:1;pointer-events:all}
-  .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);width:90%;max-width:680px;max-height:85vh;overflow-y:auto;position:relative;transform:scale(.94) translateY(12px);transition:transform var(--t);box-shadow:var(--sh)}
-  .moverlay.open .modal{transform:scale(1) translateY(0)}
-  .mclose{position:absolute;top:14px;right:14px;background:var(--bgc);border:1px solid var(--bdr);color:var(--tp);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all var(--t);z-index:1}
-  .mclose:hover{background:var(--err);border-color:var(--err);color:#fff}
-  .mhead{padding:24px 24px 16px;border-bottom:1px solid var(--bdr)}
-  .mhead h2{font-size:1.1rem;font-weight:700;margin-bottom:4px}
-  .msub{font-size:.8rem;color:var(--tm)}
-  .mbody{padding:20px 24px 24px;display:flex;flex-direction:column;gap:20px}
-  .dsec h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
-  .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-  .di label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:3px}
-  .di span{font-size:.88rem;color:var(--tp);font-weight:500;word-break:break-word}
-  .di span.vd{font-size:1.1rem;font-weight:700;color:var(--ok)}
-  .di .copy-row{display:flex;align-items:center;gap:6px}
-  .btn-copy{background:none;border:none;cursor:pointer;color:var(--tm);font-size:.85rem;padding:2px 4px;border-radius:4px;transition:all var(--t);line-height:1}
-  .btn-copy:hover{color:var(--ac);background:var(--acg)}
-  .btn-copy.copiado{color:var(--ok)}
-  .plist{display:flex;flex-direction:column;gap:8px}
-  .pitem{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.83rem;transition:background var(--t)}
-  .pitem:hover{background:var(--bgch)}
-  .pnome{flex:1;color:var(--tp);font-weight:500}
-  .pqtd{color:var(--tm);font-size:.78rem;white-space:nowrap}
-  .pval{color:var(--ok);font-weight:600;white-space:nowrap}
-  .pload{text-align:center;color:var(--tm);font-size:.83rem;padding:16px}
-  .loverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;pointer-events:none;transition:opacity var(--t)}
-  .loverlay.on{opacity:1;pointer-events:all}
-  .spin{width:44px;height:44px;border:3px solid var(--bdr);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loverlay p{color:var(--ts);font-size:.88rem}
-  /* Modal produtos */
-  .pmod-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
-  .pmod-overlay.open{opacity:1;pointer-events:all}
-  .pmod{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);width:90%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:var(--sh);transform:scale(.94) translateY(12px);transition:transform var(--t)}
-  .pmod-overlay.open .pmod{transform:scale(1) translateY(0)}
-  .pmod-head{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
-  .pmod-head h3{font-size:.95rem;font-weight:700}
-  .pmod-search{flex:1;padding:7px 10px;background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--tp);font-size:.82rem;outline:none}
-  .pmod-search:focus{border-color:var(--bdrf)}
-  .pmod-close{background:var(--bgc);border:1px solid var(--bdr);color:var(--tp);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t)}
-  .pmod-close:hover{background:var(--err);border-color:var(--err);color:#fff}
-  .pmod-actions{padding:8px 20px;border-bottom:1px solid var(--bdr);display:flex;gap:8px;flex-shrink:0}
-  .pmod-actions button{font-size:.75rem;padding:4px 10px;border-radius:var(--rs);border:1px solid var(--bdr);background:var(--bgc);color:var(--ts);cursor:pointer;transition:all var(--t)}
-  .pmod-actions button:hover{border-color:var(--ac);color:var(--ac)}
-  .pmod-list{overflow-y:auto;padding:8px 0;flex:1}
-  .pmod-item{display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:pointer;transition:background var(--t);font-size:.83rem}
-  .pmod-item:hover{background:var(--bgch)}
-  .pmod-item input{accent-color:var(--ac);width:15px;height:15px;flex-shrink:0;cursor:pointer}
-  .pmod-item label{cursor:pointer;flex:1;color:var(--tp)}
-  .pmod-item .pmod-cod{font-size:.7rem;color:var(--tm);margin-left:auto;white-space:nowrap}
-  .pmod-foot{padding:12px 20px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-  .pmod-sel-count{font-size:.78rem;color:var(--tm)}
-  .btn-aplicar{padding:8px 18px;background:var(--ac);color:#fff;border:none;border-radius:var(--rs);font-size:.83rem;font-weight:600;cursor:pointer;transition:all var(--t)}
-  .btn-aplicar:hover{background:var(--ach)}
-  /* Chip de filtro ativo */
-  .filtro-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;background:rgba(92,107,192,.2);border:1px solid var(--ac);color:var(--ach);font-size:.72rem;font-weight:600;margin-top:6px}
-  .filtro-chip button{background:none;border:none;color:var(--ach);cursor:pointer;font-size:.85rem;line-height:1;padding:0}
-  /* Botao filtrar produtos */
-  .btn-filtrar-prod{width:100%;padding:9px;background:var(--bgc);color:var(--ts);border:1px solid var(--bdr);border-radius:var(--rs);font-size:.82rem;cursor:pointer;transition:all var(--t);text-align:left;display:flex;align-items:center;gap:8px}
-  .btn-filtrar-prod:hover{border-color:var(--ac);color:var(--ac)}
-  .btn-filtrar-prod.ativo{border-color:var(--ac);background:var(--acg);color:var(--ach)}
-  /* Filtros adicionais */
-  .filtros-extra{display:flex;flex-direction:column;gap:6px}
-  .btn-filtro-extra{width:100%;padding:9px 12px;background:var(--bgc);color:var(--ts);border:1px solid var(--bdr);border-radius:var(--rs);font-size:.82rem;cursor:pointer;transition:all var(--t);text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .btn-filtro-extra:hover{border-color:var(--ac);color:var(--ac)}
-  .btn-filtro-extra.ativo{border-color:var(--ac);background:var(--acg);color:var(--ach)}
-  .btn-filtro-extra .fex-count{font-size:.7rem;background:var(--ac);color:#fff;border-radius:10px;padding:1px 7px;display:none}
-  .btn-filtro-extra.ativo .fex-count{display:inline}
-  .sit-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.5px}
-  .sit-Finalizado,.sit-Atendido{background:rgba(76,175,80,.15);color:#4caf50;border:1px solid #4caf50}
-  .sit-Cancelado{background:rgba(244,67,54,.15);color:#f44336;border:1px solid #f44336}
-  .sit-Aberto,.sit-Em\ andamento{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid #ff9800}
-  .sit-default{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
-  .obs-box{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:.82rem;color:var(--tp);line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow-y:auto}
-  .obs-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px;font-weight:700;display:block}
-  .card-sit-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-left:4px}
-  .card-sit-badge.ok{background:rgba(76,175,80,.2);color:#4caf50;border:1px solid rgba(76,175,80,.6)}
-  .card-sit-badge.err{background:rgba(244,67,54,.2);color:#f44336;border:1px solid rgba(244,67,54,.6)}
-  .card-sit-badge.warn{background:rgba(255,152,0,.2);color:#ff9800;border:1px solid rgba(255,152,0,.6)}
-  .card-sit-badge.info{background:var(--acg);color:var(--ach);border:1px solid var(--ac)}
-  .badge-reversa{display:inline-flex;align-items:center;padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:.5px;background:rgba(244,67,54,.15);color:#f44336;border:1px solid rgba(244,67,54,.5);margin-left:4px}
-  .badge-cupom{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(255,193,7,.15);color:#ffc107;border:1px solid rgba(255,193,7,.4)}
-  .btn-ver-pedido{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--acg);border:1px solid var(--ac);color:var(--ach);border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t);margin-top:10px;width:100%}
-  .btn-ver-pedido:hover{background:var(--ac);color:#fff}
-  .pedido-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:350;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity var(--t)}
-  .pedido-overlay.open{opacity:1;pointer-events:all}
-  .pedido-modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);width:90%;max-width:560px;max-height:80vh;overflow-y:auto;position:relative;transform:scale(.94) translateY(12px);transition:transform var(--t);box-shadow:var(--sh)}
-  .pedido-overlay.open .pedido-modal{transform:scale(1) translateY(0)}
-  .pedido-modal-close{position:absolute;top:12px;right:12px;background:var(--bgc);border:1px solid var(--bdr);color:var(--tp);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all var(--t);z-index:1}
-  .pedido-modal-close:hover{background:var(--err);border-color:var(--err);color:#fff}
-  .pedido-modal-head{padding:20px 20px 14px;border-bottom:1px solid var(--bdr)}
-  .pedido-modal-head h3{font-size:1rem;font-weight:700;margin-bottom:8px}
-  .pedido-modal-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:16px}
-  .obs-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px;font-weight:700}
-  ::-webkit-scrollbar{width:6px;height:6px}
-  ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
-  ::-webkit-scrollbar-thumb:hover{background:var(--tm)}
-  @media(max-width:768px){.panel{position:fixed;left:0;top:56px;bottom:0;z-index:90}.panel.collapsed{transform:translateX(-100%);width:280px}.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
-  /* -- Abas ----------------------------------------------- */
-  .tab-nav{display:flex;gap:4px;align-items:center}
-  .tab-btn{padding:6px 16px;border-radius:var(--rs);border:1px solid transparent;background:none;color:var(--ts);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t)}
-  .tab-btn:hover{background:var(--bgc);color:var(--tp)}
-  .tab-btn.active{background:var(--ac);color:#fff;border-color:var(--ac)}
-  .view-section{display:none}
-  .view-section.active{display:flex;flex-direction:column}
-  /* -- Dashboard layout ----------------------------------- */
-  .dash-wrap{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
-  .dash-kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
-  .dash-kpi{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:6px;transition:all var(--t)}
-  .dash-kpi:hover{border-color:var(--ac);transform:translateY(-2px);box-shadow:var(--shc)}
-  .dash-kpi-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm)}
-  .dash-kpi-value{font-size:1.4rem;font-weight:700;color:var(--tp);letter-spacing:-.5px}
-  .dash-kpi-sub{font-size:.72rem;color:var(--tm)}
-  .dash-kpi.accent .dash-kpi-value{color:var(--ac)}
-  .dash-kpi.ok .dash-kpi-value{color:var(--ok)}
-  .dash-kpi.warn .dash-kpi-value{color:var(--warn)}
-  .dash-row{display:grid;gap:16px}
-  .dash-row.cols-2{grid-template-columns:1fr 1fr}
-  .dash-row.cols-3{grid-template-columns:1fr 1fr 1fr}
-  .dash-row.cols-12{grid-template-columns:1fr 2fr}
-  .dash-row.cols-21{grid-template-columns:2fr 1fr}
-  .dash-card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;min-height:280px}
-  .dash-card-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);display:flex;align-items:center;gap:8px}
-  .dash-card-title span{font-size:.9rem}
-  .dash-chart-wrap{flex:1;position:relative;min-height:200px}
-  .dash-empty{color:var(--tm);font-size:.82rem;text-align:center;padding:40px 0}
-  /* Mapa */
-  .map-card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
-  .map-svg-wrap{width:100%;overflow:hidden;border-radius:var(--rs)}
-  .map-svg-wrap svg{width:100%;height:auto;display:block}
-  .state-path{stroke:var(--bdr);stroke-width:.5;cursor:pointer;transition:opacity .15s}
-  .state-path:hover{opacity:.75;stroke-width:1.5;stroke:#fff}
-  .state-path.selected{stroke:#fff;stroke-width:2}
-  .map-tooltip{position:fixed;background:rgba(0,0,0,.85);color:#fff;padding:5px 10px;border-radius:6px;font-size:.75rem;pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999}
-  .legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-  .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px;flex-shrink:0}
-  .legend-item{display:flex;align-items:center;font-size:.72rem;cursor:pointer;color:var(--ts);padding:2px 6px;border-radius:4px;transition:background var(--t)}
-  .legend-item:hover{background:var(--bgch)}
-  /* Drill panel */
-  .drill-panel{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;display:none;flex-direction:column;gap:10px}
-  .drill-panel.open{display:flex}
-  .drill-bar-item{display:flex;align-items:center;gap:8px;font-size:.75rem;padding:3px 0;cursor:pointer}
-  .drill-bar-item:hover .drill-bar-fill{filter:brightness(1.2)}
-  .drill-bar-label{width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ts)}
-  .drill-bar-track{flex:1;height:8px;background:var(--bdr);border-radius:4px;overflow:hidden}
-  .drill-bar-fill{height:100%;background:var(--ac);border-radius:4px;transition:width .4s ease}
-  .drill-bar-count{width:32px;text-align:right;color:var(--tm);font-weight:600}
-  @media(max-width:900px){.dash-row.cols-2,.dash-row.cols-3,.dash-row.cols-12,.dash-row.cols-21{grid-template-columns:1fr}}
-  /* -- Drill-down mapa municipal --------------------------- */
-  .drill-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
-  .drill-overlay.open{opacity:1;pointer-events:all}
-  .drill-modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);width:95%;max-width:900px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;box-shadow:var(--sh);transform:scale(.94) translateY(12px);transition:transform .25s}
-  .drill-overlay.open .drill-modal{transform:scale(1) translateY(0)}
-  .drill-modal-head{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px;flex-shrink:0}
-  .drill-back-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bgc);border:1px solid var(--bdr);color:var(--ts);border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t)}
-  .drill-back-btn:hover{border-color:var(--ac);color:var(--ac)}
-  .drill-modal-title{flex:1;font-size:1rem;font-weight:700}
-  .drill-modal-sub{font-size:.75rem;color:var(--tm)}
-  .drill-modal-body{display:grid;grid-template-columns:1fr 280px;gap:0;flex:1}
-  .drill-map-area{padding:16px;border-right:1px solid var(--bdr)}
-  .drill-map-area svg{width:100%;height:auto;display:block;border-radius:var(--rs)}
-  .drill-side{padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:70vh}
-  .drill-side-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm)}
-  .drill-loading{text-align:center;color:var(--tm);font-size:.82rem;padding:40px}
-  .mun-path{stroke:var(--bdr);stroke-width:.3;cursor:pointer;transition:opacity .15s}
-  .mun-path:hover{opacity:.75;stroke-width:1;stroke:#fff}
-  .mun-path.has-data{cursor:pointer}
-  .mun-path{stroke:var(--bdr);stroke-width:.3;transition:opacity .15s,stroke-width .15s}
-  .mun-path:hover{opacity:.85;stroke-width:.8;stroke:var(--ac)}
-  /* Drill container - substitui mapa */
-  .drill-container{display:none;width:100%}
-  .drill-back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bgc);border:1px solid var(--bdr);color:var(--ts);border-radius:var(--rs);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--t)}
-  .drill-back-btn:hover{border-color:var(--ac);color:var(--ac);background:var(--bgch)}
-  .drill-modal-title{font-size:1rem;font-weight:700;color:var(--tp)}
-  .drill-modal-sub{font-size:.75rem;color:var(--tm);margin-top:2px}
-  .drill-loading{text-align:center;color:var(--tm);font-size:.82rem;padding:40px}
-  /* Rodap— com lista de cidades */
-  .drill-city-footer{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)}
-  .drill-footer-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin-bottom:10px}
-  .drill-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:200px;overflow-y:auto}
-  .drill-city-item{display:flex;flex-direction:column;gap:3px;padding:6px 10px;background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--rs);transition:all var(--t)}
-  .drill-city-item:hover{border-color:var(--ac);background:var(--bgch)}
-  .drill-city-name{font-size:.8rem;font-weight:600;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .drill-city-stats{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .drill-city-count{font-size:.7rem;color:var(--tm)}
-  .drill-city-value{font-size:.75rem;color:var(--ok);font-weight:600}
-  .drill-city-bar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;margin-top:2px}
-  .drill-city-bar-fill{height:100%;background:var(--ac);border-radius:2px;transition:width .3s ease}
-  @media(max-width:700px){.drill-modal-body{grid-template-columns:1fr}.drill-side{max-height:300px;border-top:1px solid var(--bdr)}}
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-  </head>
-  <body>
-  <header class="topbar">
-    <span class="logo">&#x1F4CB; NF-e Viewer</span>
-    <nav class="tab-nav">
-      <button class="tab-btn active" onclick="switchView('nfe',this)">&#x1F9FE; NF-e <span id="count-nf" style="opacity:0.6;font-size:.8em"></span></button>
-      <button class="tab-btn" onclick="switchView('pedidos',this)">&#x1F6D2; Pedidos <span id="count-pedidos" style="opacity:0.6;font-size:.8em"></span></button>
-      <button class="tab-btn" onclick="switchView('pcp',this)">&#x1F3ED; PCP</button>
-      <button class="tab-btn" onclick="switchView('transporte',this)">&#x1F69A; Transporte</button>
-      <button class="tab-btn" onclick="switchView('vendas',this)">&#x1F4C8; Vendas</button>
-    </nav>
-    <div class="topbar-right">
-      <button class="btn-icon" id="btnTheme" title="Tema">📋</button>
-      <button class="btn-icon" id="btnPanel" title="Painel">📋</button>
-    </div>
-  </header>
-  <div id="view-nfe" class="view-section active">
-  <div class="layout">
-    <aside class="panel" id="panel">
-      <div class="panel-title">Painel de Controle</div>
-      <div class="psec">
-        <span class="plabel">📋 Período</span>
-        <div class="date-row">
-          <div class="fg"><label>De</label><input type="date" id="dtFrom"/></div>
-          <div class="fg"><label>At—</label><input type="date" id="dtTo"/></div>
-        </div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋? Agrupar por</span>
-        <div class="group-opts">
-          <label class="rcard"><input type="radio" name="grp" value="nf" checked/><span>Por NF-e</span></label>
-          <label class="rcard"><input type="radio" name="grp" value="cliente"/><span>Por Cliente</span></label>
-          <label class="rcard"><input type="radio" name="grp" value="transportadora"/><span>Por Transportadora</span></label>
-          <label class="rcard"><input type="radio" name="grp" value="unidade"/><span>Por Unidade (Eco/Dist)</span></label>
-        </div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋 Origem</span>
-        <div class="tog-grp">
-          <label class="tchip" id="chipTodasOrigens" data-o="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>? Todas</label>
-          <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
-          <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
-        </div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋 Filtrar:</span>
-        <div class="col-togs" id="colTogs">
-          <label class="ctog"><input type="checkbox" data-c="cliente" checked/>Cliente</label>
-          <label class="ctog"><input type="checkbox" data-c="valor" checked/>Valor NF</label>
-          <label class="ctog"><input type="checkbox" data-c="origem" checked/>Origem</label>
-          <label class="ctog"><input type="checkbox" data-c="transp" checked/>Transportadora</label>
-          <label class="ctog"><input type="checkbox" data-c="cpf" checked/>CPF</label>
-          <label class="ctog"><input type="checkbox" data-c="cidade" checked/>Cidade/UF</label>
-          <label class="ctog"><input type="checkbox" data-c="numero" checked/>Nº NF</label>
-          <label class="ctog"><input type="checkbox" data-c="data" checked/>Data</label>
-        </div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋? Cupom</span>
-        <div class="tog-grp">
-          <label class="tchip" id="chipTodosCupons" data-cupom="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>? Todas</label>
-          <label class="tchip on" id="chipComCupom" data-cupom="com"><input type="checkbox" checked/>Com cupom</label>
-          <label class="tchip on" id="chipSemCupom" data-cupom="sem"><input type="checkbox" checked/>Sem cupom</label>
-        </div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋 Forma de Pagamento</span>
-        <button class="btn-filtro-extra" id="btnFiltroPag" style="justify-content:space-between">
-          <span>Selecionar formas...</span><span class="fex-count" id="cntPag">0</span>
-        </button>
-        <div id="pagFiltroChip"></div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋 Filtrar por Produto</span>
-        <button class="btn-filtrar-prod" id="btnFiltrarProd">📋 Selecionar produtos... <span id="prodFiltroCount"></span></button>
-        <div id="prodFiltroChip"></div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋 Filtros AvaNºados</span>
-        <div class="filtros-extra">
-          <button class="btn-filtro-extra" data-filtro="numero" id="btnFiltroNumero">
-            <span>📋 Nºmero NF</span><span class="fex-count" id="cntNumero">0</span>
-          </button>
-          <button class="btn-filtro-extra" data-filtro="cliente" id="btnFiltroCliente">
-            <span>📋 Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
-          </button>
-          <button class="btn-filtro-extra" data-filtro="cpf" id="btnFiltroCpf">
-            <span>📋 CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
-          </button>
-          <button class="btn-filtro-extra" data-filtro="telefone" id="btnFiltroTelefone">
-            <span>📋 Telefone</span><span class="fex-count" id="cntTelefone">0</span>
-          </button>
-          <button class="btn-filtro-extra" data-filtro="email" id="btnFiltroEmail">
-            <span>📋 E-mail</span><span class="fex-count" id="cntEmail">0</span>
-          </button>
-        </div>
-        <div id="filtrosChips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
-      </div>
-      <button class="btn-primary" id="btnBuscar">📋 Buscar Notas</button>
-      <div class="statusbar" id="status">Aguardando busca...</div>
-    </aside>
-    <main class="main">
-      <div class="fbar">
-        <input type="text" class="sinput" id="search" placeholder="📋 Buscar por cliente, NF, CPF..."/>
-        <span class="rcount" id="rcount"></span>
-      </div>
-      <div class="grid" id="grid">
-        <div class="empty"><div class="empty-icon">📋</div><p>Selecione um Período e clique em <strong>Buscar Notas</strong></p></div>
-      </div>
-    </main>
-  </div>
-  </div><!-- /view-nfe -->
-
-  <!-- VIEW PEDIDOS -->
-  <div id="view-pedidos" class="view-section">
-  <div class="layout">
-    <aside class="panel" id="panel-pedidos">
-      <div class="panel-title">Painel de Controle</div>
-      <div class="psec">
-        <span class="plabel">📋 Período</span>
-        <div class="date-row">
-          <div class="fg"><label>De</label><input type="date" id="dtFromPed"/></div>
-          <div class="fg"><label>At—</label><input type="date" id="dtToPed"/></div>
-        </div>
-      </div>
-      <div class="psec">
-        <span class="plabel">📋 Origem</span>
-        <div class="tog-grp">
-          <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
-          <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
-        </div>
-      </div>
-      <button class="btn-primary" id="btnBuscarPed">📋 Buscar Pedidos</button>
-      <div class="statusbar" id="statusPed">Aguardando busca...</div>
-    </aside>
-    <main class="main">
-      <div class="fbar">
-        <input type="text" class="sinput" id="searchPed" placeholder="📋 Buscar por cliente, pedido, CPF..."/>
-        <span class="rcount" id="rcountPed"></span>
-      </div>
-      <div class="grid" id="gridPed">
-        <div class="empty"><div class="empty-icon">📋</div><p>Selecione um Período e clique em <strong>Buscar Pedidos</strong></p></div>
-      </div>
-    </main>
-  </div>
-  </div><!-- /view-pedidos -->
-
-  <!-- VIEW PCP -->
-  <div id="view-pcp" class="view-section">
-  <div class="layout">
-    <aside class="panel" id="panel-pcp">
-      <div class="panel-title">🏭 Planejamento e Controle</div>
-
-      <!-- STATUS DOS PEDIDOS (retrátil) -->
-      <div class="psec">
-        <button id="pcp-status-toggle" onclick="toggleStatusPCP()" style="
-          width:100%;display:flex;align-items:center;justify-content:space-between;
-          background:none;border:none;cursor:pointer;padding:0;color:var(--tp);
-          font-size:.8rem;font-weight:600;letter-spacing:.3px;transition:all .2s">
-          <span style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:.9rem">📌</span> Status dos Pedidos
-          </span>
-          <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">▼</span>
-        <div id="pcp-status-list" style="display:flex;flex-direction:column;gap:5px;margin-top:8px;overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
-          <!-- Status carregados dinamicamente -->
-          overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
-          <!-- Status carregados dinamicamente -->
-        </div>
-      </div>
-
-      <!-- PRIORIDADE -->
-      <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>⚡</span> Prioridade</span>
-        <div class="tog-grp" style="flex-direction:column;gap:6px;margin-top:6px">
-          <label class="tchip on pcp-prio-chip" data-prio="antigo" style="transition:all .18s;cursor:pointer">
-            <input type="radio" name="Prioridade" value="antigo" checked/>
-            🕐 Mais Antigo
-          </label>
-          <label class="tchip pcp-prio-chip" data-prio="volume" style="transition:all .18s;cursor:pointer">
-            <input type="radio" name="Prioridade" value="volume"/>
-            📦 Solta Mais Pedidos
-          </label>
-        </div>
-      </div>
-
-      <!-- ORIGEM DOS PEDIDOS (cores padrão) -->
-      <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>🔀</span> Origem dos Pedidos</span>
-        <div class="tog-grp" style="flex-direction:column;gap:6px;margin-top:6px">
-          <label id="chip-origem-ecommerce" data-origem="ecommerce" class="tchip on" style="
-            transition:all .18s;cursor:pointer;
-            background:rgba(66,165,245,.15);border-color:var(--eco);color:var(--eco)">
-            <input type="checkbox" value="ecommerce" checked/>
-            🛒 E-commerce
-          </label>
-          <label id="chip-origem-distribuidor" data-origem="distribuidor" class="tchip on" style="
-            transition:all .18s;cursor:pointer;
-            background:rgba(171,71,188,.15);border-color:var(--dist);color:var(--dist)">
-            <input type="checkbox" value="distribuidor" checked/>
-            🏭 Distribuidor
-          </label>
-        </div>
-      </div>
-
-      <!-- PERÍODO -->
-      <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>📅</span> Período dos Pedidos</span>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
-          <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:.72rem;color:var(--tm)">De</label>
-            <input type="date" id="pcpDateFrom" class="sinput" style="padding:5px 8px;font-size:.8rem"/>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:.72rem;color:var(--tm)">Até</label>
-            <input type="date" id="pcpDateTo" class="sinput" style="padding:5px 8px;font-size:.8rem"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- SALDO DE ESTOQUE -->
-      <div class="psec">
-        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>📦</span> Saldo de Estoque</span>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
-          <div style="border:1px solid rgba(66,165,245,.25);border-radius:var(--rs);padding:8px">
-            <div style="font-size:.72rem;color:var(--eco);font-weight:600;margin-bottom:4px">&#x1F6D2; E-commerce</div>
-            <div id="pcp-estoque-eco-info" style="font-size:.7rem;color:var(--tm);font-style:italic;margin-bottom:6px;line-height:1.4">Nenhum arquivo importado</div>
-            <label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--rs);border:1px solid var(--eco);color:var(--eco);background:rgba(66,165,245,.08);transition:all .18s" onmousedown="this.style.transform='scale(.96)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
-              &#x1F4C2; Importar CSV
-              <input type="file" id="inputEstoqueEco" accept=".csv" style="display:none"/>
-            </label>
-          </div>
-          <div style="border:1px solid rgba(171,71,188,.25);border-radius:var(--rs);padding:8px">
-            <div style="font-size:.72rem;color:var(--dist);font-weight:600;margin-bottom:4px">&#x1F3ED; Distribuidor</div>
-            <div id="pcp-estoque-dist-info" style="font-size:.7rem;color:var(--tm);font-style:italic;margin-bottom:6px;line-height:1.4">Nenhum arquivo importado</div>
-            <label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--rs);border:1px solid var(--dist);color:var(--dist);background:rgba(171,71,188,.08);transition:all .18s" onmousedown="this.style.transform='scale(.96)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
-              &#x1F4C2; Importar CSV
-              <input type="file" id="inputEstoqueDist" accept=".csv" style="display:none"/>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn-primary" id="btnProcessarPCP" style="transition:all .18s" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
-        &#x1F3ED; Processar PCP
-      </button>
-      <div class="statusbar" id="statusPCP">Aguardando processamento...</div>
-    </aside>
-
-    <main class="main">
-      <div class="fbar">
-        <input type="text" class="sinput" id="searchPCP" placeholder="🔍 Buscar produto, SKU..."/>
-        <span class="rcount" id="rcountPCP"></span>
-      </div>
-      <div id="gridPCP">
-        <div class="empty">
-          <div class="empty-icon">🏭</div>
-          <p>Selecione o status e a prioridade, depois clique em <strong>Processar PCP</strong></p>
-        </div>
-      </div>
-    </main>
-  </div>
-  </div><!-- /view-pcp -->
-    </main>
-  </div>
-  </div><!-- /view-pcp -->
-
-  <!-- VIEW TRANSPORTE -->
-  <div id="view-transporte" class="view-section">
-  <div class="dash-wrap" id="dash-transp-wrap">
-    <div class="dash-kpi-row" id="kpi-transp"></div>
-    <div class="dash-row cols-2">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Fatia de Mercado por Transportadora</div>
-        <div class="dash-chart-wrap"><canvas id="chart-market"></canvas></div>
-        <div class="legend-row" id="legend-market"></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Peso Bruto por Transportadora (kg)</div>
-        <div class="dash-chart-wrap"><canvas id="chart-peso-transp"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-row cols-2">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Top NFs por Peso Bruto</div>
-        <div class="dash-chart-wrap"><canvas id="chart-peso-nf"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> NFs por Origem</div>
-        <div class="dash-chart-wrap"><canvas id="chart-nf-source"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-row cols-3">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Peso Bruto vs L—quido M—dio / Transportadora</div>
-        <div class="dash-chart-wrap"><canvas id="chart-pb-pl"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Distribui📋o de Peso Bruto (faixas)</div>
-        <div class="dash-chart-wrap"><canvas id="chart-hist"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋?</span> Fator PL—PB por Transportadora</div>
-        <div class="dash-chart-wrap"><canvas id="chart-fator"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-row cols-2">
-      <div class="map-card">
-        <div class="dash-card-title"><span>📋?</span> NFs por Estado</div>
-        <div class="map-svg-wrap"><svg id="svg-map-nf" viewBox="0 0 460 400"></svg></div>
-        <div id="map-nf-loading" class="dash-empty">Carregando mapa...</div>
-        <div id="detail-nf" class="drill-panel">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong id="detail-nf-flag" style="font-size:1.1rem"></strong>
-            <button onclick="closeStateDetail('nf')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">?</button>
-          </div>
-          <div id="detail-nf-name" style="font-size:.8rem;color:var(--ts)"></div>
-          <div id="detail-nf-count" style="font-size:.75rem;color:var(--tm)"></div>
-          <div id="detail-nf-cities"></div>
-        </div>
-      </div>
-      <div class="map-card">
-        <div class="dash-card-title"><span>📋?</span> Transportadora Dominante por Estado</div>
-        <div class="map-svg-wrap"><svg id="svg-map-transp" viewBox="0 0 460 400"></svg></div>
-        <div id="map-transp-loading" class="dash-empty">Carregando mapa...</div>
-        <div class="legend-row" id="transp-map-legend-items"></div>
-        <div id="detail-transp" class="drill-panel">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong id="detail-transp-flag" style="font-size:1.1rem"></strong>
-            <button onclick="closeStateDetail('transp')" style="background:none;border:none;color:var(--tm);cursor:pointer;font-size:1rem">?</button>
-          </div>
-          <div id="detail-transp-name" style="font-size:.8rem;color:var(--ts)"></div>
-          <div id="detail-transp-count" style="font-size:.75rem;color:var(--tm)"></div>
-          <div id="detail-transp-cities"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div><!-- /view-transporte -->
-
-  <!-- VIEW VENDAS -->
-  <div id="view-vendas" class="view-section">
-  <div class="dash-wrap" id="dash-vendas-wrap">
-    <div class="dash-kpi-row" id="kpi-vendas"></div>
-    <div class="dash-row cols-3">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Faturamento por Dia</div>
-        <div class="dash-chart-wrap"><canvas id="chart-fat-dia"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Faturamento por Unidade (Eco vs Dist)</div>
-        <div class="dash-chart-wrap"><canvas id="chart-fat-unidade"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Ticket M—dio por Unidade</div>
-        <div class="dash-chart-wrap"><canvas id="chart-ticket-unidade"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-row cols-2">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Top Clientes por Valor</div>
-        <div class="dash-chart-wrap"><canvas id="chart-top-clientes"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Formas de Pagamento</div>
-        <div class="dash-chart-wrap"><canvas id="chart-pagamento"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-row cols-2">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋?</span> Uso de Cupons</div>
-        <div class="dash-chart-wrap"><canvas id="chart-cupons"></canvas></div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>?</span> NFs Reversas vs Normais</div>
-        <div class="dash-chart-wrap"><canvas id="chart-reversas"></canvas></div>
-      </div>
-    </div>
-    <div class="dash-row cols-2">
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋?</span> Faturamento por Estado</div>
-        <div class="map-svg-wrap"><svg id="svg-map-vendas" viewBox="0 0 460 400"></svg></div>
-        <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-title"><span>📋</span> Situa📋o dos Pedidos</div>
-        <div class="dash-chart-wrap"><canvas id="chart-situacao"></canvas></div>
-      </div>
-    </div>
-  </div>
-  </div><!-- /view-vendas -->
-
-  <!-- MODAL GENºRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
-  <div class="pmod-overlay" id="fexOverlay">
-    <div class="pmod">
-      <div class="pmod-head">
-        <h3 id="fexTitulo">Filtro</h3>
-        <input type="text" class="pmod-search" id="fexSearch" placeholder="Buscar..."/>
-        <button class="pmod-close" id="fexClose">?</button>
-      </div>
-      <div class="pmod-actions">
-        <button id="fexSelAll">Selecionar todos</button>
-        <button id="fexClear">Limpar</button>
-      </div>
-      <div class="pmod-list" id="fexList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Fa—a uma busca primeiro.</div></div>
-      <div class="pmod-foot">
-        <span class="pmod-sel-count" id="fexSelCount">0 selecionados</span>
-        <button class="btn-aplicar" id="fexAplicar">Aplicar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL FILTRO PRODUTOS -->
-  <div class="pmod-overlay" id="pmodOverlay">
-    <div class="pmod">
-      <div class="pmod-head">
-        <h3>📋 Filtrar por Produto</h3>
-        <input type="text" class="pmod-search" id="pmodSearch" placeholder="Buscar produto..."/>
-        <button class="pmod-close" id="pmodClose">?</button>
-      </div>
-      <div class="pmod-actions">
-        <button id="pmodSelAll">Selecionar todos</button>
-        <button id="pmodClear">Limpar</button>
-      </div>
-      <div class="pmod-list" id="pmodList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Fa—a uma busca primeiro para carregar os produtos.</div></div>
-      <div class="pmod-foot">
-        <span class="pmod-sel-count" id="pmodSelCount">0 selecionados</span>
-        <button class="btn-aplicar" id="pmodAplicar">Aplicar filtro</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="moverlay" id="moverlay">
-    <div class="modal">
-      <button class="mclose" id="mclose">?</button>
-      <div class="mhead" id="mhead"></div>
-      <div class="mbody" id="mbody"></div>
-    </div>
-  </div>
-  <div class="loverlay" id="loverlay">
-    <div class="spin"></div>
-    <p>Buscando notas fiscais...</p>
-  </div>
-  <!-- SUB-MODAL BLING (pedido de venda) -->
-  <div class="pedido-overlay" id="pedidoOverlay">
-    <div class="pedido-modal">
-      <button class="pedido-modal-close" id="pedidoClose">?</button>
-      <div class="pedido-modal-head" id="pedidoHead"></div>
-      <div class="pedido-modal-body" id="pedidoBody"></div>
-    </div>
-  </div>
-  <!-- SUB-MODAL TRAY (obs do cliente) -->
-  <div class="pedido-overlay" id="trayOverlay">
-    <div class="pedido-modal">
-      <button class="pedido-modal-close" id="trayClose">?</button>
-      <div class="pedido-modal-head" id="trayHead"></div>
-      <div class="pedido-modal-body" id="trayBody"></div>
-    </div>
-  </div>
-  
-  <!-- MODAL PEDIDO -->
-  <div class="moverlay" id="moverlayPed">
-    <div class="modal">
-      <button class="mclose" id="mclosePed">?</button>
-      <div class="mhead" id="mheadPed"></div>
-      <div class="mbody" id="mbodyPed"></div>
-    </div>
-  </div>
-  
-  <!-- MODAL PCP - LISTA DE PEDIDOS DO PRODUTO -->
-  <div class="moverlay" id="moverlayPCPProduto">
-    <div class="modal">
-      <button class="mclose" id="mclosePCPProduto">?</button>
-      <div class="mhead" id="mheadPCPProduto"></div>
-      <div class="mbody" id="mbodyPCPProduto"></div>
-    </div>
-  </div>
-  
-  <script>// -- Estado global ------------------------------------------
-  var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
-  var _filtroCupom = { com: true, sem: true };  // Filtro de cupom
-  
-  // Estado global PEDIDOS
-  var allPedidos=[], filteredPedidos=[], activeSearchPed='', activeOrigensPed=new Set(['ecommerce','distribuidor']);
-  
-  // Estado global PCP
-  var pcpProdutos=[], pcpStatusSelecionados=new Set(), pcpPrioridade='antigo';
-  var pcpTodosPedidos=[];  // Cache de todos os pedidos para PCP
-  var pcpOrigemFiltro = new Set(['ecommerce','distribuidor']); // ambos ativos por padrão
-  var estoqueEco  = {};  // mapa codigo -> saldo (e-commerce)
-  var estoqueDist = {};  // mapa codigo -> saldo (distribuidor)
-  
-  var G=function(id){return document.getElementById(id);};
-
-  // -- Tema ---------------------------------------------------
-  G('btnTheme').onclick=function(){
-    var h=document.documentElement, dark=h.getAttribute('data-theme')==='dark';
-    h.setAttribute('data-theme',dark?'light':'dark');
-    G('btnTheme').textContent=dark?'📋':'📋';
-  };
-
-  // -- Painel -------------------------------------------------
-  G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
-
-  // -- Fun📋o de filtro (definida ANTES dos event listeners) --
-  function applyFilters(){
-    console.log('📋 applyFilters BASE chamada (ser— sobrescrita)');
-    G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
-    renderCards();
-  }
-
-  // -- Origem toggle ------------------------------------------
-  document.querySelectorAll('.tchip').forEach(function(c){
-    // Remove o checkbox interno para evitar conflitos
-    var checkbox = c.querySelector('input[type="checkbox"]');
-    if(checkbox) {
-      checkbox.style.display = 'none';
-      checkbox.disabled = true;
-    }
-    
-    c.onclick=function(e){
-      e.preventDefault(); // Previne comportamento padrão do label
-      e.stopPropagation(); // Para propaga📋o do evento
-      
-      var o=c.dataset.o;
-      if(!o) return; // Ignora chips que Nºo s—o de origem
-      
-      // Bot—o "TODAS" para origem
-      if(o === 'todas'){
-        console.log('---------------------------------------------------');
-        console.log('? CLICOU EM TODAS (ORIGEM)');
-        // Limpa todos os filtros de origem
-        activeOrigens.clear();
-        // Remove classe "on" de todos os bot—es de origem
-        document.querySelectorAll('[data-o="ecommerce"], [data-o="distribuidor"]').forEach(function(chip){
-          chip.classList.remove('on');
-        });
-        // Adiciona classe "on" no bot—o TODAS
-        c.classList.add('on');
-        console.log('Todas as origens limpas, mostrando TODAS as notas');
-        applyFilters();
-        return;
-      }
-      
-      console.log('---------------------------------------------------');
-      console.log('📋 CLICOU EM ORIGEM:', o);
-      console.log('Estado antes:', Array.from(activeOrigens));
-      console.log('Classes antes:', c.className);
-      
-      // Remove classe "on" do bot—o TODAS
-      var btnTodas = document.getElementById('chipTodasOrigens');
-      if(btnTodas) btnTodas.classList.remove('on');
-      
-      if(activeOrigens.has(o)){
-        activeOrigens.delete(o);
-        c.classList.remove('on');
-        console.log('? Removido:', o);
-      } else {
-        activeOrigens.add(o);
-        c.classList.add('on');
-        console.log('? Adicionado:', o);
-      }
-      
-      console.log('Estado depois:', Array.from(activeOrigens));
-      console.log('Classes depois:', c.className);
-      console.log('Tem classe "on"?', c.classList.contains('on'));
-      console.log('Tamanho do Set:', activeOrigens.size);
-      console.log('Chamando applyFilters()...');
-      console.log('Tipo de applyFilters:', typeof applyFilters);
-      if(typeof applyFilters === 'function') {
-        applyFilters();
-      } else {
-        console.error('? applyFilters NºO — UMA FUN📋O!');
-      }
-    };
-  });
-
-  // -- Buscar notas paginado (fetch direto na API) ------------
-  var _buscarFrom='', _buscarTo='', _buscarOffset=0, _buscarTotal=0, _buscarAtivo=false;
-  var API_BASE = '';  // vazio = mesmo dominio (Railway serve tudo junto)
-  
-  // -- Carregar produtos do JSON ------------------------------
-  var produtosCD = {};
-  fetch(API_BASE + '/api/produtos-cd')
-    .then(r => r.json())
-    .then(d => {
-      produtosCD = d;
-      console.log('? Produtos CD carregados:', Object.keys(produtosCD).length);
-    })
-    .catch(e => console.error('? Erro ao carregar produtos CD:', e));
-  
-  function buscarProdutoCD(codigoBling, nomeProduto) {
-    // Tenta buscar pelo c—digo do Bling (SKU)
-    if (codigoBling && produtosCD[codigoBling]) {
-      return produtosCD[codigoBling];
-    }
-    
-    // Tenta buscar por c—digo de barras (se o c—digo do Bling for um EAN)
-    if (codigoBling) {
-      for (const sku in produtosCD) {
-        const prod = produtosCD[sku];
-        if (prod.codigoBarras && String(prod.codigoBarras) === String(codigoBling)) {
-          return prod;
-        }
-      }
-    }
-    
-    // Se Nºo encontrar, tenta buscar por similaridade no nome
-    if (nomeProduto) {
-      const nomeLimpo = nomeProduto.toLowerCase().trim();
-      
-      // Primeiro: busca exata (ignora case)
-      for (const sku in produtosCD) {
-        const prod = produtosCD[sku];
-        const descLimpa = (prod.descricao || '').toLowerCase().trim();
-        if (nomeLimpo === descLimpa) {
-          return prod;
-        }
-      }
-      
-      // Segundo: busca por inclus—o (uma string cont—m a outra)
-      for (const sku in produtosCD) {
-        const prod = produtosCD[sku];
-        const descLimpa = (prod.descricao || '').toLowerCase().trim();
-        
-        // Verifica se o nome do produto cont—m a descri📋o do JSON ou vice-versa
-        if (descLimpa.length > 10 && (nomeLimpo.includes(descLimpa) || descLimpa.includes(nomeLimpo))) {
-          return prod;
-        }
-      }
-      
-      // Terceiro: busca por palavras-chave (extrai palavras significativas)
-      const palavrasNome = nomeLimpo.split(/\s+/).filter(p => p.length > 3);
-      if (palavrasNome.length > 0) {
-        for (const sku in produtosCD) {
-          const prod = produtosCD[sku];
-          const descLimpa = (prod.descricao || '').toLowerCase().trim();
-          const palavrasDesc = descLimpa.split(/\s+/).filter(p => p.length > 3);
-          
-          // Conta quantas palavras em comum
-          let matches = 0;
-          for (const pn of palavrasNome) {
-            for (const pd of palavrasDesc) {
-              if (pn === pd || pn.includes(pd) || pd.includes(pn)) {
-                matches++;
-                break;
-              }
-            }
-          }
-          
-          // Se tiver pelo menos 2 palavras em comum, considera match
-          if (matches >= 2) {
-            return prod;
-          }
-        }
-      }
-    }
-    
-    return null;
-  }
-  
-  G('btnBuscar').onclick=buscar;
-
-  function buscar(){
-    var f=G('dtFrom').value, t=G('dtTo').value;
-    if(!f||!t){setStatus('📋 Selecione o Período.','warn');return;}
-    if(f>t){setStatus('📋 Data inicial maior que final.','warn');return;}
-    allNotas=[];
-    _buscarFrom=f; _buscarTo=t; _buscarOffset=0; _buscarTotal=0; _buscarAtivo=true;
-    loading(true); setStatus('Buscando...');
-    buscarPagina();
-    
-    // SINCRONIZA📋O: Buscar pedidos automaticamente com as mesmas datas
-    G('dtFromPed').value = f;
-    G('dtToPed').value = t;
-    setTimeout(function(){ buscarPedidos(); }, 200);
-  }
-
-  async function buscarPagina(){
-    if(!_buscarAtivo) return;
-    try{
-      var url=API_BASE+'/api/notas?from='+_buscarFrom+'&to='+_buscarTo+'&offset='+_buscarOffset;
-      var resp=await fetch(url);
-      var d=await resp.json();
-      if(d.error){setStatus('? '+d.error,'err');loading(false);_buscarAtivo=false;return;}
-      var novas=d.notas||[];
-      allNotas=allNotas.concat(novas);
-      if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
-      var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
-      setStatus('? Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
-      applyFilters();
-      if(d.hasMore){
-        _buscarOffset+=novas.length;
-        buscarPagina();
-      } else {
-        loading(false);
-        _buscarAtivo=false;
-        setStatus('? '+allNotas.length+' notas carregadas.');
-        // Atualizar contador no bot—o
-        G('count-nf').textContent = '(' + allNotas.length + ')';
-      }
-    }catch(e){
-      setStatus('? '+e.message,'err');
-      loading(false); _buscarAtivo=false;
-    }
-  }
-
-  // -- Busca r—pida -------------------------------------------
-  G('search').oninput=function(e){
-    activeSearch=e.target.value.toLowerCase().trim();
-    applyFilters();
-    // SINCRONIZA📋O: Aplicar mesma busca nos pedidos
-    G('searchPed').value = e.target.value;
-    activeSearchPed = activeSearch;
-    applyFiltersPed();
-  };
-
-  // -- Render cards com lazy load -----------------------------
-  var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
-
-  function renderCards(){
-    console.log('📋 renderCards() chamada');
-    console.log('📋 filteredNotas.length:', filteredNotas.length);
-    
-    var grp=document.querySelector('input[name=grp]:checked').value||'nf';
-    var cols=getCols();
-    var grid=G('grid');
-    
-    console.log('📋? Agrupamento:', grp);
-    console.log('📋 Colunas vis—veis:', Array.from(cols));
-    console.log('📋 Grid element:', grid);
-    console.log('📋 Grid parent:', grid.parentElement);
-    console.log('📋 Grid display:', window.getComputedStyle(grid).display);
-    console.log('📋 Grid visibility:', window.getComputedStyle(grid).visibility);
-    
-    // FOR—A limpeza do grid
-    while(grid.firstChild) {
-      grid.removeChild(grid.firstChild);
-    }
-    
-    _renderIdx=0;
-
-    // Desconecta observer anterior
-    if(_renderObs){_renderObs.disconnect();_renderObs=null;}
-
-    if(!filteredNotas.length){
-      grid.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma nota encontrada.</p></div>';
-      console.log('📋 Nenhuma nota para renderizar');
-      return;
-    }
-
-    // Monta lista plana de itens a renderizar (headers + notas)
-    _renderList=[];
-    var groups=groupNotas(filteredNotas,grp);
-    groups.forEach(function(g){
-      if(groups.length>1) _renderList.push({type:'hdr',label:g.label});
-      g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
-    });
-    
-    console.log('📋 Total de itens a renderizar:', _renderList.length);
-
-    // Sentinel para carregar mais ao rolar
-    var sentinel=document.createElement('div');
-    sentinel.style.height='1px';
-    sentinel.id='sentinel-' + Date.now(); // ID —nico
-    grid.appendChild(sentinel);
-    
-    console.log('? Sentinel adicionado ao grid');
-    console.log('? Grid children ap—s sentinel:', grid.children.length);
-    
-    // Renderiza primeiro lote DEPOIS de adicionar o sentinel
-    requestAnimationFrame(function(){
-      console.log('📋 requestAnimationFrame executando...');
-      renderLote(cols, grid);
-      
-      // Observer para lazy loading
-      _renderObs=new IntersectionObserver(function(entries){
-        if(entries[0].isIntersecting) renderLote(cols, grid);
-      },{rootMargin:'200px'});
-      _renderObs.observe(sentinel);
-      console.log('📋? Observer configurado');
-    });
-    
-    console.log('? renderCards() conclu—da');
-  }
-
-  function renderLote(cols, grid){
-    console.log('📋 renderLote() chamada');
-    console.log('_renderIdx:', _renderIdx, '_renderBatch:', _renderBatch, '_renderList.length:', _renderList.length);
-    
-    var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
-    console.log('Renderizando de', _renderIdx, 'at—', fim);
-    
-    var frag=document.createDocumentFragment();
-    for(var i=_renderIdx;i<fim;i++){
-      var item=_renderList[i];
-      if(item.type==='hdr'){
-        var h=document.createElement('div');
-        h.className='grp-hdr'; h.textContent=item.label; frag.appendChild(h);
-      } else {
-        frag.appendChild(buildCard(item.nota,cols));
-      }
-    }
-    
-    console.log('Fragment criado com', frag.childNodes.length, 'elementos');
-    
-    // Insere antes do sentinel
-    var sentinel=grid.lastElementChild;
-    console.log('Sentinel:', sentinel);
-    console.log('Grid antes:', grid.children.length, 'elementos');
-    console.log('Grid display:', window.getComputedStyle(grid).display);
-    console.log('Grid visibility:', window.getComputedStyle(grid).visibility);
-    console.log('Grid opacity:', window.getComputedStyle(grid).opacity);
-    
-    grid.insertBefore(frag, sentinel);
-    
-    // FOR—A reflow do navegador
-    void grid.offsetHeight;
-    
-    console.log('Grid depois:', grid.children.length, 'elementos');
-    console.log('Primeiro card:', grid.children[0]);
-    if(grid.children[0]) {
-      console.log('Primeiro card display:', window.getComputedStyle(grid.children[0]).display);
-      console.log('Primeiro card visibility:', window.getComputedStyle(grid.children[0]).visibility);
-      console.log('Primeiro card opacity:', window.getComputedStyle(grid.children[0]).opacity);
-    }
-    
-    _renderIdx=fim;
-    if(_renderIdx>=_renderList.length && _renderObs){
-      _renderObs.disconnect(); _renderObs=null;
-      console.log('? Todos os itens renderizados, observer desconectado');
-    }
-  }
-
-  function buildCard(n,cols){
-    var d=document.createElement('div');
-    d.className='card '+n.origem;
-    
-    var ol=n.origem==='ecommerce'?'📋 E-commerce':'📋 Distribuidor';
-    d.innerHTML=
-      (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
-      (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' — Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">? Reversa</span>':'')+' </div>':'')+
-      (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido '+esc(n.numeropedido)+'</span>'+
-        sitBadgeCard(n.pedido_situacao)+
-        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">📋?</span>':'')+
-      '</div>':'')+
-      (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
-      '<div class="cmeta">'+
-        (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
-        (cols.has('transp')?'<span class="ctransp" title="'+esc(n.transportadora||'')+'">'+esc(n.transportadora||'—')+'</span>':'')+
-      '</div>';
-    d.onclick=function(e){
-      e.stopPropagation();
-      console.log('📋? Card clicado:', n.numero, n.cliente);
-      abrirModal(n);
-    };
-    
-    return d;
-  }
-
-  function groupNotas(notas,grp){
-    if(grp==='nf')return[{label:'Todas',notas:notas}];
-    var m={};
-    notas.forEach(function(n){
-      var k='';
-      if(grp==='cliente')k=n.cliente||'Sem cliente';
-      if(grp==='transportadora')k=n.transportadora||'Sem transportadora';
-      if(grp==='unidade')k=n.origem==='ecommerce'?'📋 E-commerce':'📋 Distribuidor';
-      if(!m[k])m[k]=[];
-      m[k].push(n);
-    });
-    return Object.keys(m).sort().map(function(k){return{label:k+' ('+m[k].length+')',notas:m[k]};});
-  }
-
-  // -- Modal --------------------------------------------------
-  function abrirModal(n){
-    console.log('📋 abrirModal chamada:', n);
-    var ol=n.origem==='ecommerce'?'📋 E-commerce':'📋 Distribuidor';
-    
-    // Badge de situa📋o da NF
-    var nfSituacao = n.situacao ? String(n.situacao) : 'Autorizada';
-    var nfSitClass = 'ok'; // Verde por padrão (autorizada)
-    if(nfSituacao.toLowerCase().includes('cancelad')) nfSitClass = 'err';
-    else if(nfSituacao.toLowerCase().includes('denegad')) nfSitClass = 'err';
-    else if(nfSituacao.toLowerCase().includes('rejeitad')) nfSitClass = 'err';
-    
-    G('mhead').innerHTML=
-      '<div class="cbadge '+n.origem+'" style="margin-bottom:10px">'+ol+'</div>'+
-      '<h2>'+esc(n.cliente||'—')+'</h2>'+
-      '<div class="msub">NF '+esc(n.numero||'—')+' — '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">? Nota Reversa</span>':'')+' </div>';
-    
-    G('mbody').innerHTML=
-      // -----------------------------------------------------------
-      // SE📋O: NOTA FISCAL
-      // -----------------------------------------------------------
-      '<div class="dsec" style="background:rgba(92,107,192,.05);border:2px solid var(--ac);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
-        '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">📋 NOTA FISCAL</h3>'+
-        '<div class="dgrid">'+
-          di('Nºmero',n.numero)+
-          di('Série',n.serie)+
-          di('Data Emissão',fmtDate(n.dataemissao))+
-          '<div class="di"><label>Situa📋o NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
-          diV('Valor Total',brl(n.valor))+
-          di('Valor Produtos',brl(n.valorProdutos))+
-          di('Desconto',brl(n.desconto))+
-          di('Frete',brl(n.frete))+
-          '<div class="di" style="grid-column:1/-1"><label>Chave de Acesso</label><span style="font-size:.7rem;word-break:break-all">'+esc(n.chaveacesso||'—')+'</span></div>'+
-        '</div>'+
-      '</div>'+
-      
-      // -----------------------------------------------------------
-      // SE📋O: PEDIDO DE VENDA
-      // -----------------------------------------------------------
-      '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
-        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>'+
-        (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? 
-          '<div class="dgrid">'+
-            diCopy('Nº Pedido Bling', n.numeropedido||'—')+
-            di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
-            (n.pedido_situacao ? '<div class="di"><label>Situa📋o Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
-          '</div>'+
-          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">📋 Observa📋es do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
-          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">📋 Observa📋es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
-          '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
-            '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Ver Detalhes Bling</button>'+
-            (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">📋 Obs. Cliente (Tray)</button>' : '')+
-          '</div>'
-        : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">📋 Nenhum pedido vinculado a esta nota.</div>')+
-      '</div>'+
-      
-      // -----------------------------------------------------------
-      // SE📋O: DESTINAT—RIO
-      // -----------------------------------------------------------
-      '<div class="dsec">'+
-        '<h3>📋 Destinat—rio</h3>'+
-        '<div class="dgrid">'+
-          di('Nome',n.cliente)+
-          di('CPF/CNPJ',n.cpf)+
-          di('E-mail',n.email)+
-          di('Telefone',n.telefone)+
-          di('Endere—o',n.endereco)+
-          di('Nºmero',n.endNumero)+
-          di('Bairro',n.bairro)+
-          di('Cidade/UF',n.cidade)+
-          di('CEP',n.cep)+
-          di('Complemento',n.complemento)+
-        '</div>'+
-      '</div>'+
-      
-      // -----------------------------------------------------------
-      // SE📋O: TRANSPORTE
-      // -----------------------------------------------------------
-      '<div class="dsec">'+
-        '<h3>📋 Transporte</h3>'+
-        '<div class="dgrid">'+
-          di('Transportadora',n.transportadora)+
-          di('CNPJ Transp.',n.transportadoraCnpj)+
-          di('Frete por conta',fpc(n.fretePorConta))+
-          di('Peso Bruto',n.pesoBruto?n.pesoBruto+' kg':'—')+
-          di('Peso L—quido',n.pesoLiquido?n.pesoLiquido+' kg':'—')+
-          di('Qtd Volumes',n.qtdVolumes||'—')+
-        '</div>'+
-      '</div>'+
-      
-      // -----------------------------------------------------------
-      // SE📋O: PAGAMENTO
-      // -----------------------------------------------------------
-      '<div class="dsec">'+
-        '<h3>📋 Pagamento</h3>'+
-        (n.formas_pagamento && n.formas_pagamento.length ?
-          n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
-          '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
-        (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
-        (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
-        '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
-        (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">📋? Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
-      '</div>'+
-      
-      // -----------------------------------------------------------
-      // SE📋O: PRODUTOS
-      // -----------------------------------------------------------
-      '<div class="dsec">'+
-        '<h3>📋 Produtos</h3>'+
-        '<div class="plist" id="modal-produtos-list">'+
-          '<div class="pload">? Carregando produtos...</div>'+
-        '</div>'+
-      '</div>'+
-      
-      // -----------------------------------------------------------
-      // SE📋O: LINKS
-      // -----------------------------------------------------------
-      '<div class="dsec">'+
-        '<h3>📋 Links</h3>'+
-        '<div class="dgrid">'+
-          (n.linkdanfe?'<div class="di"><label>DANFE</label><span><a href="'+esc(n.linkdanfe)+'" target="_blank" style="color:var(--ac)">Abrir DANFE</a></span></div>':'')+
-          (n.linkpdf?'<div class="di"><label>PDF</label><span><a href="'+esc(n.linkpdf)+'" target="_blank" style="color:var(--ac)">Abrir PDF</a></span></div>':'')+
-          (n.xmlUrl?'<div class="di"><label>XML</label><span><a href="'+esc(n.xmlUrl)+'" target="_blank" style="color:var(--ac)">Baixar XML</a></span></div>':'')+
-        '</div>'+
-      '</div>';
-    
-    console.log('? Modal HTML montado, abrindo overlay...');
-    G('moverlay').classList.add('open');
-    
-    // Carregar produtos assincronamente
-    carregarProdutosNF(n);
-  }
-  
-  // Helper para determinar classe de cor da situa📋o
-  function getSitClass(sit){
-    if(!sit) return 'info';
-    var s = sit.toLowerCase();
-    if(s.includes('finalizado') || s.includes('atendido') || s.includes('aprovado') || s.includes('verificado')) return 'ok';
-    if(s.includes('cancelado') || s.includes('rejeitado') || s.includes('devolucao') || s.includes('avaria')) return 'err';
-    if(s.includes('aberto') || s.includes('andamento') || s.includes('pendente') || s.includes('aguardando')) return 'warn';
-    return 'info';
-  }
-
-  // Carregar produtos da NF do XML
-  async function carregarProdutosNF(n){
-    var lista = G('modal-produtos-list');
-    if(!lista) return;
-    
-    if(!n.xmlUrl){
-      lista.innerHTML='<div class="pload">XML Nºo dispoNºvel.</div>';
-      return;
-    }
-    
-    try{
-      var resp = await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
-      var d = await resp.json();
-      
-      if(d.error){
-        lista.innerHTML='<div class="pload" style="color:var(--err)">? Erro ao carregar: '+esc(d.error)+'</div>';
-        return;
-      }
-      
-      var produtos = d.produtos || [];
-      if(produtos.length === 0){
-        lista.innerHTML='<div class="pload">Nenhum produto encontrado no XML.</div>';
-        return;
-      }
-      
-      // Renderizar produtos com SKU
-      lista.innerHTML = produtos.map(function(p){
-        var prodCD = buscarProdutoCD(p.codigo, p.nome);
-        var skuDisplay = '';
-        if (prodCD) {
-          skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
-        }
-        return '<div class="pitem">'+
-          '<span class="pnome">'+skuDisplay+esc(p.nome||p.codigo||'—')+'</span>'+
-          '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
-          '<span class="pval">'+brl(p.valor)+'</span>'+
-        '</div>';
-      }).join('');
-      
-      // Salvar produtos na nota para Nºo precisar carregar novamente
-      n.produtos = produtos;
-      
-    } catch(err){
-      console.error('Erro ao carregar produtos:', err);
-      lista.innerHTML='<div class="pload" style="color:var(--err)">? Erro ao carregar produtos</div>';
-    }
-  }
-
-  async function carregarProdutos(n){
-    var lista=G('plist');
-    if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML Nºo dispoNºvel.</div>';return;}
-    try{
-      var resp=await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
-      var d=await resp.json();
-      if(d.error){lista.innerHTML='<div class="pload">? '+d.error+'</div>';return;}
-      var ps=d.produtos||[];
-      if(!ps.length){lista.innerHTML='<div class="pload">Nenhum produto no XML.</div>';return;}
-      lista.innerHTML=ps.map(function(p){
-        var prodCD = buscarProdutoCD(p.codigo);
-        var skuDisplay = '';
-        if (prodCD) {
-          skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
-        }
-        return '<div class="pitem">'+
-          '<span class="pnome">'+skuDisplay+esc(p.nome||p.codigo||'—')+'</span>'+
-          '<span class="pqtd">'+p.qtd+' '+(p.unidade||'un')+'</span>'+
-          '<span class="pval">'+brl(p.valor)+'</span>'+
-        '</div>';
-      }).join('');
-    }catch(e){lista.innerHTML='<div class="pload">? '+e.message+'</div>';}
-  }
-
-  G('mclose').onclick=fecharModal;
-  G('moverlay').onclick=function(e){if(e.target===G('moverlay'))fecharModal();};
-  document.onkeydown=function(e){if(e.key==='Escape')fecharModal();};
-  function fecharModal(){G('moverlay').classList.remove('open');}
-
-  document.querySelectorAll('input[name=grp]').forEach(function(r){
-    r.onchange=function(){if(filteredNotas.length)renderCards();};
-  });
-  document.querySelectorAll('#colTogs input').forEach(function(c){
-    c.onchange=function(){if(filteredNotas.length)renderCards();};
-  });
-  function getCols(){var s=new Set();document.querySelectorAll('#colTogs input:checked').forEach(function(c){s.add(c.dataset.c);});return s;}
-
-  // -- Helpers ------------------------------------------------
-  function brl(v){var n=parseFloat(v);return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
-  function fmtDate(v){if(!v)return'—';var d=new Date(v);return isNaN(d.getTime())?v:d.toLocaleDateString('pt-BR');}
-  function fpc(v){return({0:'Emitente',1:'Destinat—rio',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'—';}
-  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function di(l,v){return'<div class="di"><label>'+l+'</label><span>'+esc(String(v||'—'))+'</span></div>';}
-  function diV(l,v){return'<div class="di"><label>'+l+'</label><span class="vd">'+v+'</span></div>';}
-  function diCopy(l,v){
-    var val=String(v||'—');
-    var hasVal=(val!=='—'&&val!=='');
-    var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">📋</button>':'';
-    return'<div class="di"><label>'+l+'</label><div class="copy-row"><span>'+esc(val)+'</span>'+copyBtn+'</div></div>';
-  }
-  function copiarTexto(btn,texto){
-    navigator.clipboard.writeText(texto).then(function(){
-      btn.textContent='?';
-      btn.classList.add('copiado');
-      setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
-    }).catch(function(){
-      // fallback para navegadores sem clipboard API
-      var el=document.createElement('textarea');
-      el.value=texto; el.style.position='fixed'; el.style.opacity='0';
-      document.body.appendChild(el); el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      btn.textContent='?'; btn.classList.add('copiado');
-      setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
-    });
-  }
-  function setStatus(m,t){var s=G('status');s.textContent=m;s.style.color=t==='err'?'var(--err)':t==='warn'?'var(--warn)':'var(--tm)';}
-  function loading(on){G('loverlay').classList.toggle('on',on);}
-  // -- FILTROS AVANºADOS (numero, cliente, cpf, telefone, email) --
-  var _fexConfig = {
-    numero:   { titulo:'📋 Nºmero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
-    cliente:  { titulo:'📋 Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
-    cpf:      { titulo:'📋 CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
-    telefone: { titulo:'📋 Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
-    email:    { titulo:'📋 E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
-  };
-
-  // Mapa de sele📋es: { numero: Set, cliente: Set, ... }
-  var _fexSel = { numero:new Set(), cliente:new Set(), cpf:new Set(), telefone:new Set(), email:new Set() };
-  var _fexAtual = null; // qual filtro est— aberto agora
-
-  // Abre modal para o filtro clicado
-  Object.keys(_fexConfig).forEach(function(key){
-    var cfg = _fexConfig[key];
-    G(cfg.btnId).onclick = function(){ abrirFex(key); };
-  });
-
-  G('fexClose').onclick  = function(){ G('fexOverlay').classList.remove('open'); };
-  G('fexOverlay').onclick = function(e){ if(e.target===G('fexOverlay')) G('fexOverlay').classList.remove('open'); };
-  G('fexSearch').oninput  = function(){ renderFexList(this.value.toLowerCase().trim()); };
-
-  G('fexSelAll').onclick = function(){
-    _fexValores(_fexAtual).forEach(function(v){ _fexSel[_fexAtual].add(v); });
-    renderFexList(G('fexSearch').value.toLowerCase().trim());
-    atualizarFexCount();
-  };
-
-  G('fexClear').onclick = function(){
-    _fexSel[_fexAtual].clear();
-    renderFexList(G('fexSearch').value.toLowerCase().trim());
-    atualizarFexCount();
-  };
-
-  G('fexAplicar').onclick = function(){
-    G('fexOverlay').classList.remove('open');
-    atualizarFexBotoes();
-    atualizarFexChips();
-    applyFilters();
-  };
-
-  function abrirFex(key){
-    _fexAtual = key;
-    var cfg = _fexConfig[key];
-    G('fexTitulo').textContent = cfg.titulo;
-    G('fexSearch').value = '';
-    if(allNotas.length === 0){
-      G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">📋 Fa—a uma busca primeiro.</div>';
-      G('fexOverlay').classList.add('open');
-      return;
-    }
-    renderFexList('');
-    atualizarFexCount();
-    G('fexOverlay').classList.add('open');
-  }
-
-  function _fexValores(key){
-    var campo = _fexConfig[key].campo;
-    var vals = {};
-    allNotas.forEach(function(n){
-      var v = (n[campo]||'').toString().trim();
-      if(v) vals[v] = true;
-    });
-    return Object.keys(vals).sort();
-  }
-
-  function renderFexList(filtro){
-    var lista = G('fexList');
-    var vals = _fexValores(_fexAtual);
-    if(filtro) vals = vals.filter(function(v){ return v.toLowerCase().indexOf(filtro) >= 0; });
-    if(!vals.length){
-      lista.innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Nenhum valor encontrado.</div>';
-      return;
-    }
-    var frag = document.createDocumentFragment();
-    vals.forEach(function(v){
-      var item = document.createElement('div');
-      item.className = 'pmod-item';
-      var chk = document.createElement('input');
-      chk.type = 'checkbox';
-      chk.checked = _fexSel[_fexAtual].has(v);
-      chk.onchange = function(){
-        if(this.checked) _fexSel[_fexAtual].add(v);
-        else _fexSel[_fexAtual].delete(v);
-        atualizarFexCount();
-      };
-      var lbl = document.createElement('label');
-      lbl.textContent = v;
-      lbl.onclick = function(){ chk.click(); };
-      item.appendChild(chk); item.appendChild(lbl);
-      frag.appendChild(item);
-    });
-    lista.innerHTML = '';
-    lista.appendChild(frag);
-  }
-
-  function atualizarFexCount(){
-    if(!_fexAtual) return;
-    G('fexSelCount').textContent = _fexSel[_fexAtual].size + ' selecionado' + (_fexSel[_fexAtual].size !== 1 ? 's' : '');
-  }
-
-  function atualizarFexBotoes(){
-    Object.keys(_fexConfig).forEach(function(key){
-      var cfg = _fexConfig[key];
-      var n = _fexSel[key].size;
-      var btn = G(cfg.btnId);
-      var cnt = G(cfg.cntId);
-      cnt.textContent = n;
-      if(n > 0){ btn.classList.add('ativo'); cnt.style.display='inline'; }
-      else      { btn.classList.remove('ativo'); cnt.style.display='none'; }
-    });
-  }
-
-  function atualizarFexChips(){
-    var chips = G('filtrosChips');
-    chips.innerHTML = '';
-    Object.keys(_fexConfig).forEach(function(key){
-      var cfg = _fexConfig[key];
-      if(_fexSel[key].size > 0){
-        var chip = document.createElement('div');
-        chip.className = 'filtro-chip';
-        chip.innerHTML = cfg.titulo.replace(/[^\w\s]/g,'').trim() + ': ' + _fexSel[key].size +
-          ' <button onclick="limparFex(\''+key+'\')">?</button>';
-        chips.appendChild(chip);
-      }
-    });
-  }
-
-  function limparFex(key){
-    _fexSel[key].clear();
-    atualizarFexBotoes();
-    atualizarFexChips();
-    applyFilters();
-  }
-
-  // Sobrescreve applyFilters para incluir filtros avaNºados
-  var _applyFiltersBase = applyFilters;
-  applyFilters = function(){
-    console.log('📋 applyFilters INTERMEDI—RIA chamada (ser— sobrescrita novamente)');
-    var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
-
-    filteredNotas = allNotas.filter(function(n){
-      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
-      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) return false;
-      
-      if(activeSearch){
-        var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch) < 0) return false;
-      }
-      // Filtros avaNºados — AND entre filtros, OR dentro de cada filtro
-      if(temFex){
-        var ok = Object.keys(_fexSel).every(function(key){
-          if(_fexSel[key].size === 0) return true; // filtro Nºo aplicado = passa
-          var campo = _fexConfig[key].campo;
-          var val = (n[campo]||'').toString().trim();
-          return _fexSel[key].has(val);
-        });
-        if(!ok) return false;
-      }
-      return true;
-    });
-
-    G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
-    renderCards();
-  };
-
-  // -- FILTRO POR PRODUTOS ------------------------------------
-  var _todosProdutos=[], _prodSelecionados=new Set(), _prodFiltroAtivo=false;
-
-  G('btnFiltrarProd').onclick=abrirModalProdutos;
-  G('pmodClose').onclick=function(){G('pmodOverlay').classList.remove('open');};
-  G('pmodOverlay').onclick=function(e){if(e.target===G('pmodOverlay'))G('pmodOverlay').classList.remove('open');};
-
-  G('pmodSearch').oninput=function(){renderProdList(this.value.toLowerCase().trim());};
-
-  G('pmodSelAll').onclick=function(){
-    _todosProdutos.forEach(function(p){_prodSelecionados.add(p.codigo||p.nome);});
-    renderProdList(G('pmodSearch').value.toLowerCase().trim());
-    atualizarContSel();
-  };
-
-  G('pmodClear').onclick=function(){
-    _prodSelecionados.clear();
-    renderProdList(G('pmodSearch').value.toLowerCase().trim());
-    atualizarContSel();
-  };
-
-  G('pmodAplicar').onclick=function(){
-    _prodFiltroAtivo=_prodSelecionados.size>0;
-    G('pmodOverlay').classList.remove('open');
-    atualizarChipFiltro();
-    // Re-filtra notas com base nos produtos selecionados
-    if(_prodFiltroAtivo){
-      filtrarNotasPorProdutos();
-    } else {
-      applyFilters();
-    }
-  };
-
-  async function abrirModalProdutos(){
-    G('pmodOverlay').classList.add('open');
-    if(_todosProdutos.length>0){renderProdList('');return;}
-    var f=G('dtFrom').value, t=G('dtTo').value;
-    if(!f||!t){
-      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">📋 Fa—a uma busca primeiro.</div>';
-      return;
-    }
-    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">? Carregando produtos...</div>';
-    try{
-      var resp=await fetch(API_BASE+'/api/produtos-lista?from='+f+'&to='+t);
-      var d=await resp.json();
-      if(d.error){G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">? '+d.error+'</div>';return;}
-      _todosProdutos=d.produtos||[];
-      renderProdList('');
-    }catch(e){
-      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">? '+e.message+'</div>';
-    }
-  }
-
-  function renderProdList(filtro){
-    var lista=G('pmodList');
-    var prods=filtro?_todosProdutos.filter(function(p){return (p.nome||'').toLowerCase().indexOf(filtro)>=0||(p.codigo||'').toLowerCase().indexOf(filtro)>=0;}):_todosProdutos;
-    if(!prods.length){lista.innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Nenhum produto encontrado.</div>';return;}
-    var frag=document.createDocumentFragment();
-    prods.forEach(function(p){
-      var key=p.codigo||p.nome;
-      var item=document.createElement('div');
-      item.className='pmod-item';
-      var chk=document.createElement('input');
-      chk.type='checkbox'; chk.checked=_prodSelecionados.has(key);
-      chk.onchange=function(){
-        if(this.checked)_prodSelecionados.add(key);
-        else _prodSelecionados.delete(key);
-        atualizarContSel();
-      };
-      var lbl=document.createElement('label');
-      lbl.textContent=p.nome||p.codigo||'—';
-      lbl.onclick=function(){chk.click();};
-      var cod=document.createElement('span');
-      cod.className='pmod-cod'; cod.textContent=p.codigo||'';
-      item.appendChild(chk); item.appendChild(lbl); item.appendChild(cod);
-      frag.appendChild(item);
-    });
-    lista.innerHTML='';
-    lista.appendChild(frag);
-    atualizarContSel();
-  }
-
-  function atualizarContSel(){
-    G('pmodSelCount').textContent=_prodSelecionados.size+' selecionado'+(+(_prodSelecionados.size!==1)?'s':'');
-  }
-
-  function atualizarChipFiltro(){
-    var chip=G('prodFiltroChip');
-    var btn=G('btnFiltrarProd');
-    var cnt=G('prodFiltroCount');
-    if(_prodFiltroAtivo && _prodSelecionados.size>0){
-      cnt.textContent='('+_prodSelecionados.size+')';
-      btn.classList.add('ativo');
-      chip.innerHTML='<div class="filtro-chip">'+_prodSelecionados.size+' produto(s) <button onclick="limparFiltroProd()">?</button></div>';
-    } else {
-      cnt.textContent='';
-      btn.classList.remove('ativo');
-      chip.innerHTML='';
-    }
-  }
-
-  function limparFiltroProd(){
-    _prodSelecionados.clear();
-    _prodFiltroAtivo=false;
-    atualizarChipFiltro();
-    applyFilters();
-  }
-
-  // Filtra notas que contenham pelo menos um produto selecionado
-  // Usa os XMLs j— carregados nas notas (campo xmlUrl) — faz fetch dos XMLs necess—rios
-  var _notasProdCache={};
-  async function filtrarNotasPorProdutos(){
-    if(!_prodFiltroAtivo||_prodSelecionados.size===0){applyFilters();return;}
-    
-    console.log('📋 Filtrando por produtos...');
-    setStatus('📋 Filtrando por produtos...');
-    
-    // Primeiro aplica todos os outros filtros (origem, busca, cupom, pagamento, etc)
-    // Isso popula filteredNotas com as notas que passaram nos outros filtros
-    var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
-    
-    var notasBase = allNotas.filter(function(n){
-      // Filtro origem
-      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) return false;
-      
-      // Filtro busca
-      if(activeSearch){
-        var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch) < 0) return false;
-      }
-      
-      // Filtros avaNºados
-      if(temFex){
-        var ok = Object.keys(_fexSel).every(function(key){
-          if(_fexSel[key].size === 0) return true;
-          var campo = _fexConfig[key].campo;
-          var val = (n[campo]||'').toString().trim();
-          return _fexSel[key].has(val);
-        });
-        if(!ok) return false;
-      }
-      
-      // Filtro cupom
-      var temCupom = !!(n.tray_cupom_nome);
-      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
-      if(algumCupomAtivo){
-        if(temCupom && !_filtroCupom.com) return false;
-        if(!temCupom && !_filtroCupom.sem) return false;
-      }
-      
-      // Filtro forma de pagamento
-      if(_pagAtivo && _pagSelecionados.size > 0){
-        var formasNota = (n.formas_pagamento||[]).map(function(fp){ return fp.tipo; });
-        if(n.tray_payment_form) formasNota.push(n.tray_payment_form);
-        var match = formasNota.some(function(f){ return _pagSelecionados.has(f); });
-        if(!match) return false;
-      }
-      
-      return true;
-    });
-    
-    console.log('📋 Notas ap—s outros filtros:', notasBase.length);
-    
-    // Para cada nota, verifica se tem produto selecionado
-    var resultado=[];
-    var pendentes=notasBase.filter(function(n){return n.xmlUrl && !_notasProdCache[n.id];});
-    
-    console.log('📋 Notas pendentes de buscar produtos:', pendentes.length);
-    
-    // Busca XMLs em lotes de 10
-    for(var i=0;i<pendentes.length;i+=10){
-      var lote=pendentes.slice(i,i+10);
-      await Promise.all(lote.map(async function(n){
-        try{
-          var r=await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
-          var d=await r.json();
-          _notasProdCache[n.id]=(d.produtos||[]).map(function(p){return p.codigo||p.nome;});
-        }catch(e){_notasProdCache[n.id]=[];}
-      }));
-    }
-    
-    notasBase.forEach(function(n){
-      var prods=_notasProdCache[n.id]||[];
-      var tem=prods.some(function(k){return _prodSelecionados.has(k);});
-      if(tem)resultado.push(n);
-    });
-    
-    console.log('📋 Notas com produtos selecionados:', resultado.length);
-    
-    filteredNotas=resultado;
-    G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
-    renderCards();
-    setStatus('? '+filteredNotas.length+' notas com os produtos selecionados.');
-  }
-
-  // -- Helper badge situa📋o no card --------------------------
-  function sitBadgeCard(sit){
-    if(!sit) return '';
-    var cls='info';
-    if(sit==='Finalizado'||sit==='Atendido'||sit==='Verificado') cls='ok';
-    else if(sit==='Cancelado'||sit.includes('Devolucao')||sit.includes('Avaria')) cls='err';
-    else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento'||sit.includes('Aguardando')) cls='warn';
-    return '<span class="card-sit-badge '+cls+'">'+esc(sit)+'</span>';
-  }
-
-  // -- Sub-modal pedido ---------------------------------------
-  var currentNota = null;
-
-  var _abrirModalOrig = abrirModal;
-  abrirModal = function(n){
-    currentNota = n;
-    _abrirModalOrig(n);
-  };
-
-  function abrirModalPedido(e, n){
-    e.stopPropagation();
-    if(!n) return;
-    var sit = n.pedido_situacao || '';
-    var cls = 'info';
-    if(sit==='Finalizado'||sit==='Atendido') cls='ok';
-    else if(sit==='Cancelado') cls='err';
-    else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
-
-    G('pedidoHead').innerHTML =
-      '<h3>📋 Pedido de Venda</h3>'+
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
-        (n.numeropedido ? '<span style="font-size:.95rem;font-weight:700;color:var(--ac)">#'+esc(n.numeropedido)+'</span>' : '')+
-        (sit ? '<span class="card-sit-badge '+cls+'" style="font-size:.75rem;padding:3px 12px">'+esc(sit)+'</span>' : '')+
-      '</div>';
-
-    var body = '<div class="dgrid">';
-    if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
-    if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
-    if(sit)                 body += '<div class="di"><label>Situa📋o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
-    body += '</div>';
-
-    body += '<div><div class="obs-label">📋 Observa📋es</div>';
-    if(n.pedido_observacoes){
-      body += '<div class="obs-box">'+esc(n.pedido_observacoes)+'</div>';
-    } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa📋es.</div>';
-    }
-    body += '</div>';
-    body += '<div><div class="obs-label">📋 Observa📋es Internas</div>';
-    if(n.pedido_observacoesinternas){
-      body += '<div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div>';
-    } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa📋es internas.</div>';
-    }
-    body += '</div>';
-
-    G('pedidoBody').innerHTML = body;
-    G('pedidoOverlay').classList.add('open');
-  }
-
-  G('pedidoClose').onclick = function(){ G('pedidoOverlay').classList.remove('open'); };
-  G('pedidoOverlay').onclick = function(e){ if(e.target===G('pedidoOverlay')) G('pedidoOverlay').classList.remove('open'); };
-
-  function abrirModalTray(e, n){
-    e.stopPropagation();
-    if(!n) return;
-    G('trayHead').innerHTML = '<h3>📋 Observa📋o do Cliente (Tray)</h3>'+
-      (n.numeropedido ? '<div style="font-size:.8rem;color:var(--tm);margin-top:4px">Pedido #'+esc(n.numeropedido)+'</div>' : '')+
-      (n.pedido_numeroloja ? '<div style="font-size:.8rem;color:var(--tm)">Loja: '+esc(n.pedido_numeroloja)+'</div>' : '');
-    var body = '';
-    if(n.tray_customer_note){
-      body += '<div><div class="obs-label">📋 Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
-    } else {
-      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa📋o do cliente neste pedido.</div>';
-    }
-    G('trayBody').innerHTML = body;
-    G('trayOverlay').classList.add('open');
-  }
-  G('trayClose').onclick = function(){ G('trayOverlay').classList.remove('open'); };
-  G('trayOverlay').onclick = function(e){ if(e.target===G('trayOverlay')) G('trayOverlay').classList.remove('open'); };
-
-  // -- Filtro Cupom -------------------------------------------
-  ['todas','com','sem'].forEach(function(tipo){
-    var chip = document.querySelector('[data-cupom="'+tipo+'"]');
-    if(!chip) {
-      if(tipo !== 'todas') console.error('? Chip Nºo encontrado para cupom:', tipo);
-      return;
-    }
-    console.log('? Chip encontrado para cupom:', tipo, 'classes:', chip.className);
-    
-    // Remove o checkbox interno para evitar conflitos
-    var checkbox = chip.querySelector('input[type="checkbox"]');
-    if(checkbox) {
-      checkbox.style.display = 'none';
-      checkbox.disabled = true;
-    }
-    
-    chip.onclick = function(e){
-      e.preventDefault(); // Previne comportamento padrão do label
-      e.stopPropagation(); // Para propaga📋o do evento
-      
-      // Bot—o "TODAS" para cupom
-      if(tipo === 'todas'){
-        console.log('---------------------------------------------------');
-        console.log('? CLICOU EM TODAS (CUPOM)');
-        // Ativa ambos os filtros (mostra todas as notas)
-        _filtroCupom.com = true;
-        _filtroCupom.sem = true;
-        // Adiciona classe "on" em ambos os bot—es
-        document.querySelectorAll('[data-cupom="com"], [data-cupom="sem"]').forEach(function(c){
-          c.classList.add('on');
-        });
-        // Adiciona classe "on" no bot—o TODAS
-        chip.classList.add('on');
-        console.log('Todos os cupons ativos, mostrando TODAS as notas');
-        applyFilters();
-        return;
-      }
-      
-      console.log('---------------------------------------------------');
-      console.log('📋? CLICOU EM CUPOM:', tipo);
-      console.log('Estado antes:', JSON.stringify(_filtroCupom));
-      console.log('Classes antes:', chip.className);
-      
-      // Remove classe "on" do bot—o TODAS
-      var btnTodas = document.getElementById('chipTodosCupons');
-      if(btnTodas) btnTodas.classList.remove('on');
-      
-      _filtroCupom[tipo] = !_filtroCupom[tipo];
-      
-      // FOR—A atualiza📋o visual
-      if(_filtroCupom[tipo]) {
-        chip.classList.add('on');
-      } else {
-        chip.classList.remove('on');
-      }
-      
-      console.log('Estado depois:', JSON.stringify(_filtroCupom));
-      console.log('Classes depois:', chip.className);
-      console.log('Tem classe "on"?', chip.classList.contains('on'));
-      console.log('Chamando applyFilters()...');
-      console.log('Tipo de applyFilters:', typeof applyFilters);
-      if(typeof applyFilters === 'function') {
-        applyFilters();
-      } else {
-        console.error('? applyFilters NºO — UMA FUN📋O!');
-      }
-    };
-  });
-
-  // -- Filtro Forma de Pagamento ------------------------------
-  var _pagSelecionados = new Set();
-  var _pagAtivo = false;
-
-  G('btnFiltroPag').onclick = function(){ abrirFiltroFormasPag(); };
-
-  function abrirFiltroFormasPag(){
-    // Coleta todas as formas —nicas das notas carregadas
-    var formas = {};
-    allNotas.forEach(function(n){
-      (n.formas_pagamento||[]).forEach(function(fp){ if(fp.tipo) formas[fp.tipo]=true; });
-      if(n.tray_payment_form) formas[n.tray_payment_form]=true;
-    });
-    var lista = Object.keys(formas).sort();
-    if(!lista.length){ alert('Fa—a uma busca primeiro.'); return; }
-    // Reutiliza o modal geNºrico fexOverlay
-    _fexAtual = '__pag__';
-    G('fexTitulo').textContent = '📋 Forma de Pagamento';
-    G('fexSearch').value = '';
-    var frag = document.createDocumentFragment();
-    lista.forEach(function(v){
-      var item = document.createElement('div');
-      item.className = 'pmod-item';
-      var chk = document.createElement('input');
-      chk.type = 'checkbox'; chk.checked = _pagSelecionados.has(v);
-      chk.onchange = function(){ if(this.checked) _pagSelecionados.add(v); else _pagSelecionados.delete(v); atualizarFexCount(); };
-      var lbl = document.createElement('label');
-      lbl.textContent = v; lbl.onclick = function(){ chk.click(); };
-      item.appendChild(chk); item.appendChild(lbl);
-      frag.appendChild(item);
-    });
-    G('fexList').innerHTML = '';
-    G('fexList').appendChild(frag);
-    G('fexSelCount').textContent = _pagSelecionados.size + ' selecionados';
-    G('fexOverlay').classList.add('open');
-  }
-
-  // Sobrescreve fexAplicar para tratar o caso __pag__
-  var _fexAplicarOrig = G('fexAplicar').onclick;
-  G('fexAplicar').onclick = function(){
-    if(_fexAtual === '__pag__'){
-      _pagAtivo = _pagSelecionados.size > 0;
-      G('fexOverlay').classList.remove('open');
-      var cnt = G('cntPag');
-      var btn = G('btnFiltroPag');
-      cnt.textContent = _pagSelecionados.size;
-      if(_pagAtivo){ btn.classList.add('ativo'); cnt.style.display='inline'; }
-      else { btn.classList.remove('ativo'); cnt.style.display='none'; }
-      var chip = G('pagFiltroChip');
-      chip.innerHTML = _pagAtivo ? '<div class="filtro-chip">'+_pagSelecionados.size+' forma(s) <button onclick="limparFiltroPag()">?</button></div>' : '';
-      applyFilters();
-    } else {
-      _fexAplicarOrig && _fexAplicarOrig.call(this);
-    }
-  };
-
-  function limparFiltroPag(){
-    _pagSelecionados.clear(); _pagAtivo=false;
-    G('cntPag').textContent='0'; G('btnFiltroPag').classList.remove('ativo');
-    G('cntPag').style.display='none'; G('pagFiltroChip').innerHTML='';
-    applyFilters();
-  }
-
-  // Sobrescreve applyFilters para incluir filtros cupom e pagamento
-  var _applyFiltersAnterior = applyFilters;
-  applyFilters = function(){
-    console.log('---------------------------------------------------');
-    console.log('📋 APLICANDO FILTROS (vers—o final)');
-    console.log('Total de notas:', allNotas.length);
-    console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
-    console.log('Filtro cupom:', _filtroCupom);
-    console.log('Busca:', activeSearch);
-    
-    var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
-    var contadorBloqueios = { origem: 0, busca: 0, fex: 0, cupom: 0, pagamento: 0 };
-    
-    filteredNotas = allNotas.filter(function(n){
-      // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
-      if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) {
-        contadorBloqueios.origem++;
-        return false;
-      }
-      
-      // Filtro busca
-      if(activeSearch){
-        var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
-        if(h.indexOf(activeSearch) < 0) {
-          contadorBloqueios.busca++;
-          return false;
-        }
-      }
-      
-      // Filtros avaNºados
-      if(temFex){
-        var ok = Object.keys(_fexSel).every(function(key){
-          if(_fexSel[key].size === 0) return true;
-          var campo = _fexConfig[key].campo;
-          var val = (n[campo]||'').toString().trim();
-          return _fexSel[key].has(val);
-        });
-        if(!ok) {
-          contadorBloqueios.fex++;
-          return false;
-        }
-      }
-      
-      // Filtro cupom - se NENHUM ativo (ambos false), mostra TODOS
-      var temCupom = !!(n.tray_cupom_nome);
-      var algumCupomAtivo = _filtroCupom.com || _filtroCupom.sem;
-      
-      if(algumCupomAtivo){
-        if(temCupom && !_filtroCupom.com) {
-          contadorBloqueios.cupom++;
-          return false;
-        }
-        if(!temCupom && !_filtroCupom.sem) {
-          contadorBloqueios.cupom++;
-          return false;
-        }
-      }
-      
-      // Filtro forma de pagamento
-      if(_pagAtivo && _pagSelecionados.size > 0){
-        var formasNota = (n.formas_pagamento||[]).map(function(fp){ return fp.tipo; });
-        if(n.tray_payment_form) formasNota.push(n.tray_payment_form);
-        var match = formasNota.some(function(f){ return _pagSelecionados.has(f); });
-        if(!match) {
-          contadorBloqueios.pagamento++;
-          return false;
-        }
-      }
-      
-      return true;
-    });
-    
-    console.log('📋 Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
-    console.log('? Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
-    console.log('---------------------------------------------------');
-    
-    G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
-    
-    // Scroll para o topo do grid para ver os resultados
-    var grid = G('grid');
-    if(grid && grid.parentElement) {
-      grid.parentElement.scrollTop = 0;
-      console.log('📋 Scroll para o topo do grid');
-    }
-    
-    renderCards();
-  };
-
-  // -- DASHBOARD JS --
-
-  // ---------------------------------------------------------------
-  //  DASHBOARD — estado global
-  // ---------------------------------------------------------------
-  var DASH_CHARTS = {};
-  var GEO_DATA    = null;
-  var TRANSP_COLOR_MAP = {};
-  var DARK_MODE   = document.documentElement.getAttribute('data-theme') === 'dark';
-  var CHART_COLORS = ['#5c6bc0','#42a5f5','#ab47bc','#26a69a','#ef5350','#ffa726','#66bb6a','#ec407a','#29b6f6','#d4e157'];
-  var HIST_BINS = [
-    {lo:0,hi:5,label:'0-5'},{lo:5,hi:10,label:'5-10'},{lo:10,hi:20,label:'10-20'},
-    {lo:20,hi:50,label:'20-50'},{lo:50,hi:100,label:'50-100'},{lo:100,hi:200,label:'100-200'},
-    {lo:200,hi:500,label:'200-500'},{lo:500,hi:99999,label:'500+'}
-  ];
-  var MAP_GEO_URL = 'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson';
-  var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
-  var STATE_GEO_CACHE = {};
-  var _tipEl = null;
-
-  // -- Troca de view ----------------------------------------------
-  function switchView(view, btn) {
-    document.querySelectorAll('.view-section').forEach(function(s){ s.classList.remove('active'); });
-    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-    document.getElementById('view-' + view).classList.add('active');
-    if(btn) btn.classList.add('active');
-    
-    // Sincroniza datas ao trocar de aba
-    if(view === 'pedidos') {
-      G('dtFromPed').value = G('dtFrom').value;
-      G('dtToPed').value = G('dtTo').value;
-    }
-    if(view === 'nfe') {
-      G('dtFrom').value = G('dtFromPed').value;
-      G('dtTo').value = G('dtToPed').value;
-    }
-    
-    if(view === 'transporte') buildDashTransporte();
-    if(view === 'vendas')     buildDashVendas();
-  }
-
-  // -- Helpers chart ----------------------------------------------
-  function cD() {
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    return {
-      grid:    dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)',
-      tick:    dark ? '#9fa8da' : '#64748b',
-      tipBg:   dark ? '#1a1d27' : '#0f172a',
-      tipText: '#e8eaf6',
-      dark:    dark
-    };
-  }
-  function destroyDashChart(id){ if(DASH_CHARTS[id]){ DASH_CHARTS[id].destroy(); delete DASH_CHARTS[id]; } }
-  function fmtBRL(v){ var n=parseFloat(v); return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-  function fmtNum(n){ return Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1}); }
-
-  // -- Dados do dashboard a partir de allNotas --------------------
-  function getDashData() {
-    var notas = allNotas || [];
-    return notas;
-  }
-
-  // ---------------------------------------------------------------
-  //  DASHBOARD TRANSPORTE
-  // ---------------------------------------------------------------
-  function buildDashTransporte() {
-    var notas = getDashData();
-    if(!notas.length){ document.getElementById('kpi-transp').innerHTML='<div class="dash-empty">Fa—a uma busca primeiro.</div>'; return; }
-
-    // KPIs
-    var totalPB=0, totalPL=0, totalVol=0, nfComPeso=0;
-    notas.forEach(function(n){
-      if(n.pesoBruto){ totalPB+=parseFloat(n.pesoBruto)||0; nfComPeso++; }
-      if(n.pesoLiquido) totalPL+=parseFloat(n.pesoLiquido)||0;
-      if(n.qtdVolumes) totalVol+=parseFloat(n.qtdVolumes)||0;
-    });
-    var avgPB = nfComPeso ? totalPB/nfComPeso : 0;
-    var transpSet = {};
-    notas.forEach(function(n){ if(n.transportadora) transpSet[n.transportadora]=(transpSet[n.transportadora]||0)+1; });
-    var nTransp = Object.keys(transpSet).length;
-
-    var kpis = [
-      {label:'NFs no Período', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
-      {label:'Transportadoras', value:nTransp, sub:'Transportadoras ativas', cls:''},
-      {label:'Peso Bruto Total', value:fmtNum(totalPB)+' kg', sub:nfComPeso+' NFs com peso', cls:''},
-      {label:'Peso M—dio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto m—dio', cls:'ok'},
-      {label:'Volumes Total', value:fmtNum(totalVol), sub:'Qtd volumes', cls:''}
-    ];
-    document.getElementById('kpi-transp').innerHTML = kpis.map(function(k){
-      return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
-    }).join('');
-
-    buildTranspMarketChart(notas);
-    buildTranspPesoChart(notas);
-    buildTranspNFSourceChart(notas);
-    buildTranspPesoNFChart(notas);
-    buildTranspCubagemCharts(notas);
-    if(!GEO_DATA) loadBrazilMap(); else { renderMapNF(notas); renderMapTransp(notas); }
-  }
-
-  function buildTranspMarketChart(notas) {
-    var share = {};
-    notas.forEach(function(n){ var t=n.transportadora||'Sem info'; share[t]=(share[t]||0)+1; });
-    var labels = Object.keys(share).sort(function(a,b){ return share[b]-share[a]; }).slice(0,10);
-    var data   = labels.map(function(l){ return share[l]; });
-    var total  = data.reduce(function(a,b){ return a+b; },0);
-    var colors = labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]; });
-    var cd = cD();
-    destroyDashChart('market');
-    var ctx = document.getElementById('chart-market');
-    if(!ctx) return;
-    DASH_CHARTS['market'] = new Chart(ctx.getContext('2d'), {
-      type:'doughnut',
-      data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
-      options:{
-        responsive:true, maintainAspectRatio:false, cutout:'63%',
-        animation:{ animateRotate:true, duration:950, easing:'easeOutQuart' },
-        plugins:{
-          legend:{ display:false },
-          tooltip:{ backgroundColor:cd.tipBg, titleColor:cd.tipText, bodyColor:cd.tipText,
-            callbacks:{ label:function(c){ return ' '+c.label+': '+c.parsed+' NFs ('+((c.parsed/total)*100).toFixed(1)+'%)'; } } }
-        },
-        onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('transportadora', labels[els[0].index]); }
-      }
-    });
-    var legHtml='';
-    labels.slice(0,8).forEach(function(l,i){
-      var pct=total?((share[l]/total)*100).toFixed(1):0;
-      legHtml+='<div class="legend-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(l)+'\')"><span class="legend-dot" style="background:'+colors[i]+'"></span>'+escDash(l)+' <strong>'+pct+'%</strong></div>';
-    });
-    document.getElementById('legend-market').innerHTML=legHtml;
-  }
-
-  function buildTranspPesoChart(notas) {
-    var wt={};
-    notas.forEach(function(n){ if(n.transportadora&&n.pesoBruto) wt[n.transportadora]=(wt[n.transportadora]||0)+(parseFloat(n.pesoBruto)||0); });
-    var labels=Object.keys(wt).sort(function(a,b){ return wt[b]-wt[a]; }).slice(0,10);
-    var data=labels.map(function(l){ return Math.round(wt[l]); });
-    var colors=labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]+'cc'; });
-    var cd=cD();
-    destroyDashChart('pesot');
-    var ctx=document.getElementById('chart-peso-transp'); if(!ctx) return;
-    DASH_CHARTS['pesot']=new Chart(ctx.getContext('2d'),{
-      type:'bar',
-      data:{ labels:labels, datasets:[{ label:'Peso Bruto (kg)', data:data, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
-      options:{
-        indexAxis:'y', responsive:true, maintainAspectRatio:false,
-        animation:{ duration:900, easing:'easeOutQuart' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtNum(c.parsed.x)+' kg'; } } } },
-        scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return fmtNum(v); } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10, weight:'600' } } } },
-        onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('transportadora', labels[els[0].index]); }
-      }
-    });
-  }
-
-  function buildTranspNFSourceChart(notas) {
-    var d1=notas.filter(function(n){ return n.origem==='distribuidor'; }).length;
-    var d2=notas.filter(function(n){ return n.origem==='ecommerce'; }).length;
-    var cd=cD();
-    destroyDashChart('nfsrc');
-    var ctx=document.getElementById('chart-nf-source'); if(!ctx) return;
-    DASH_CHARTS['nfsrc']=new Chart(ctx.getContext('2d'),{
-      type:'doughnut',
-      data:{ labels:['Distribuidor','E-commerce'], datasets:[{ data:[d1,d2], backgroundColor:['#ab47bc','#42a5f5'], borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
-      options:{
-        responsive:true, maintainAspectRatio:false, cutout:'58%',
-        animation:{ animateRotate:true, duration:950, easing:'easeOutQuart' },
-        plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:11, weight:'700' }, padding:14 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ var t=d1+d2; return ' '+c.parsed+' NFs ('+((c.parsed/t)*100).toFixed(1)+'%)'; } } } },
-        onClick:function(e,els){ if(!els.length) return; switchView('nfe', document.querySelector('.tab-btn')); }
-      }
-    });
-  }
-
-  function buildTranspPesoNFChart(notas) {
-    var sorted=notas.filter(function(n){ return n.pesoBruto; }).sort(function(a,b){ return (parseFloat(b.pesoBruto)||0)-(parseFloat(a.pesoBruto)||0); }).slice(0,12);
-    var labels=sorted.map(function(n){ return 'NF '+n.numero; });
-    var data=sorted.map(function(n){ return Math.round(parseFloat(n.pesoBruto)||0); });
-    var cd=cD();
-    var ctx=document.getElementById('chart-peso-nf'); if(!ctx) return;
-    var grad=ctx.getContext('2d').createLinearGradient(0,0,0,250);
-    grad.addColorStop(0,'#5c6bc0cc'); grad.addColorStop(1,'#5c6bc011');
-    destroyDashChart('pesonf');
-    DASH_CHARTS['pesonf']=new Chart(ctx.getContext('2d'),{
-      type:'bar',
-      data:{ labels:labels, datasets:[{ label:'Peso Bruto (kg)', data:data, backgroundColor:grad, borderRadius:6, borderSkipped:false }] },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        animation:{ duration:900, easing:'easeOutQuart' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtNum(c.parsed.y)+' kg'; } } } },
-        scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10 }, maxRotation:35 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return fmtNum(v); } } } },
-        onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('numero', sorted[els[0].index].numero); }
-      }
-    });
-  }
-
-  function buildTranspCubagemCharts(notas) {
-    var td={};
-    notas.forEach(function(n){
-      if(!n.transportadora||!n.pesoBruto) return;
-      if(!td[n.transportadora]) td[n.transportadora]={pb:0,pl:0,count:0};
-      td[n.transportadora].pb+=parseFloat(n.pesoBruto)||0;
-      td[n.transportadora].pl+=parseFloat(n.pesoLiquido)||0;
-      td[n.transportadora].count++;
-    });
-    var tL=Object.keys(td).sort(function(a,b){ return td[b].pb-td[a].pb; }).slice(0,8);
-    var pbAv=tL.map(function(t){ return td[t].count?Math.round(td[t].pb/td[t].count):0; });
-    var plAv=tL.map(function(t){ return td[t].count?Math.round(td[t].pl/td[t].count):0; });
-    var cd=cD();
-
-    destroyDashChart('pbpl');
-    var ctx1=document.getElementById('chart-pb-pl'); if(!ctx1) return;
-    DASH_CHARTS['pbpl']=new Chart(ctx1.getContext('2d'),{
-      type:'bar',
-      data:{ labels:tL, datasets:[
-        { label:'Peso Bruto (kg)', data:pbAv, backgroundColor:'#5c6bc0bb', borderRadius:5, borderSkipped:false },
-        { label:'Peso L—quido (kg)', data:plAv, backgroundColor:'#26a69abb', borderRadius:5, borderSkipped:false }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
-        plugins:{ legend:{ labels:{ color:cd.tick, font:{ size:10, weight:'600' }, padding:10 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
-        scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10 }, maxRotation:30 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return fmtNum(v); } } } }
-      }
-    });
-
-    var pesos=notas.filter(function(n){ return n.pesoBruto; }).map(function(n){ return parseFloat(n.pesoBruto)||0; });
-    var hData=HIST_BINS.map(function(b){ return pesos.filter(function(p){ return p>=b.lo&&p<b.hi; }).length; });
-    var hLabels=HIST_BINS.map(function(b){ return b.label; });
-    destroyDashChart('hist');
-    var ctx2=document.getElementById('chart-hist'); if(!ctx2) return;
-    var gradH=ctx2.getContext('2d').createLinearGradient(0,0,0,260);
-    gradH.addColorStop(0,'#26a69abb'); gradH.addColorStop(1,'#26a69a11');
-    DASH_CHARTS['hist']=new Chart(ctx2.getContext('2d'),{
-      type:'bar',
-      data:{ labels:hLabels, datasets:[{ label:'NFs', data:hData, backgroundColor:gradH, borderRadius:5, borderSkipped:false, barPercentage:.88 }] },
-      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:950, easing:'easeOutBounce' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+c.parsed.y+' NFs nesta faixa'; }, title:function(c){ return 'Faixa: '+c[0].label+' kg'; } } } },
-        scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 }, maxRotation:40 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 } }, title:{ display:true, text:'Qtd NFs', color:cd.tick, font:{ size:10 } } } }
-      }
-    });
-
-    var fL=tL.slice(0,7);
-    var fatores=fL.map(function(t){ return td[t]&&td[t].pb>0?+((td[t].pl/td[t].pb).toFixed(3)):0; });
-    var fatMax=Math.max.apply(null,fatores.concat([1]));
-    destroyDashChart('fator');
-    var ctx3=document.getElementById('chart-fator'); if(!ctx3) return;
-    DASH_CHARTS['fator']=new Chart(ctx3.getContext('2d'),{
-      type:'radar',
-      data:{ labels:fL, datasets:[{ label:'Fator PL—PB', data:fatores, backgroundColor:'rgba(92,107,192,.18)', borderColor:'#5c6bc0', pointBackgroundColor:'#5c6bc0', pointBorderColor:'#fff', pointHoverRadius:7, borderWidth:2 }] },
-      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:1000, easing:'easeOutQuart' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' Fator: '+(c.parsed.r*100).toFixed(1)+'%'; } } } },
-        scales:{ r:{ min:0, max:Math.min(fatMax*1.1,1), grid:{ color:cd.grid }, angleLines:{ color:cd.grid }, pointLabels:{ color:cd.tick, font:{ size:10, weight:'700' } }, ticks:{ color:cd.tick, backdropColor:'transparent', font:{ size:9 }, stepSize:.2, callback:function(v){ return (v*100).toFixed(0)+'%'; } } } }
-      }
-    });
-  }
-
-
-  // ---------------------------------------------------------------
-  //  DASHBOARD VENDAS
-  // ---------------------------------------------------------------
-  function buildDashVendas() {
-    var notas = getDashData();
-    if(!notas.length){ document.getElementById('kpi-vendas').innerHTML='<div class="dash-empty">Fa—a uma busca primeiro.</div>'; return; }
-
-    var totalFat=0, totalDesc=0, totalFrete=0, nComValor=0;
-    notas.forEach(function(n){
-      var v=parseFloat(n.valor)||0;
-      if(v){ totalFat+=v; nComValor++; }
-      totalDesc+=parseFloat(n.desconto)||0;
-      totalFrete+=parseFloat(n.frete)||0;
-    });
-    var ticketMedio = nComValor ? totalFat/nComValor : 0;
-    var ecoNotas = notas.filter(function(n){ return n.origem==='ecommerce'; });
-    var distNotas = notas.filter(function(n){ return n.origem==='distribuidor'; });
-    var fatEco  = ecoNotas.reduce(function(a,n){ return a+(parseFloat(n.valor)||0); },0);
-    var fatDist = distNotas.reduce(function(a,n){ return a+(parseFloat(n.valor)||0); },0);
-    var ticketEco  = ecoNotas.length  ? fatEco/ecoNotas.length   : 0;
-    var ticketDist = distNotas.length ? fatDist/distNotas.length : 0;
-    var comCupom = notas.filter(function(n){ return n.tray_cupom_nome; }).length;
-    var reversas = notas.filter(function(n){ return n.finnfe==='2'; }).length;
-
-    var kpis = [
-      {label:'Faturamento Total',  value:fmtBRL(totalFat),        sub:nComValor+' NFs com valor',   cls:'accent'},
-      {label:'Ticket M—dio Geral', value:fmtBRL(ticketMedio),     sub:'Valor m—dio por NF',          cls:'ok'},
-      {label:'Ticket M—dio Eco',   value:fmtBRL(ticketEco),       sub:ecoNotas.length+' NFs E-com',  cls:''},
-      {label:'Ticket M—dio Dist',  value:fmtBRL(ticketDist),      sub:distNotas.length+' NFs Dist',  cls:''},
-      {label:'Total Descontos',    value:fmtBRL(totalDesc),        sub:'Descontos aplicados',         cls:'warn'},
-      {label:'Total Frete',        value:fmtBRL(totalFrete),       sub:'Frete nas NFs',               cls:''},
-      {label:'Com Cupom',          value:comCupom,                 sub:'NFs com cupom Tray',          cls:''},
-      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu📋o',          cls:'warn'}
-    ];
-    document.getElementById('kpi-vendas').innerHTML = kpis.map(function(k){
-      return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
-    }).join('');
-
-    buildVendasFatDiaChart(notas);
-    buildVendasUnidadeChart(notas, fatEco, fatDist, ticketEco, ticketDist);
-    buildVendasTopClientesChart(notas);
-    buildVendasPagamentoChart(notas);
-    buildVendasCuponsChart(notas);
-    buildVendasReversasChart(notas, reversas);
-    buildVendasSituacaoChart(notas);
-    if(!GEO_DATA) loadBrazilMap(); else renderMapVendas(notas);
-  }
-
-  function buildVendasFatDiaChart(notas) {
-    var byDay={};
-    notas.forEach(function(n){
-      if(!n.dataemissao||!n.valor) return;
-      var d=n.dataemissao.slice(0,10);
-      byDay[d]=(byDay[d]||0)+(parseFloat(n.valor)||0);
-    });
-    var days=Object.keys(byDay).sort();
-    var data=days.map(function(d){ return Math.round(byDay[d]); });
-    var cd=cD();
-    destroyDashChart('fatdia');
-    var ctx=document.getElementById('chart-fat-dia'); if(!ctx) return;
-    var grad=ctx.getContext('2d').createLinearGradient(0,0,0,220);
-    grad.addColorStop(0,'#5c6bc0aa'); grad.addColorStop(1,'#5c6bc005');
-    DASH_CHARTS['fatdia']=new Chart(ctx.getContext('2d'),{
-      type:'line',
-      data:{ labels:days.map(function(d){ return d.slice(5); }), datasets:[{ label:'Faturamento', data:data, borderColor:'#5c6bc0', backgroundColor:grad, fill:true, tension:.35, pointRadius:3, pointHoverRadius:6 }] },
-      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900 },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.y); } } } },
-        scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 }, maxTicksLimit:15 } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } } }
-      }
-    });
-  }
-
-  function buildVendasUnidadeChart(notas, fatEco, fatDist, ticketEco, ticketDist) {
-    var cd=cD();
-    destroyDashChart('fatunid');
-    var ctx1=document.getElementById('chart-fat-unidade'); if(!ctx1) return;
-    DASH_CHARTS['fatunid']=new Chart(ctx1.getContext('2d'),{
-      type:'doughnut',
-      data:{ labels:['E-commerce','Distribuidor'], datasets:[{ data:[Math.round(fatEco),Math.round(fatDist)], backgroundColor:['#42a5f5','#ab47bc'], borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
-      options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
-        plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:11, weight:'700' }, padding:12 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed); } } } }
-      }
-    });
-
-    destroyDashChart('ticketunid');
-    var ctx2=document.getElementById('chart-ticket-unidade'); if(!ctx2) return;
-    DASH_CHARTS['ticketunid']=new Chart(ctx2.getContext('2d'),{
-      type:'bar',
-      data:{ labels:['E-commerce','Distribuidor'], datasets:[{ label:'Ticket M—dio', data:[Math.round(ticketEco),Math.round(ticketDist)], backgroundColor:['#42a5f5bb','#ab47bcbb'], borderRadius:8, borderSkipped:false }] },
-      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.y); } } } },
-        scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:12, weight:'700' } } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } } }
-      }
-    });
-  }
-
-  function buildVendasTopClientesChart(notas) {
-    var byCliente={};
-    notas.forEach(function(n){
-      if(!n.cliente||!n.valor) return;
-      byCliente[n.cliente]=(byCliente[n.cliente]||0)+(parseFloat(n.valor)||0);
-    });
-    var sorted=Object.keys(byCliente).sort(function(a,b){ return byCliente[b]-byCliente[a]; }).slice(0,12);
-    var data=sorted.map(function(c){ return Math.round(byCliente[c]); });
-    var colors=sorted.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]+'cc'; });
-    var cd=cD();
-    destroyDashChart('topclientes');
-    var ctx=document.getElementById('chart-top-clientes'); if(!ctx) return;
-    DASH_CHARTS['topclientes']=new Chart(ctx.getContext('2d'),{
-      type:'bar',
-      data:{ labels:sorted.map(function(c){ return c.length>20?c.slice(0,20)+'—':c; }), datasets:[{ label:'Faturamento', data:data, backgroundColor:colors, borderRadius:5, borderSkipped:false }] },
-      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.x); }, title:function(c){ return sorted[c[0].dataIndex]; } } } },
-        scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 } } } },
-        onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('cliente', sorted[els[0].index]); }
-      }
-    });
-  }
-
-  function buildVendasPagamentoChart(notas) {
-    var pag={};
-    notas.forEach(function(n){
-      (n.formas_pagamento||[]).forEach(function(fp){ if(fp.tipo) pag[fp.tipo]=(pag[fp.tipo]||0)+1; });
-      if(n.tray_payment_form) pag[n.tray_payment_form]=(pag[n.tray_payment_form]||0)+1;
-    });
-    var labels=Object.keys(pag).sort(function(a,b){ return pag[b]-pag[a]; }).slice(0,8);
-    var data=labels.map(function(l){ return pag[l]; });
-    var colors=labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]; });
-    var total=data.reduce(function(a,b){ return a+b; },0);
-    var cd=cD();
-    destroyDashChart('pagamento');
-    var ctx=document.getElementById('chart-pagamento'); if(!ctx) return;
-    DASH_CHARTS['pagamento']=new Chart(ctx.getContext('2d'),{
-      type:'doughnut',
-      data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
-      options:{ responsive:true, maintainAspectRatio:false, cutout:'55%',
-        plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:10 }, padding:8, boxWidth:12 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+c.label+': '+c.parsed+' ('+((c.parsed/total)*100).toFixed(1)+'%)'; } } } }
-      }
-    });
-  }
-
-  function buildVendasCuponsChart(notas) {
-    var cupons={};
-    notas.forEach(function(n){
-      if(!n.tray_cupom_nome) return;
-      if(!cupons[n.tray_cupom_nome]) cupons[n.tray_cupom_nome]={count:0,total:0};
-      cupons[n.tray_cupom_nome].count++;
-      cupons[n.tray_cupom_nome].total+=parseFloat(n.tray_cupom_valor)||0;
-    });
-    var labels=Object.keys(cupons).sort(function(a,b){ return cupons[b].count-cupons[a].count; }).slice(0,10);
-    if(!labels.length){
-      var ctx=document.getElementById('chart-cupons'); if(!ctx) return;
-      destroyDashChart('cupons');
-      ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
-      ctx.parentElement.innerHTML='<div class="dash-empty">Nenhum cupom no Período.</div>';
-      return;
-    }
-    var data=labels.map(function(l){ return cupons[l].count; });
-    var vals=labels.map(function(l){ return Math.round(cupons[l].total); });
-    var colors=labels.map(function(_,i){ return CHART_COLORS[i%CHART_COLORS.length]+'cc'; });
-    var cd=cD();
-    destroyDashChart('cupons');
-    var ctx=document.getElementById('chart-cupons'); if(!ctx) return;
-    DASH_CHARTS['cupons']=new Chart(ctx.getContext('2d'),{
-      type:'bar',
-      data:{ labels:labels, datasets:[
-        { label:'Usos', data:data, backgroundColor:colors, borderRadius:5, borderSkipped:false, yAxisID:'y' },
-        { label:'Desconto Total (R$)', data:vals, type:'line', borderColor:'#ffc107', backgroundColor:'transparent', pointRadius:4, pointHoverRadius:7, tension:.3, yAxisID:'y2' }
-      ]},
-      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900 },
-        plugins:{ legend:{ labels:{ color:cd.tick, font:{ size:10 }, padding:10 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
-        scales:{
-          x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:9 }, maxRotation:35 } },
-          y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 } }, title:{ display:true, text:'Usos', color:cd.tick, font:{ size:10 } } },
-          y2:{ position:'right', grid:{ display:false }, ticks:{ color:'#ffc107', font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v); } }, title:{ display:true, text:'Desconto R$', color:'#ffc107', font:{ size:10 } } }
-        }
-      }
-    });
-  }
-
-  function buildVendasReversasChart(notas, reversas) {
-    var normais=notas.length-reversas;
-    var cd=cD();
-    destroyDashChart('reversas');
-    var ctx=document.getElementById('chart-reversas'); if(!ctx) return;
-    DASH_CHARTS['reversas']=new Chart(ctx.getContext('2d'),{
-      type:'doughnut',
-      data:{ labels:['Normais','Reversas'], datasets:[{ data:[normais,reversas], backgroundColor:['#66bb6a','#ef5350'], borderWidth:3, borderColor:cd.dark?'#1a1d27':'#fff', hoverOffset:12 }] },
-      options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
-        plugins:{ legend:{ position:'bottom', labels:{ color:cd.tick, font:{ size:11, weight:'700' }, padding:12 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ var t=normais+reversas; return ' '+c.label+': '+c.parsed+' ('+((c.parsed/t)*100).toFixed(1)+'%)'; } } } }
-      }
-    });
-  }
-
-  function buildVendasSituacaoChart(notas) {
-    var sit={};
-    notas.forEach(function(n){ var s=n.pedido_situacao||'Sem pedido'; sit[s]=(sit[s]||0)+1; });
-    var labels=Object.keys(sit).sort(function(a,b){ return sit[b]-sit[a]; }).slice(0,10);
-    var data=labels.map(function(l){ return sit[l]; });
-    var colors=labels.map(function(l,i){
-      if(l==='Finalizado'||l==='Atendido') return '#66bb6a';
-      if(l==='Cancelado') return '#ef5350';
-      if(l==='Aberto'||l==='Em andamento') return '#ffa726';
-      return CHART_COLORS[i%CHART_COLORS.length];
-    });
-    var cd=cD();
-    destroyDashChart('situacao');
-    var ctx=document.getElementById('chart-situacao'); if(!ctx) return;
-    DASH_CHARTS['situacao']=new Chart(ctx.getContext('2d'),{
-      type:'bar',
-      data:{ labels:labels, datasets:[{ label:'NFs', data:data, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
-      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
-        plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
-        scales:{ x:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 } } }, y:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:10 } } } },
-        onClick:function(e,els){ if(!els.length) return; filterAndGoNFe('pedido_situacao', labels[els[0].index]); }
-      }
-    });
-  }
-
-
-  // ---------------------------------------------------------------
-  //  MAPAS
-  // ---------------------------------------------------------------
-  function loadBrazilMap() {
-    fetch(MAP_GEO_URL)
-      .then(function(r){ return r.json(); })
-      .then(function(geo){
-        GEO_DATA = geo;
-        var notas = getDashData();
-        renderMapNF(notas);
-        renderMapTransp(notas);
-        renderMapVendas(notas);
-      })
-      .catch(function(){
-        ['map-nf-loading','map-transp-loading','map-vendas-loading'].forEach(function(id){
-          var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--tm);padding:20px;text-align:center">Mapa indispoNºvel.</p>';
-        });
-      });
-  }
-
-  function brazilProjection(w, h) {
-    var proj = d3.geoMercator();
-    proj.fitSize([w-16, h-16], { type:'FeatureCollection', features:GEO_DATA.features });
-    var t = proj.translate();
-    proj.translate([t[0]+8, t[1]+8]);
-    return proj;
-  }
-
-  function getSigla(feature) {
-    return (feature.properties.sigla || feature.properties.name || '').toUpperCase().slice(-2);
-  }
-
-  // Mapa NFs por estado
-  function renderMapNF(notas) {
-    if(!GEO_DATA) return;
-    var ufCount={};
-    (notas||getDashData()).forEach(function(n){
-      var uf=(n.cidade||'').split('/')[1]||'';
-      uf=uf.trim().toUpperCase();
-      if(uf.length===2) ufCount[uf]=(ufCount[uf]||0)+1;
-    });
-    var maxC=Math.max.apply(null,Object.values(ufCount).concat([1]));
-    var W=460,H=400;
-    var proj=brazilProjection(W,H);
-    var path=d3.geoPath().projection(proj);
-    var dark=document.documentElement.getAttribute('data-theme')==='dark';
-    var colorScale=d3.scaleSequential().domain([0,maxC]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
-    var svg=d3.select('#svg-map-nf');
-    svg.selectAll('*').remove();
-    var g=svg.append('g');
-    g.selectAll('path').data(GEO_DATA.features).enter().append('path')
-      .attr('class','state-path').attr('d',path)
-      .attr('fill',function(d){ return colorScale(ufCount[getSigla(d)]||0); })
-      .on('mouseenter',function(event,d){ showMapTip(event,getSigla(d)+': '+(ufCount[getSigla(d)]||0)+' NFs'); })
-      .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
-      .on('click',function(event,d){
-        var s=getSigla(d);
-        svg.selectAll('.state-path').classed('selected',false);
-        d3.select(this).classed('selected',true);
-        showDetailNF(s,d.properties.name||s,ufCount[s]||0,notas||getDashData());
-      });
-    g.selectAll('text').data(GEO_DATA.features).enter().append('text')
-      .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
-      .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
-      .attr('fill',function(d){ var s=getSigla(d),v=ufCount[s]||0; return (v/maxC)>.4?'#fff':(dark?'#c9d1d9':'#334155'); })
-      .text(function(d){ return getSigla(d); });
-    var el=document.getElementById('map-nf-loading'); if(el) el.classList.add('hidden');
-  }
-
-  // Mapa transportadora dominante por estado
-  function renderMapTransp(notas) {
-    if(!GEO_DATA) return;
-    var ufT={};
-    (notas||getDashData()).forEach(function(n){
-      var uf=(n.cidade||'').split('/')[1]||''; uf=uf.trim().toUpperCase();
-      if(uf.length!==2||!n.transportadora) return;
-      if(!ufT[uf]) ufT[uf]={};
-      ufT[uf][n.transportadora]=(ufT[uf][n.transportadora]||0)+1;
-    });
-    var tSet={};
-    Object.values(ufT).forEach(function(m){ Object.keys(m).forEach(function(t){ tSet[t]=true; }); });
-    var tList=Object.keys(tSet).sort(function(a,b){
-      var sa=0,sb=0; Object.values(ufT).forEach(function(m){ sa+=(m[a]||0); sb+=(m[b]||0); }); return sb-sa;
-    });
-    TRANSP_COLOR_MAP={};
-    tList.forEach(function(t,i){ TRANSP_COLOR_MAP[t]=CHART_COLORS[i%CHART_COLORS.length]; });
-    var legEl=document.getElementById('transp-map-legend-items');
-    if(legEl) legEl.innerHTML=tList.slice(0,10).map(function(t){
-      return '<div class="legend-item" onclick="filterAndGoNFe(\'transportadora\',\''+escDash(t)+'\')"><span class="legend-dot" style="background:'+TRANSP_COLOR_MAP[t]+'"></span>'+escDash(t)+'</div>';
-    }).join('');
-    var W=460,H=400;
-    var proj=brazilProjection(W,H);
-    var path=d3.geoPath().projection(proj);
-    var dark=document.documentElement.getAttribute('data-theme')==='dark';
-    var svg=d3.select('#svg-map-transp');
-    svg.selectAll('*').remove();
-    var g=svg.append('g');
-    g.selectAll('path').data(GEO_DATA.features).enter().append('path')
-      .attr('class','state-path').attr('d',path)
-      .attr('fill',function(d){
-        var s=getSigla(d),m=ufT[s];
-        if(!m) return dark?'#21262d':'#e2e8f0';
-        var dom=Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0];
-        return TRANSP_COLOR_MAP[dom]||'#ccc';
-      })
-      .on('mouseenter',function(event,d){
-        var s=getSigla(d),m=ufT[s];
-        var info=m?Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0]:'—';
-        showMapTip(event,s+': '+info);
-      })
-      .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
-      .on('click',function(event,d){
-        var s=getSigla(d);
-        svg.selectAll('.state-path').classed('selected',false);
-        d3.select(this).classed('selected',true);
-        showDetailTransp(s,d.properties.name||s,ufT[s]||{});
-      });
-    g.selectAll('text').data(GEO_DATA.features).enter().append('text')
-      .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
-      .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700')
-      .attr('fill','rgba(255,255,255,.85)').attr('pointer-events','none')
-      .text(function(d){ return getSigla(d); });
-    var el=document.getElementById('map-transp-loading'); if(el) el.classList.add('hidden');
-  }
-
-  // Mapa faturamento por estado (aba Vendas)
-  function renderMapVendas(notas) {
-    if(!GEO_DATA) return;
-    var ufFat={};
-    (notas||getDashData()).forEach(function(n){
-      var uf=(n.cidade||'').split('/')[1]||''; uf=uf.trim().toUpperCase();
-      if(uf.length===2&&n.valor) ufFat[uf]=(ufFat[uf]||0)+(parseFloat(n.valor)||0);
-    });
-    var maxF=Math.max.apply(null,Object.values(ufFat).concat([1]));
-    var W=460,H=400;
-    var proj=brazilProjection(W,H);
-    var path=d3.geoPath().projection(proj);
-    var dark=document.documentElement.getAttribute('data-theme')==='dark';
-    var colorScale=d3.scaleSequential().domain([0,maxF]).interpolator(dark?d3.interpolate('#1e2130','#42a5f5'):d3.interpolate('#dde3ff','#1565c0'));
-    var svg=d3.select('#svg-map-vendas');
-    svg.selectAll('*').remove();
-    var g=svg.append('g');
-    g.selectAll('path').data(GEO_DATA.features).enter().append('path')
-      .attr('class','state-path').attr('d',path)
-      .attr('fill',function(d){ return colorScale(ufFat[getSigla(d)]||0); })
-      .on('mouseenter',function(event,d){ var s=getSigla(d); showMapTip(event,s+': '+fmtBRL(ufFat[s]||0)); })
-      .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
-      .on('click',function(event,d){
-        var s=getSigla(d);
-        svg.selectAll('.state-path').classed('selected',false);
-        d3.select(this).classed('selected',true);
-        openDrillModal(s, d.properties.name||s, 'vendas');
-      });
-    g.selectAll('text').data(GEO_DATA.features).enter().append('text')
-      .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
-      .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
-      .attr('fill',function(d){ var s=getSigla(d),v=ufFat[s]||0; return (v/maxF)>.4?'#fff':(dark?'#c9d1d9':'#334155'); })
-      .text(function(d){ return getSigla(d); });
-    var el=document.getElementById('map-vendas-loading'); if(el) el.classList.add('hidden');
-  }
-
-  // Detalhes estado NF
-  // Detalhes estado NF - AGORA SUBSTITUI O MAPA
-  function showDetailNF(sigla, name, total, notas) {
-    // Ao inv—s de abrir painel, carrega mapa municipal
-    openDrillModal(sigla, name, 'nf');
-  }
-
-  // Detalhes estado Transportadora - AGORA SUBSTITUI O MAPA
-  function showDetailTransp(sigla, name, transpMap) {
-    openDrillModal(sigla, name, 'transp');
-  }
-
-  function closeStateDetail(type) {
-    var el=document.getElementById('detail-'+type); if(el) el.classList.remove('open');
-    d3.select('#svg-map-'+type).selectAll('.state-path').classed('selected',false);
-  }
-
-  // -- Tooltip mapa -----------------------------------------------
-  var _mapTipEl=null;
-  function getMapTip(){ if(!_mapTipEl){ _mapTipEl=document.getElementById('map-tooltip'); if(!_mapTipEl){ _mapTipEl=document.createElement('div'); _mapTipEl.id='map-tooltip'; _mapTipEl.className='map-tooltip'; document.body.appendChild(_mapTipEl); } } return _mapTipEl; }
-  function showMapTip(event,text){ var t=getMapTip(); t.textContent=text; t.style.opacity='1'; t.style.left=(event.clientX+12)+'px'; t.style.top=(event.clientY-32)+'px'; }
-  function moveMapTip(event){ var t=getMapTip(); t.style.left=(event.clientX+12)+'px'; t.style.top=(event.clientY-32)+'px'; }
-  function hideMapTip(){ getMapTip().style.opacity='0'; }
-
-  // -- Filtrar e ir para aba NF-e ---------------------------------
-  function filterAndGoNFe(campo, valor) {
-    // Aplica filtro de busca r—pida e vai para aba NF-e
-    var searchEl = document.getElementById('search');
-    if(searchEl){ searchEl.value=valor; activeSearch=valor.toLowerCase().trim(); }
-    applyFilters();
-    switchView('nfe', document.querySelector('.tab-btn'));
-  }
-
-  // -- Utilit—rio escape para dash --------------------------------
-  function escDash(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
-
-  // -- Atualiza dashboards quando notas s—o carregadas ------------
-  var _dashAutoUpdate = (function(){
-    var orig = buscarPagina;
-    // Hook: quando busca terminar, atualiza dash se estiver vis—vel
-    return function(){};
-  })();
-
-  // Sobrescreve loading(false) para atualizar dash ativo
-  var _loadingOrig = loading;
-  loading = function(on){
-    _loadingOrig(on);
-    if(!on){
-      var activeView = document.querySelector('.view-section.active');
-      if(activeView){
-        if(activeView.id==='view-transporte') buildDashTransporte();
-        if(activeView.id==='view-vendas')     buildDashVendas();
-      }
-    }
-  };
-
-
-  // ---------------------------------------------------------------
-  //  DRILL-DOWN MAPA MUNICIPAL
-  // ---------------------------------------------------------------
-  var _drillGeoCache = {};
-  var _drillCurrentUF = null;
-  var _drillCurrentMode = 'nf'; // 'nf' | 'transp' | 'vendas'
-
-  var UF_IBGE_CODES = {
-    AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',
-    MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',
-    RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'
-  };
-
-  function openDrillModal(uf, stateName, mode) {
-    _drillCurrentUF   = uf;
-    _drillCurrentMode = mode || 'nf';
-    
-    // Encontrar o card do mapa correto baseado no mode
-    var mapId = mode === 'transp' ? 'svg-map-transp' : mode === 'vendas' ? 'svg-map-vendas' : 'svg-map-nf';
-    var brazilSvg = document.getElementById(mapId);
-    if(!brazilSvg) return;
-    
-    var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
-    if(!mapCard) return;
-    
-    // ID —nico para cada drill baseado no mode
-    var drillId = 'drill-' + mode;
-    var svgDrillId = 'svg-map-drill-' + mode;
-    var loadingId = 'drillLoading-' + mode;
-    var titleId = 'drillTitle-' + mode;
-    var subId = 'drillSub-' + mode;
-    
-    // Criar container de drill se Nºo existir
-    var drillContainer = mapCard.querySelector('.drill-container');
-    if(!drillContainer){
-      drillContainer = document.createElement('div');
-      drillContainer.className = 'drill-container';
-      drillContainer.id = drillId;
-      drillContainer.style.display = 'none';
-      drillContainer.innerHTML = 
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">' +
-        '<button class="drill-back-btn" onclick="closeDrillModalByMode(\''+mode+'\')">? Voltar ao Brasil</button>' +
-        '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="'+titleId+'">Estado</div>' +
-        '<div class="drill-modal-sub" id="'+subId+'"></div></div></div>' +
-        '<div class="drill-loading" id="'+loadingId+'">? Carregando mapa municipal...</div>' +
-        '<div class="map-svg-wrap"><svg id="'+svgDrillId+'" viewBox="0 0 500 450"></svg></div>';
-      mapCard.appendChild(drillContainer);
-    }
-    
-    // Esconder mapa Brasil, mostrar drill
-    brazilSvg.closest('.map-svg-wrap').style.display = 'none';
-    var loadingEl = mapCard.querySelector('[id^="map-"][id$="-loading"]');
-    if(loadingEl) loadingEl.style.display = 'none';
-    drillContainer.style.display = 'block';
-    
-    document.getElementById(titleId).textContent   = stateName + ' — Munic—pios';
-    document.getElementById(subId).textContent     = 'Carregando...';
-    document.getElementById(loadingId).style.display = 'block';
-    document.getElementById(svgDrillId).style.display = 'none';
-
-    var code = UF_IBGE_CODES[uf];
-    if(!code){
-      document.getElementById(loadingId).textContent = 'Estado Nºo dispoNºvel para drill-down.';
-      return;
-    }
-    if(_drillGeoCache[uf]){
-      renderDrillMap(_drillGeoCache[uf], uf, stateName, mode);
-      return;
-    }
-    var url = 'https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-' + code + '-mun.json';
-    fetch(url)
-      .then(function(r){ return r.json(); })
-      .then(function(geo){ _drillGeoCache[uf] = geo; renderDrillMap(geo, uf, stateName, mode); })
-      .catch(function(){
-        document.getElementById(loadingId).textContent = 'Nºo foi poss—vel carregar o mapa municipal.';
-      });
-  }
-
-  function renderDrillMap(geo, uf, stateName, mode) {
-    var notas = getDashData();
-    var dark  = document.documentElement.getAttribute('data-theme') === 'dark';
-
-    // IDs —nicos para cada mode
-    var svgDrillId = 'svg-map-drill-' + mode;
-    var loadingId = 'drillLoading-' + mode;
-    var subId = 'drillSub-' + mode;
-
-    // Filtra notas do estado
-    var ufNotas = notas.filter(function(n){
-      var parts = (n.cidade||'').split('/');
-      return (parts[1]||'').trim().toUpperCase() === uf;
-    });
-
-    // Conta por cidade (normalizado)
-    var cityCount = {}, cityFat = {}, cityTransp = {};
-    ufNotas.forEach(function(n){
-      var city = (n.cidade||'').split('/')[0].trim();
-      var cityN = normalizeCity(city);
-      cityCount[cityN]  = (cityCount[cityN]||0) + 1;
-      cityFat[cityN]    = (cityFat[cityN]||0) + (parseFloat(n.valor)||0);
-      if(n.transportadora){
-        if(!cityTransp[cityN]) cityTransp[cityN] = {};
-        cityTransp[cityN][n.transportadora] = (cityTransp[cityN][n.transportadora]||0)+1;
-      }
-    });
-
-    // Transportadoras do estado
-    var transpMap = {};
-    ufNotas.forEach(function(n){ if(n.transportadora) transpMap[n.transportadora]=(transpMap[n.transportadora]||0)+1; });
-    var transpList = Object.keys(transpMap).sort(function(a,b){ return transpMap[b]-transpMap[a]; });
-
-    // Cidades originais ordenadas com valores
-    var origCities = {}, origCitiesFat = {};
-    ufNotas.forEach(function(n){ 
-      var c=(n.cidade||'').split('/')[0].trim(); 
-      origCities[c]=(origCities[c]||0)+1;
-      origCitiesFat[c]=(origCitiesFat[c]||0)+(parseFloat(n.valor)||0);
-    });
-    var sortedCities = Object.keys(origCities).sort(function(a,b){ return origCities[b]-origCities[a]; });
-
-    // Sub-t—tulo
-    document.getElementById(subId).textContent =
-      ufNotas.length + ' NFs — ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
-      ' — ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
-
-    // Mapa
-    var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
-    var maxFat   = Math.max.apply(null, Object.values(cityFat).concat([1]));
-    var useVal   = mode === 'vendas';
-    var colorScale = d3.scaleSequential()
-      .domain([0, useVal ? maxFat : maxCount])
-      .interpolator(dark
-        ? d3.interpolate('#1e2130', useVal ? '#42a5f5' : '#5c6bc0')
-        : d3.interpolate('#dde3ff', useVal ? '#1565c0' : '#3949ab'));
-
-    var svgEl = document.getElementById(svgDrillId);
-    var W=500, H=450;
-    var proj = d3.geoMercator().fitSize([W-20,H-20],{type:'FeatureCollection',features:geo.features});
-    var t = proj.translate(); proj.translate([t[0]+10,t[1]+10]);
-    var path = d3.geoPath().projection(proj);
-
-    var svg = d3.select('#'+svgDrillId);
-    svg.selectAll('*').remove();
-    svg.attr('viewBox','0 0 '+W+' '+H);
-
-    geo.features.forEach(function(feature){
-      var munName = normalizeCity(feature.properties.name||'');
-      var count   = cityCount[munName]||0;
-      var fat     = cityFat[munName]||0;
-      var val     = useVal ? fat : count;
-      var hasData = count > 0;
-
-      svg.append('path')
-        .datum(feature)
-        .attr('class','mun-path'+(hasData?' has-data':''))
-        .attr('d',path)
-        .attr('fill', hasData ? colorScale(val) : (dark?'#1c2128':'#edf2f7'))
-        .attr('opacity', hasData ? 1 : 0.6)
-        .on('mouseenter',function(event){
-          var label = feature.properties.name||'';
-          if(hasData){
-            // Mostra quantidade de NFs E valor total
-            var info = count + ' NF' + (count!==1?'s':'') + ' — ' + fmtBRL(fat);
-            showMapTip(event, label+': '+info);
-          } else {
-            showMapTip(event, label+': Sem dados');
-          }
-        })
-        .on('mousemove',moveMapTip)
-        .on('mouseleave',hideMapTip);
-
-      // REMOVIDO: Nºo renderiza mais os nomes das cidades no mapa
-      // REMOVIDO: Clique Nºo filtra mais as NFs
-    });
-
-    // Criar lista de cidades no rodap—
-    var drillContainer = svgEl.closest('.drill-container');
-    var cityListEl = drillContainer.querySelector('.drill-city-footer');
-    if(!cityListEl){
-      cityListEl = document.createElement('div');
-      cityListEl.className = 'drill-city-footer';
-      drillContainer.appendChild(cityListEl);
-    }
-    
-    var maxCity = sortedCities.length ? origCities[sortedCities[0]] : 1;
-    cityListEl.innerHTML = '<div class="drill-footer-title">📋? Cidades (' + sortedCities.length + ')</div>' +
-      '<div class="drill-city-grid">' +
-      sortedCities.map(function(city){
-        var n = origCities[city];
-        var v = origCitiesFat[city] || 0;
-        var pct = (n/maxCity)*100;
-        return '<div class="drill-city-item" title="'+n+' NFs — '+fmtBRL(v)+'">' +
-          '<span class="drill-city-name">'+escDash(city)+'</span>' +
-          '<div class="drill-city-stats">' +
-          '<span class="drill-city-count">'+n+' NF'+(n!==1?'s':'')+'</span>' +
-          '<span class="drill-city-value">'+fmtBRL(v)+'</span>' +
-          '</div>' +
-          '<div class="drill-city-bar"><div class="drill-city-bar-fill" style="width:'+pct+'%"></div></div>' +
-          '</div>';
-      }).join('') +
-      '</div>';
-
-    document.getElementById(loadingId).style.display = 'none';
-    svgEl.style.display = 'block';
-    svgEl.closest('.map-svg-wrap').style.display = 'block';
-  }
-
-  function normalizeCity(s){
-    return String(s).trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  }
-
-  function closeDrillModal(){
-    // Voltar ao mapa do Brasil (usa _drillCurrentMode global)
-    var mode = _drillCurrentMode || 'nf';
-    closeDrillModalByMode(mode);
-  }
-
-  function closeDrillModalByMode(mode){
-    // Voltar ao mapa do Brasil para um mode espec—fico
-    var mapId = mode === 'transp' ? 'svg-map-transp' : mode === 'vendas' ? 'svg-map-vendas' : 'svg-map-nf';
-    var brazilSvg = document.getElementById(mapId);
-    if(!brazilSvg) return;
-    
-    var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
-    if(!mapCard) return;
-    
-    // Esconder drill container espec—fico deste mode
-    var drillId = 'drill-' + mode;
-    var drillContainer = document.getElementById(drillId);
-    if(drillContainer) drillContainer.style.display = 'none';
-    
-    // Mostrar mapa do Brasil
-    var mapWrap = brazilSvg.closest('.map-svg-wrap');
-    if(mapWrap) mapWrap.style.display = 'block';
-    
-    // Limpar estado global se for o mode atual
-    if(_drillCurrentMode === mode) _drillCurrentUF = null;
-  }
-
-  // -- Patch: mapas chamam openDrillModal ao clicar no estado -----
-  // Sobrescreve showDetailNF e showDetailTransp para tamb—m abrir drill
-  var _showDetailNFOrig = showDetailNF;
-  showDetailNF = function(sigla, name, total, notas){
-    _showDetailNFOrig(sigla, name, total, notas);
-    openDrillModal(sigla, name, 'nf');
-  };
-
-  var _showDetailTranspOrig = showDetailTransp;
-  showDetailTransp = function(sigla, name, transpMap){
-    _showDetailTranspOrig(sigla, name, transpMap);
-    openDrillModal(sigla, name, 'transp');
-  };
-
-  // Mapa vendas tamb—m abre drill ao clicar
-  var _renderMapVendasOrig = renderMapVendas;
-  renderMapVendas = function(notas){
-    _renderMapVendasOrig(notas);
-    // Re-bind click no mapa vendas para abrir drill
-    d3.select('#svg-map-vendas').selectAll('.state-path')
-      .on('click', function(event, d){
-        var s = getSigla(d);
-        d3.select('#svg-map-vendas').selectAll('.state-path').classed('selected',false);
-        d3.select(this).classed('selected',true);
-        openDrillModal(s, d.properties.name||s, 'vendas');
-      });
-  };
-
-  // Inicializar evento de fechar drill ao clicar fora (aguarda DOM)
-  document.addEventListener('DOMContentLoaded', function(){
-    // Nºo precisa mais do overlay, drill agora substitui o mapa
-  });
-
-  // -----------------------------------------------------------
-  // ABA PEDIDOS DE VENDA
-  // -----------------------------------------------------------
-  
-  var allPedidos = [], filteredPedidos = [], activeSearchPed = '';
-  var activePedOrigens = new Set(['ecommerce', 'distribuidor']);
-  
-  // Sincronizar datas entre abas NF-e e Pedidos
-  G('dtFrom').onchange = function(){ G('dtFromPed').value = this.value; };
-  G('dtTo').onchange = function(){ G('dtToPed').value = this.value; };
-  G('dtFromPed').onchange = function(){ G('dtFrom').value = this.value; };
-  G('dtToPed').onchange = function(){ G('dtTo').value = this.value; };
-  
-  // Buscar pedidos
-  G('btnBuscarPed').onclick = buscarPedidos;
-  
-  var _buscarPedFrom, _buscarPedTo, _buscarPedOffset = 0, _buscarPedTotal = 0, _buscarPedAtivo = false;
-  
-  function buscarPedidos(){
-    var f = G('dtFromPed').value, t = G('dtToPed').value;
-    if(!f || !t){ setStatusPed('📋 Selecione o Período.', 'warn'); return; }
-    if(f > t){ setStatusPed('📋 Data inicial maior que final.', 'warn'); return; }
-    
-    allPedidos = [];
-    _buscarPedFrom = f; _buscarPedTo = t; _buscarPedOffset = 0; _buscarPedTotal = 0; _buscarPedAtivo = true;
-    loadingPed(true);
-    setStatusPed('Buscando pedidos...');
-    buscarPedidosPagina();
-    
-    // SINCRONIZA📋O REVERSA: Buscar NFs automaticamente se as datas forem diferentes
-    if(G('dtFrom').value !== f || G('dtTo').value !== t){
-      G('dtFrom').value = f;
-      G('dtTo').value = t;
-      setTimeout(function(){ buscar(); }, 200);
-    }
-  }
-  
-  async function buscarPedidosPagina(){
-    if(!_buscarPedAtivo) return;
-    try{
-      var url = API_BASE + '/api/pedidos?from=' + _buscarPedFrom + '&to=' + _buscarPedTo + '&offset=' + _buscarPedOffset;
-      var resp = await fetch(url);
-      var d = await resp.json();
-      if(d.error){ setStatusPed('? ' + d.error, 'err'); loadingPed(false); _buscarPedAtivo = false; return; }
-      var novos = d.pedidos || [];
-      allPedidos = allPedidos.concat(novos);
-      if(_buscarPedOffset === 0 && d.total > 0) _buscarPedTotal = d.total;
-      var pct = _buscarPedTotal > 0 ? Math.round(allPedidos.length / _buscarPedTotal * 100) : 0;
-      setStatusPed('? Carregando... ' + allPedidos.length + (_buscarPedTotal > 0 ? ' / ' + _buscarPedTotal : '') + ' pedidos (' + pct + '%)');
-      applyFiltersPed();
-      if(d.hasMore){
-        _buscarPedOffset += novos.length;
-        buscarPedidosPagina();
-      } else {
-        loadingPed(false);
-        _buscarPedAtivo = false;
-        setStatusPed('? ' + allPedidos.length + ' pedidos carregados.');
-        // Atualizar contador no bot—o
-        G('count-pedidos').textContent = '(' + allPedidos.length + ')';
-      }
-    }catch(e){
-      setStatusPed('? ' + e.message, 'err');
-      loadingPed(false); _buscarPedAtivo = false;
-    }
-  }
-  
-  // Filtros de pedidos
-  function applyFiltersPed(){
-    filteredPedidos = allPedidos.filter(function(p){
-      // Filtro origem
-      if(activePedOrigens.size > 0 && !activePedOrigens.has(p.origem)) return false;
-      
-      // Filtro busca
-      if(activeSearchPed){
-        var h = [p.cliente, p.numero, p.cpf, p.situacao].join(' ').toLowerCase();
-        if(h.indexOf(activeSearchPed) < 0) return false;
-      }
-      
-      return true;
-    });
-    
-    G('rcountPed').textContent = filteredPedidos.length + ' pedido' + (filteredPedidos.length !== 1 ? 's' : '');
-    renderCardsPed();
-  }
-  
-  // Busca r—pida
-  G('searchPed').oninput = function(e){
-    activeSearchPed = e.target.value.toLowerCase().trim();
-    applyFiltersPed();
-    // SINCRONIZA📋O REVERSA: Aplicar mesma busca nas NFs
-    G('search').value = e.target.value;
-    activeSearch = activeSearchPed;
-    applyFilters();
-  };
-  
-  // Render cards de pedidos
-  function renderCardsPed(){
-    var grid = G('gridPed');
-    grid.innerHTML = '';
-    
-    if(!filteredPedidos.length){
-      grid.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhum pedido encontrado.</p></div>';
-      return;
-    }
-    
-    filteredPedidos.forEach(function(p){
-      grid.appendChild(buildCardPed(p));
-    });
-  }
-  
-  // Construir card de pedido
-  function buildCardPed(p){
-    var d = document.createElement('div');
-    d.className = 'card ' + p.origem;
-    var ol = p.origem === 'ecommerce' ? '📋 E-commerce' : '📋 Distribuidor';
-    var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
-    
-    d.innerHTML =
-      '<div class="cbadge ' + p.origem + '">' + ol + '</div>' +
-      '<div class="ccliente">' + esc(p.cliente || '—') + '</div>' +
-      '<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">' +
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido ' + esc(p.numero) + '</span>' +
-        sitBadgeCard(p.situacao) +
-        (temNF ? ' <span class="card-sit-badge ok" style="margin-left:4px">? NF</span>' : '') +
-      '</div>' +
-      '<div class="cvalor">' + brl(p.valor) + '</div>' +
-      '<div class="cmeta">' +
-        '<span class="cdata">' + fmtDate(p.data) + '</span>' +
-        '<span class="ctransp" title="' + esc(p.transportadora || '') + '">' + esc(p.transportadora || '—') + '</span>' +
-      '</div>';
-    
-    d.onclick = function(){ abrirModalPed(p); };
-    return d;
-  }
-  
-  // Abrir modal de pedido
-  function abrirModalPed(p){
-    var ol = p.origem === 'ecommerce' ? '📋 E-commerce' : '📋 Distribuidor';
-    var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
-    
-    G('mheadPed').innerHTML =
-      '<div class="cbadge ' + p.origem + '" style="margin-bottom:10px">' + ol + '</div>' +
-      '<h2>' + esc(p.cliente || '—') + '</h2>' +
-      '<div class="msub">Pedido ' + esc(p.numero || '—') + ' — ' + fmtDate(p.data) + '</div>';
-    
-    G('mbodyPed').innerHTML =
-      // SE📋O: PEDIDO
-      '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">' +
-        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>' +
-        '<div class="dgrid">' +
-          di('Nºmero', p.numero) +
-          di('Data Pedido', fmtDate(p.data)) +
-          di('Data Saída', fmtDate(p.datasaida)) +
-          '<div class="di"><label>Situa📋o</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
-          diV('Valor Total', brl(p.valor)) +
-          di('Valor Produtos', brl(p.valorProdutos)) +
-          di('Desconto', brl(p.desconto)) +
-          di('Nº Loja', p.numeroloja || '—') +
-          (temNF ? '<div class="di"><label>Nota Fiscal</label><span><span class="card-sit-badge ok">? NF Vinculada (ID: ' + p.notafiscal_id + ')</span></span></div>' : '<div class="di"><label>Nota Fiscal</label><span style="color:var(--warn)">? Sem NF vinculada</span></div>') +
-        '</div>' +
-        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">📋 Observa📋es</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
-        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">📋 Observa📋es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
-      '</div>' +
-      
-      // SE📋O: CLIENTE
-      '<div class="dsec">' +
-        '<h3>📋 Cliente</h3>' +
-        '<div class="dgrid">' +
-          di('Nome', p.cliente) +
-          di('CPF/CNPJ', p.cpf) +
-          di('Tipo Pessoa', p.tipoPessoa === 'F' ? 'F—sica' : p.tipoPessoa === 'J' ? 'Jur—dica' : p.tipoPessoa) +
-        '</div>' +
-      '</div>' +
-      
-      // SE📋O: TRANSPORTE
-      '<div class="dsec">' +
-        '<h3>📋 Transporte</h3>' +
-        '<div class="dgrid">' +
-          di('Transportadora', p.transportadora) +
-          diV('Frete', brl(p.frete)) +
-          di('Peso Bruto', p.pesoBruto ? p.pesoBruto + ' kg' : '—') +
-        '</div>' +
-      '</div>' +
-      
-      // SE📋O: PRODUTOS
-      '<div class="dsec">' +
-        '<h3>📋 Produtos</h3>' +
-        (p.itens && p.itens.length ? 
-          '<div class="plist">' +
-            p.itens.map(function(item){
-              var valorTotal = (item.quantidade || 0) * (item.valor || 0);
-              var prodCD = buscarProdutoCD(item.sku || item.codigo, item.nome);
-              var skuDisplay = '';
-              if (prodCD) {
-                skuDisplay = '<span style="background:var(--ac);color:white;padding:2px 6px;border-radius:3px;font-size:.65rem;margin-right:6px;font-weight:700">SKU ' + prodCD.sku + '</span>';
-              } else if (item.sku) {
-                skuDisplay = '<span style="color:var(--tm);font-size:.7rem;margin-right:6px">[' + esc(item.sku) + ']</span>';
-              }
-              return '<div class="pitem">' +
-                '<span class="pnome">' + 
-                  skuDisplay +
-                  esc(item.nome || item.codigo || '—') + 
-                '</span>' +
-                '<span class="pqtd">' + item.quantidade + ' ' + (item.unidade || 'un') + ' — ' + brl(item.valor) + '</span>' +
-                '<span class="pval">' + brl(valorTotal) + '</span>' +
-              '</div>';
-            }).join('') +
-          '</div>'
-        : '<div style="color:var(--tm);font-size:.82rem">Nenhum produto encontrado.</div>') +
-      '</div>';
-    
-    G('moverlayPed').classList.add('open');
-  }
-  
-  // Fechar modal de pedido
-  G('mclosePed').onclick = fecharModalPed;
-  G('moverlayPed').onclick = function(e){ if(e.target === G('moverlayPed')) fecharModalPed(); };
-  function fecharModalPed(){ G('moverlayPed').classList.remove('open'); }
-  
-  // Helpers
-  function setStatusPed(m, t){
-    var s = G('statusPed');
-    s.textContent = m;
-    s.style.color = t === 'err' ? 'var(--err)' : t === 'warn' ? 'var(--warn)' : 'var(--tm)';
-  }
-  
-  function loadingPed(on){
-    // Reutiliza o loading overlay
-    G('loverlay').classList.toggle('on', on);
-  }
-
-  
-// ═══════════════════════════════════════════════════════════
-// PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÃO
-// ═══════════════════════════════════════════════════════════
-
-async function carregarStatusPCP(){
-  try{
-    var resp = await fetch(API_BASE+'/api/pedidos-status');
-    var d = await resp.json();
-    if(d.error){ console.error('Erro ao carregar status:', d.error); return; }
-    var statusList = d.status || [];
-    var html = '';
-    statusList.forEach(function(st){
-      html += '<label class="tchip" data-status="' + esc(st) + '" style="width:100%;justify-content:flex-start;white-space:normal;word-break:break-word;transition:all .18s;cursor:pointer"><input type="checkbox" value="' + esc(st) + '"/>' + esc(st) + '</label>';
-    }).join('');
-    G('pcp-status-list').innerHTML = html;
-    G('pcp-status-list').querySelectorAll('label').forEach(function(lbl){
-      lbl.onclick = function(e){
-        e.preventDefault();
-        lbl.style.transform = 'scale(.97)';
-        setTimeout(function(){ lbl.style.transform = ''; }, 150);
-        var chk = lbl.querySelector('input[type="checkbox"]');
-        chk.checked = !chk.checked;
-        lbl.classList.toggle('on', chk.checked);
-        var status = lbl.getAttribute('data-status');
-        if(chk.checked){ pcpStatusSelecionados.add(status); }
-        else            { pcpStatusSelecionados.delete(status); }
-      };
-    });
-  } catch(err){
-    console.error('Erro ao carregar status:', err);
-  }
-}
-// Toggle retratil dos status
-var pcpStatusAberto = true;
-function toggleStatusPCP(){
-  pcpStatusAberto = !pcpStatusAberto;
-  var lista = G('pcp-status-list');
-  var arrow = G('pcp-status-arrow');
-  if(pcpStatusAberto){
-    lista.style.maxHeight = '400px';
-    lista.style.opacity   = '1';
-    arrow.style.transform = 'rotate(0deg)';
-  } else {
-    lista.style.maxHeight = '0';
-    lista.style.opacity   = '0';
-    arrow.style.transform = 'rotate(-90deg)';
-  }
-}
-
-// Event listeners para Prioridade
-G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(lbl){
-  lbl.onclick = function(e){
-    e.preventDefault();
-    lbl.style.transform = 'scale(.95)';
-    setTimeout(function(){ lbl.style.transform = ''; }, 150);
-    var radio = lbl.querySelector('input[type="radio"]');
-    radio.checked = true;
-    pcpPrioridade = radio.value;
-    G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(l){ l.classList.remove('on'); });
-    lbl.classList.add('on');
-  };
+const express = require('express');
+const mysql   = require('mysql2/promise');
+const path    = require('path');
+const fs      = require('fs');
+
+const app  = express();
+const PORT = process.env.PORT || 3001;
+const PAGE = 300;
+
+// Diretório de cache de estoque
+const ESTOQUE_DIR = path.join(__dirname, 'estoque-cache');
+if (!fs.existsSync(ESTOQUE_DIR)) fs.mkdirSync(ESTOQUE_DIR);
+
+const pool = mysql.createPool({
+  host:            '162.240.228.36',
+  port:            3306,
+  user:            'hawktec_alpha_log',
+  password:        'Alpha@3030',
+  database:        'hawktec_alpha-ecommerce',
+  waitForConnections: true,
+  connectionLimit:    5,
+  connectTimeout:     10000
 });
 
-// Event listeners para Origem (cores padrao eco/dist)
-G('panel-pcp').querySelectorAll('label[data-origem]').forEach(function(lbl){
-  var origem = lbl.getAttribute('data-origem');
-  var isEco  = origem === 'ecommerce';
-  var bgOn   = isEco ? 'rgba(66,165,245,.15)'  : 'rgba(171,71,188,.15)';
-  var border = isEco ? 'var(--eco)'             : 'var(--dist)';
-  var color  = isEco ? 'var(--eco)'             : 'var(--dist)';
-  function atualizarEstilo(){
-    var on = lbl.classList.contains('on');
-    lbl.style.background  = on ? bgOn : '';
-    lbl.style.borderColor = on ? border : '';
-    lbl.style.color       = on ? color : '';
-  }
-  atualizarEstilo();
-  lbl.onclick = function(e){
-    e.preventDefault();
-    lbl.style.transform = 'scale(.95)';
-    setTimeout(function(){ lbl.style.transform = ''; }, 150);
-    var chk = lbl.querySelector('input[type="checkbox"]');
-    chk.checked = !chk.checked;
-    lbl.classList.toggle('on', chk.checked);
-    atualizarEstilo();
-    if(chk.checked){ pcpOrigemFiltro.add(origem); }
-    else            { pcpOrigemFiltro.delete(origem); }
-    if(pcpProdutos.length > 0){ aplicarFiltroOrigemPCP(); }
-  };
+// Tabela SPED/NF-e: código tpag → descrição
+const TPAG = {
+  '01':'Dinheiro','02':'Cheque','03':'Cartão de Crédito','04':'Cartão de Débito',
+  '05':'Crédito Loja','10':'Vale Alimentação','11':'Vale Refeição','12':'Vale Presente',
+  '13':'Vale Combustível','15':'Boleto Bancário','17':'Pagamento Instantâneo (PIX)',
+  '18':'Transferência Bancária','19':'Programa de Fidelidade','20':'Sem Pagamento',
+  '21':'Outros','90':'Sem Pagamento','99':'Outros'
+};
+function nomeTpag(cod) {
+  return TPAG[String(cod).padStart(2,'0')] || TPAG[String(cod)] || 'Outro ('+cod+')';
+}
+
+app.use(express.json());
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
 });
 
-function aplicarFiltroOrigemPCP(){
-  // Se ambos ou nenhum selecionado → mostra tudo
-  if(pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2){
-    renderPCPGrid();
-    return;
-  }
-  // Filtra produtos que têm pelo menos 1 pedido da origem selecionada
-  var filtrado = pcpProdutos.filter(function(prod){
-    return prod.pedidos.some(function(p){
-      return pcpOrigemFiltro.has(p.pedido.origem);
-    });
-  });
-  renderPCPGrid(filtrado);
-}
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-G('btnProcessarPCP').onclick = async function(){
-  if(pcpStatusSelecionados.size === 0){
-    setStatusPCP('Selecione pelo menos um status', 'warn');
-    return;
-  }
-  var from = G('pcpDateFrom').value;
-  var to   = G('pcpDateTo').value;
-  if(!from || !to){
-    setStatusPCP('Selecione o periodo (De / Ate)', 'warn');
-    return;
-  }
-  if(from > to){
-    setStatusPCP('Data inicial nao pode ser maior que a final', 'warn');
-    return;
-  }
-  loadingPed(true);
-  var nStatus = pcpStatusSelecionados.size;
-  setStatusPCP('Processando PCP... (' + nStatus + ' status | ' + from + ' a ' + to + ')');
-  try{
-    var statusArray = Array.from(pcpStatusSelecionados);
-    var resp = await fetch(API_BASE+'/api/pcp-pedidos', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ status: statusArray, from: from, to: to })
-    });
-    var d = await resp.json();
-    if(d.error){ setStatusPCP('Erro: '+d.error, 'err'); loadingPed(false); return; }
-    pcpTodosPedidos = d.pedidos || [];
-    processarProdutosPCP();
-    aplicarFiltroOrigemPCP();
-    setStatusPCP(pcpProdutos.length+' produtos | '+pcpTodosPedidos.length+' pedidos | '+from+' a '+to);
-    loadingPed(false);
-  } catch(err){
-    console.error('Erro ao processar PCP:', err);
-    setStatusPCP('Erro ao processar', 'err');
-    loadingPed(false);
-  }
-};
-function processarProdutosPCP(){
-  var produtoMap = {};
-
-  pcpTodosPedidos.forEach(function(ped){
-    if(!ped.itens || ped.itens.length === 0) return;
-    ped.itens.forEach(function(item){
-      var key = item.codigo || item.sku;
-      if(!key) return;
-
-      if(!produtoMap[key]){
-        var prodCD = buscarProdutoCD(item.codigo, item.nome);
-        produtoMap[key] = {
-          sku:            prodCD ? String(prodCD.sku) : key,
-          skuCD:          prodCD ? String(prodCD.sku) : null,
-          codigo:         item.codigo,
-          nome:           prodCD ? (prodCD.descricao || item.nome || item.codigo)
-                                 : (item.nome && item.nome !== item.codigo ? item.nome : item.codigo),
-          quantidadeTotal: 0,
-          saldoEstoque:   null,
-          pedidos:        [],
-          dataMinima:     null
-        };
-      }
-
-      // Atualizar nome/SKU se chegou dado melhor de outra origem
-      var p = produtoMap[key];
-      if(!p.skuCD && item.nome && item.nome !== item.codigo){
-        var prodCD2 = buscarProdutoCD(item.codigo, item.nome);
-        if(prodCD2){
-          p.sku   = String(prodCD2.sku);
-          p.skuCD = String(prodCD2.sku);
-          p.nome  = prodCD2.descricao || p.nome;
-        } else if(item.nome !== item.codigo){
-          p.nome = item.nome;
-        }
-      }
-
-      p.quantidadeTotal += parseFloat(item.quantidade) || 0;
-      p.pedidos.push({ pedido: ped, quantidade: item.quantidade, valor: item.valor });
-
-      var dataPed = ped.data ? new Date(ped.data) : null;
-      if(dataPed && (!p.dataMinima || dataPed < p.dataMinima)) p.dataMinima = dataPed;
-    });
-  });
-
-  // Converter para array ANTES de calcular saldo
-  pcpProdutos = Object.values(produtoMap);
-
-  // Calcular saldo de estoque
-  pcpProdutos.forEach(function(prod){
-    var cod = prod.codigo;
-    var sE = estoqueEco[cod]  ? parseFloat(estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
-    var sD = estoqueDist[cod] ? parseFloat(estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
-    if(sE !== null && sD !== null) prod.saldoEstoque = sE + sD;
-    else if(sE !== null)           prod.saldoEstoque = sE;
-    else if(sD !== null)           prod.saldoEstoque = sD;
-    else                           prod.saldoEstoque = null;
-  });
-
-  // Ordenar por prioridade
-  if(pcpPrioridade === 'antigo'){
-    pcpProdutos.sort(function(a,b){
-      if(!a.dataMinima) return 1;
-      if(!b.dataMinima) return -1;
-      return a.dataMinima - b.dataMinima;
-    });
-  } else {
-    pcpProdutos.sort(function(a,b){ return b.pedidos.length - a.pedidos.length; });
-  }
-
-  renderPCPGrid();
-}
-
-function renderPCPGrid(lista){
-  var grid = G('gridPCP');
-  var fonte = lista || pcpProdutos;
-
-  if(fonte.length === 0){
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>Nenhum produto encontrado com os status selecionados</p></div>';
-    G('rcountPCP').textContent = '';
-    return;
-  }
-
-  var prioHeader = pcpPrioridade === 'antigo'
-    ? '🕐 Ordenado por: Pedido mais antigo primeiro'
-    : '📦 Ordenado por: Produto que solta mais pedidos';
-
-  var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:var(--tm);font-style:italic">'+prioHeader+'</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
-  html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:36px">#</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:70px">SKU</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center;width:70px">Pedidos</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:90px">Qtd Pedida</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Saldo</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:100px">'+
-      (pcpPrioridade === 'antigo' ? 'Mais Antigo' : 'Prioridade')+
-    '</th>'+
-  '</tr></thead><tbody>';
-  '</tr></thead><tbody>';
-
-  fonte.forEach(function(prod, idx){
-    var realIdx = pcpProdutos.indexOf(prod);
-    // SKU e nome já resolvidos no processarProdutosPCP
-    var skuDisplay = prod.skuCD || prod.sku || prod.codigo || '—';
-    var nomeDisplay = prod.nome || prod.codigo || '—';
-    var nPedidos = prod.pedidos.length;
-
-    var prioVal = pcpPrioridade === 'antigo'
-      ? (prod.dataMinima ? fmtDate(prod.dataMinima.toISOString()) : '—')
-      : nPedidos + ' pedido' + (nPedidos !== 1 ? 's' : '');
-
-    var rowBg = idx % 2 === 0 ? 'var(--bg)' : 'var(--bg2,var(--bg))';
-    var rankColor = idx === 0 ? '#f5a623' : idx === 1 ? '#9b9b9b' : idx === 2 ? '#c47a3a' : 'var(--tm)';
-
-    html += '<tr onclick="abrirPCPProduto('+realIdx+')" style="'+
-      'background:'+rowBg+';cursor:pointer;border-bottom:1px solid var(--bdr);'+
-      'transition:background .15s" '+
-      'onmouseover="this.style.background=\'var(--hover,#2a2a3a)\'" '+
-      'onmouseout="this.style.background=\''+rowBg+'\'"'+
-    '>'+
-      '<td style="padding:10px 6px;font-weight:700;color:'+rankColor+';text-align:center">'+
-        (idx+1)+
-      '</td>'+
-      '<td style="padding:10px 6px">'+
-        '<span style="background:var(--ac);color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;white-space:nowrap">'+
-          esc(skuDisplay)+
-        '</span>'+
-      '</td>'+
-      '<td style="padding:10px 6px;font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+
-        esc(nomeDisplay)+
-      '</td>'+
-      '<td style="padding:10px 6px;text-align:center">'+
-        '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+nPedidos+'</span>'+
-      '</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-weight:600;color:var(--ac)">'+prod.quantidadeTotal.toFixed(0)+' un</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-size:.8rem">'+  
-        (prod.saldoEstoque !== null
-          ? '<span style="color:'+(prod.saldoEstoque <= 0 ? '#e74c3c' : prod.saldoEstoque < prod.quantidadeTotal ? '#f39c12' : '#2ecc71')+';font-weight:600">'+prod.saldoEstoque.toFixed(0)+' un</span>'
-          : '<span style="color:var(--tm)">—</span>')+
-      '</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-size:.78rem;color:var(--tm)">'+
-        prioVal+
-      '</td>'+
-    '</tr>';
-  });
-
-  html += '</tbody></table>';
-  grid.innerHTML = html;
-  G('rcountPCP').textContent = fonte.length + ' produto' + (fonte.length !== 1 ? 's' : '');
-}
-
-function abrirPCPProduto(idx){
-  var prod = pcpProdutos[idx];
-  if(!prod) return;
-  
-  var prodCD = buscarProdutoCD(prod.codigo, prod.nome);
-  var skuDisplay = prodCD ? prodCD.sku : (prod.sku || prod.codigo || '—');
-  
-  G('mheadPCPProduto').innerHTML = 
-    '<div style="background:var(--ac);color:white;padding:4px 12px;border-radius:var(--r);display:inline-block;margin-bottom:10px">SKU '+esc(skuDisplay)+'</div>'+
-    '<h2>'+esc(prod.nome || '—')+'</h2>'+
-    '<div class="msub">'+prod.quantidadeTotal.toFixed(2)+' un total · '+prod.pedidos.length+' pedido'+(prod.pedidos.length > 1 ? 's' : '')+'</div>';
-  
-  var html = '<div style="display:flex;flex-direction:column;gap:8px">';
-  
-  prod.pedidos.forEach(function(p){
-    var ped = p.pedido;
-    var ol = ped.origem === 'ecommerce' ? '🛒 E-commerce' : '🏭 Distribuidor';
-    var sitClass = getSitClass(ped.situacao);
+// ── /api/produtos-cd ──────────────────────────────────────
+app.get('/api/produtos-cd', (req, res) => {
+  try {
+    const fs = require('fs');
+    const produtosJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'produtos-cd.json'), 'utf8'));
     
-    html += '<div class="pcp-pedido-item" onclick="abrirModalPedFromPCP('+ped.id+')" style="'+
-      'border:1px solid var(--bdr);border-radius:var(--r);padding:12px;cursor:pointer;'+
-      'transition:all 0.2s;background:var(--bg)">'+
-      '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">'+
-        '<div>'+
-          '<div style="font-size:.7rem;color:var(--tm);margin-bottom:4px">'+ol+'</div>'+
-          '<div style="font-weight:600;font-size:.9rem">Pedido '+esc(ped.numero||'—')+'</div>'+
-        '</div>'+
-        '<span class="sit-badge sit-'+sitClass+'">'+esc(ped.situacao||'—')+'</span>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.8rem">'+
-        '<div><span style="color:var(--tm)">Cliente:</span> '+esc(ped.cliente||'—')+'</div>'+
-        '<div><span style="color:var(--tm)">Data:</span> '+fmtDate(ped.data)+'</div>'+
-        '<div><span style="color:var(--tm)">Quantidade:</span> <strong>'+p.quantidade+' un</strong></div>'+
-        '<div><span style="color:var(--tm)">Valor:</span> '+brl(p.valor)+'</div>'+
-      '</div>'+
-    '</div>';
-  });
-  
-  html += '</div>';
-  
-  G('mbodyPCPProduto').innerHTML = html;
-  G('moverlayPCPProduto').classList.add('open');
-}
-
-function abrirModalPedFromPCP(pedidoId){
-  // Encontrar o pedido completo
-  var ped = pcpTodosPedidos.find(function(p){ return p.id === pedidoId; });
-  if(!ped) return;
-  
-  // Fechar modal de produto
-  G('moverlayPCPProduto').classList.remove('open');
-  
-  // Abrir modal de pedido (reutilizar função existente)
-  abrirModalPed(ped);
-}
-
-// Fechar modais PCP
-G('mclosePCPProduto').onclick = function(){ G('moverlayPCPProduto').classList.remove('open'); };
-G('moverlayPCPProduto').onclick = function(e){ 
-  if(e.target === G('moverlayPCPProduto')) G('moverlayPCPProduto').classList.remove('open'); 
-};
-function setStatusPCP(m, t){
-  var s = G('statusPCP');
-  s.textContent = m;
-  s.style.color = t === 'err' ? 'var(--err)' : t === 'warn' ? 'var(--warn)' : 'var(--tm)';
-}
-// Busca no PCP
-G('searchPCP').oninput = function(){
-  var q = this.value.toLowerCase().trim();
-  var base = (pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2)
-    ? pcpProdutos
-    : pcpProdutos.filter(function(p){
-        return p.pedidos.some(function(x){ return pcpOrigemFiltro.has(x.pedido.origem); });
-      });
-  if(!q){ renderPCPGrid(base.length === pcpProdutos.length ? null : base); return; }
-  var filtered = base.filter(function(p){
-    return (p.nome && p.nome.toLowerCase().includes(q)) ||
-           (p.sku && String(p.sku).toLowerCase().includes(q)) ||
-           (p.codigo && p.codigo.toLowerCase().includes(q));
-  });
-  renderPCPGrid(filtered);
-};
-
-// ── ESTOQUE: parse CSV ────────────────────────────────────
-function parseCsvEstoque(texto) {
-  var linhas = texto.split(/\r?\n/).filter(function(l){ return l.trim(); });
-  var dados = [];
-  // Pula cabeçalho (linha 0)
-  for (var i = 1; i < linhas.length; i++) {
-    var cols = linhas[i].split(';').map(function(c){ return c.replace(/^"|"$/g,'').trim(); });
-    if (cols.length < 5) continue;
-    var qtd = parseFloat(cols[4].replace(',','.')) || 0;
-    dados.push({ codigo: cols[0], ean: cols[1], produto: cols[2], unidade: cols[3], quantidade: qtd });
+    // Criar mapa SKU -> Produto para busca rápida
+    const mapaProdutos = {};
+    produtosJson.forEach(p => {
+      mapaProdutos[String(p.SKU)] = {
+        sku: p.SKU,
+        descricao: p['DESCRIÇÃO '] || p.DESCRIÇÃO || '',
+        codigoBarras: p['CÓD. DE BARRAS'] || p.CODIGO_BARRAS || '',
+        situacao: p['SITUAÇÃO'] || p.SITUACAO || '',
+        linha: p.LINHA || ''
+      };
+    });
+    
+    res.json(mapaProdutos);
+  } catch (err) {
+    console.error('Erro ao ler produtos-cd.json:', err);
+    res.json({});
   }
-  return dados;
-}
+});
 
-function fmtEstoqueInfo(meta) {
-  if (!meta) return 'Nenhum arquivo importado';
-  var dt = meta.importadoEm ? new Date(meta.importadoEm).toLocaleString('pt-BR') : '';
-  return meta.nomeArquivo + ' (' + meta.totalItens + ' itens) — ' + dt;
-}
-
-// Carregar metadados dos caches ao iniciar
-async function carregarMetaEstoque() {
+// ── /api/estoque-import ──────────────────────────────────
+// Recebe: { origem: 'ecommerce'|'distribuidor', nomeArquivo: string, dados: [{codigo,ean,produto,unidade,quantidade}] }
+app.post('/api/estoque-import', (req, res) => {
   try {
-    var r = await fetch(API_BASE + '/api/estoque-cache');
-    var d = await r.json();
-    G('pcp-estoque-eco-info').textContent  = fmtEstoqueInfo(d.ecommerce);
-    G('pcp-estoque-dist-info').textContent = fmtEstoqueInfo(d.distribuidor);
-    // Carregar dados completos se existirem
-    if (d.ecommerce)    await carregarDadosEstoque('ecommerce');
-    if (d.distribuidor) await carregarDadosEstoque('distribuidor');
-  } catch(e) { console.warn('Estoque cache nao disponivel:', e.message); }
-}
+    const { origem, nomeArquivo, dados } = req.body;
+    if (!origem || !nomeArquivo || !Array.isArray(dados)) {
+      return res.json({ error: 'Campos obrigatorios: origem, nomeArquivo, dados.' });
+    }
+    if (origem !== 'ecommerce' && origem !== 'distribuidor') {
+      return res.json({ error: 'origem deve ser ecommerce ou distribuidor.' });
+    }
 
-async function carregarDadosEstoque(origem) {
-  try {
-    var r = await fetch(API_BASE + '/api/estoque-dados?origem=' + origem);
-    var d = await r.json();
-    if (origem === 'ecommerce')    estoqueEco  = d.estoque || {};
-    if (origem === 'distribuidor') estoqueDist = d.estoque || {};
-  } catch(e) { console.warn('Erro ao carregar estoque ' + origem + ':', e.message); }
-}
-
-// Handler importação E-commerce
-G('inputEstoqueEco').onchange = async function() {
-  var file = this.files[0];
-  if (!file) return;
-  G('pcp-estoque-eco-info').textContent = 'Importando...';
-  var texto = await file.text();
-  var dados = parseCsvEstoque(texto);
-  try {
-    var r = await fetch(API_BASE + '/api/estoque-import', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ origem: 'ecommerce', nomeArquivo: file.name, dados: dados })
+    // Monta mapa codigo → saldo
+    const mapaEstoque = {};
+    dados.forEach(item => {
+      const cod = String(item.codigo || '').trim();
+      const qtd = parseFloat(String(item.quantidade || '0').replace(',', '.')) || 0;
+      if (cod) mapaEstoque[cod] = { codigo: cod, ean: item.ean || '', produto: item.produto || '', unidade: item.unidade || 'Un', saldo: qtd };
     });
-    var d = await r.json();
-    if (d.error) { G('pcp-estoque-eco-info').textContent = 'Erro: ' + d.error; return; }
-    estoqueEco = {};
-    dados.forEach(function(item){ if(item.codigo) estoqueEco[item.codigo] = item; });
-    G('pcp-estoque-eco-info').textContent = file.name + ' (' + d.totalItens + ' itens)';
-    this.value = '';
-  } catch(e) { G('pcp-estoque-eco-info').textContent = 'Erro: ' + e.message; }
-};
 
-// Handler importação Distribuidor
-G('inputEstoqueDist').onchange = async function() {
-  var file = this.files[0];
-  if (!file) return;
-  G('pcp-estoque-dist-info').textContent = 'Importando...';
-  var texto = await file.text();
-  var dados = parseCsvEstoque(texto);
+    const payload = {
+      origem,
+      nomeArquivo,
+      importadoEm: new Date().toISOString(),
+      totalItens: Object.keys(mapaEstoque).length,
+      estoque: mapaEstoque
+    };
+
+    // Salva como estoque-cache/<origem>.json (sempre sobrescreve — último importado)
+    const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), 'utf8');
+
+    console.log(`Estoque ${origem} importado: ${payload.totalItens} itens de "${nomeArquivo}"`);
+    res.json({ ok: true, origem, nomeArquivo, totalItens: payload.totalItens });
+  } catch (err) {
+    console.error('Erro estoque-import:', err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/estoque-cache ────────────────────────────────────
+// Retorna metadados dos caches salvos (sem os dados completos)
+app.get('/api/estoque-cache', (req, res) => {
   try {
-    var r = await fetch(API_BASE + '/api/estoque-import', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ origem: 'distribuidor', nomeArquivo: file.name, dados: dados })
+    const result = {};
+    ['ecommerce', 'distribuidor'].forEach(origem => {
+      const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
+      if (fs.existsSync(filePath)) {
+        const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        result[origem] = { nomeArquivo: raw.nomeArquivo, importadoEm: raw.importadoEm, totalItens: raw.totalItens };
+      } else {
+        result[origem] = null;
+      }
     });
-    var d = await r.json();
-    if (d.error) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + d.error; return; }
-    estoqueDist = {};
-    dados.forEach(function(item){ if(item.codigo) estoqueDist[item.codigo] = item; });
-    G('pcp-estoque-dist-info').textContent = file.name + ' (' + d.totalItens + ' itens)';
-    this.value = '';
-  } catch(e) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + e.message; }
-};
-// Carregar status ao iniciar
-carregarStatusPCP();
-carregarMetaEstoque();
+    res.json(result);
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 
-</script>
-  </body>
-  </html>
+// ── /api/estoque-dados ────────────────────────────────────
+// Retorna o mapa completo de estoque para uso no frontend
+app.get('/api/estoque-dados', (req, res) => {
+  try {
+    const { origem } = req.query;
+    if (!origem) return res.json({ error: 'origem obrigatorio.' });
+    const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
+    if (!fs.existsSync(filePath)) return res.json({ estoque: {}, nomeArquivo: null });
+    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    res.json({ estoque: raw.estoque, nomeArquivo: raw.nomeArquivo, importadoEm: raw.importadoEm });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/pedidos-status ───────────────────────────────────
+app.get('/api/pedidos-status', async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    
+    // Buscar todos os status únicos de pedidos
+    const [statusEco] = await conn.execute(
+      'SELECT DISTINCT situacao_nome FROM `bling_pedidos_venda_detalhes_ecommerce` WHERE situacao_nome IS NOT NULL AND situacao_nome != "" ORDER BY situacao_nome'
+    );
+    const [statusDist] = await conn.execute(
+      'SELECT DISTINCT situacao_nome FROM `bling_pedidos_venda_detalhes_distribuicao` WHERE situacao_nome IS NOT NULL AND situacao_nome != "" ORDER BY situacao_nome'
+    );
+    
+    conn.release();
+    
+    // Combinar e remover duplicatas
+    const statusSet = new Set();
+    statusEco.forEach(r => statusSet.add(r.situacao_nome));
+    statusDist.forEach(r => statusSet.add(r.situacao_nome));
+    
+    const status = Array.from(statusSet).sort();
+    
+    res.json({ status, total: status.length });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/pcp-pedidos ──────────────────────────────────────
+app.post('/api/pcp-pedidos', async (req, res) => {
+  const { status, from, to } = req.body;
+  if (!status || !Array.isArray(status) || status.length === 0) {
+    return res.json({ error: 'Status obrigatório (array).' });
+  }
+  if (!from || !to) {
+    return res.json({ error: 'Período obrigatório (from e to).' });
+  }
+
+  const d1 = from + ' 00:00:00';
+  const d2 = to   + ' 23:59:59';
+
+  // Timeout proporcional ao número de status
+  req.setTimeout(60000);
+
+  try {
+    const conn = await pool.getConnection();
+
+    const phStatus = status.map(() => '?').join(',');
+
+    console.log('PCP: Buscando pedidos | status:', status, '| período:', from, '→', to);
+
+    const [pedidosE] = await conn.execute(
+      `SELECT id, numero, data, situacao_nome AS situacao, contato_nome AS cliente, total AS valor
+       FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+       WHERE situacao_nome IN (${phStatus})
+         AND data BETWEEN ? AND ?
+       ORDER BY data ASC`,
+      [...status, d1, d2]
+    ).catch(err => { console.error('Erro E:', err); return [[]]; });
+
+    const [pedidosD] = await conn.execute(
+      `SELECT id, numero, data, situacao_nome AS situacao, contato_nome AS cliente, total AS valor
+       FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+       WHERE situacao_nome IN (${phStatus})
+         AND data BETWEEN ? AND ?
+       ORDER BY data ASC`,
+      [...status, d1, d2]
+    ).catch(err => { console.error('Erro D:', err); return [[]]; });
+
+    const setE = new Set(pedidosE.map(r => r.id));
+    let pedidos = [...pedidosE, ...pedidosD].map(r => ({
+      id: r.id,
+      origem: setE.has(r.id) ? 'ecommerce' : 'distribuidor',
+      numero: r.numero,
+      data: r.data ? new Date(r.data).toISOString() : null,
+      situacao: r.situacao,
+      cliente: r.cliente,
+      valor: r.valor || null,
+      itens: []
+    }));
+
+    console.log('PCP: Encontrados', pedidos.length, 'pedidos');
+    
+    // Buscar itens dos pedidos
+    if (pedidos.length > 0) {
+      const ids = pedidos.map(p => p.id);
+      const phIds = ids.map(() => '?').join(',');
+
+      // Ecommerce: JOIN com produtos para pegar nome + id do produto pai
+      const [itensE] = await conn.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_produto_id,
+                i.itens_quantidade, i.itens_valor,
+                p.nome AS itens_descricao, p.id AS produto_id
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
+         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
+        ids
+      ).catch(err => { console.error('Erro itens E:', err); return [[]]; });
+
+      // Distribuição: tem itens_descricao + JOIN para pegar id do produto pai
+      const [itensD] = await conn.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_produto_id,
+                i.itens_descricao, i.itens_quantidade, i.itens_valor,
+                p.id AS produto_id
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
+         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
+        ids
+      ).catch(err => { console.error('Erro itens D:', err); return [[]]; });
+
+      console.log('PCP: Encontrados', itensE.length + itensD.length, 'itens brutos');
+
+      // ── Explosão de kits ──────────────────────────────────────────────────
+      // Coletar todos os produto_id para verificar quais são kits
+      const todosProdutoIds = [...new Set(
+        [...itensE, ...itensD]
+          .map(i => i.produto_id)
+          .filter(Boolean)
+      )];
+
+      let kitMap = {}; // produto_id → [ { componentes_produto_id, componentes_quantidade } ]
+
+      if (todosProdutoIds.length > 0) {
+        const phProd = todosProdutoIds.map(() => '?').join(',');
+
+        // Buscar componentes ecommerce
+        const [compE] = await conn.execute(
+          `SELECT ec.produto_pai_id, ec.componentes_produto_id, ec.componentes_quantidade,
+                  p.codigo AS comp_codigo, p.nome AS comp_nome
+           FROM \`bling_produtos_estruturas_componentes_ecommerce\` ec
+           JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = ec.componentes_produto_id
+           WHERE ec.produto_pai_id IN (${phProd})`,
+          todosProdutoIds
+        ).catch(err => { console.error('Erro comp E:', err); return [[]]; });
+
+        // Buscar componentes distribuição
+        const [compD] = await conn.execute(
+          `SELECT dc.produto_pai_id, dc.componentes_produto_id, dc.componentes_quantidade,
+                  p.codigo AS comp_codigo, p.nome AS comp_nome
+           FROM \`bling_produtos_estruturas_componentes_distribuicao\` dc
+           JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = dc.componentes_produto_id
+           WHERE dc.produto_pai_id IN (${phProd})`,
+          todosProdutoIds
+        ).catch(err => { console.error('Erro comp D:', err); return [[]]; });
+
+        [...compE, ...compD].forEach(c => {
+          if (!kitMap[c.produto_pai_id]) kitMap[c.produto_pai_id] = [];
+          kitMap[c.produto_pai_id].push({
+            componentes_produto_id: c.componentes_produto_id,
+            componentes_quantidade: c.componentes_quantidade,
+            comp_codigo: c.comp_codigo,
+            comp_nome:   c.comp_nome
+          });
+        });
+
+        const kitsEncontrados = Object.keys(kitMap).length;
+        console.log('PCP: Kits encontrados:', kitsEncontrados);
+      }
+
+      // Montar itens finais — explodindo kits em componentes individuais
+      const itensMap = {};
+      [...itensE, ...itensD].forEach(item => {
+        const pedId = item.pedido_venda_id;
+        if (!itensMap[pedId]) itensMap[pedId] = [];
+
+        const componentes = item.produto_id ? kitMap[item.produto_id] : null;
+
+        if (componentes && componentes.length > 0) {
+          // É um kit → substituir pelo(s) componente(s) multiplicando a quantidade
+          const qtdKit = parseFloat(item.itens_quantidade) || 1;
+          componentes.forEach(comp => {
+            itensMap[pedId].push({
+              codigo:    comp.comp_codigo,
+              sku:       comp.comp_codigo,
+              nome:      comp.comp_nome || comp.comp_codigo,
+              quantidade: (comp.componentes_quantidade || 1) * qtdKit,
+              valor:     null  // valor unitário do componente não disponível diretamente
+            });
+          });
+        } else {
+          // Item simples
+          itensMap[pedId].push({
+            codigo:    item.itens_codigo,
+            sku:       item.itens_codigo,
+            nome:      item.itens_descricao || item.itens_codigo,
+            quantidade: item.itens_quantidade,
+            valor:     item.itens_valor
+          });
+        }
+      });
+
+      pedidos.forEach(p => {
+        p.itens = itensMap[p.id] || [];
+      });
+    }
+    
+    conn.release();
+    
+    console.log('PCP: Enviando resposta com', pedidos.length, 'pedidos');
+    
+    res.json({ 
+      pedidos, 
+      total: pedidos.length,
+      from,
+      to,
+      status
+    });
+
+  } catch (err) {
+    console.error('Erro PCP:', err);
+    res.status(500).json({ error: 'Timeout ou erro no servidor. Tente outro status.' });
+  }
+});
+
+// ── /api/stats ────────────────────────────────────────────
+app.get('/api/stats', async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    
+    // Pedidos
+    const [[pedEco]] = await conn.execute(
+      'SELECT MIN(data) as min_data, MAX(data) as max_data, COUNT(*) as total FROM `bling_pedidos_venda_detalhes_ecommerce`'
+    );
+    const [[pedDist]] = await conn.execute(
+      'SELECT MIN(data) as min_data, MAX(data) as max_data, COUNT(*) as total FROM `bling_pedidos_venda_detalhes_distribuicao`'
+    );
+    
+    // NF-e
+    const [[nfeEco]] = await conn.execute(
+      'SELECT MIN(dataemissao) as min_data, MAX(dataemissao) as max_data, COUNT(*) as total FROM `bling_nfe_saida_detalhes_ecommerce`'
+    );
+    const [[nfeDist]] = await conn.execute(
+      'SELECT MIN(dataemissao) as min_data, MAX(dataemissao) as max_data, COUNT(*) as total FROM `bling_nfe_saida_detalhes_distribuicao`'
+    );
+    
+    // Pedidos com NF vinculada
+    const [[vinculoEco]] = await conn.execute(
+      'SELECT COUNT(*) as com_nf FROM `bling_pedidos_venda_detalhes_ecommerce` WHERE notafiscal_id IS NOT NULL AND notafiscal_id != "" AND notafiscal_id != "0"'
+    );
+    const [[vinculoDist]] = await conn.execute(
+      'SELECT COUNT(*) as com_nf FROM `bling_pedidos_venda_detalhes_distribuicao` WHERE notafiscal_id IS NOT NULL AND notafiscal_id != "" AND notafiscal_id != "0"'
+    );
+    
+    conn.release();
+    
+    res.json({
+      pedidos: {
+        ecommerce: { total: pedEco.total, min_data: pedEco.min_data, max_data: pedEco.max_data },
+        distribuicao: { total: pedDist.total, min_data: pedDist.min_data, max_data: pedDist.max_data },
+        total: (pedEco.total || 0) + (pedDist.total || 0),
+        com_nf: (vinculoEco.com_nf || 0) + (vinculoDist.com_nf || 0),
+        sem_nf: ((pedEco.total || 0) + (pedDist.total || 0)) - ((vinculoEco.com_nf || 0) + (vinculoDist.com_nf || 0))
+      },
+      nfe: {
+        ecommerce: { total: nfeEco.total, min_data: nfeEco.min_data, max_data: nfeEco.max_data },
+        distribuicao: { total: nfeDist.total, min_data: nfeDist.min_data, max_data: nfeDist.max_data },
+        total: (nfeEco.total || 0) + (nfeDist.total || 0)
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+
+// ── /api/data-range ───────────────────────────────────────
+app.get('/api/data-range', async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    
+    // Busca a data mais antiga e mais recente de ambas as tabelas
+    const [[ecoRange]] = await conn.execute(
+      `SELECT 
+        MIN(dataemissao) AS min_data,
+        MAX(dataemissao) AS max_data,
+        COUNT(*) AS total
+       FROM \`bling_nfe_saida_detalhes_ecommerce\``
+    );
+    
+    const [[distRange]] = await conn.execute(
+      `SELECT 
+        MIN(dataemissao) AS min_data,
+        MAX(dataemissao) AS max_data,
+        COUNT(*) AS total
+       FROM \`bling_nfe_saida_detalhes_distribuicao\``
+    );
+    
+    conn.release();
+    
+    const minData = [ecoRange.min_data, distRange.min_data]
+      .filter(Boolean)
+      .sort()[0];
+    
+    const maxData = [ecoRange.max_data, distRange.max_data]
+      .filter(Boolean)
+      .sort()
+      .reverse()[0];
+    
+    res.json({
+      min_data: minData,
+      max_data: maxData,
+      total_ecommerce: ecoRange.total || 0,
+      total_distribuicao: distRange.total || 0,
+      total_geral: (ecoRange.total || 0) + (distRange.total || 0)
+    });
+    
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/pedidos ──────────────────────────────────────────
+app.get('/api/pedidos', async (req, res) => {
+  const { from, to, offset = 0 } = req.query;
+  if (!from || !to) return res.json({ error: 'Parametros from e to obrigatorios.' });
+
+  const d1  = from + ' 00:00:00';
+  const d2  = to   + ' 23:59:59';
+  const off = parseInt(offset) || 0;
+
+  try {
+    const conn = await pool.getConnection();
+    let total = null;
+
+    if (off === 0) {
+      const [[row]] = await conn.execute(
+        `SELECT
+          (SELECT COUNT(*) FROM \`bling_pedidos_venda_detalhes_ecommerce\`    WHERE data BETWEEN ? AND ?) +
+          (SELECT COUNT(*) FROM \`bling_pedidos_venda_detalhes_distribuicao\` WHERE data BETWEEN ? AND ?) AS total`,
+        [d1, d2, d1, d2]
+      );
+      total = row.total;
+    }
+
+    const [[{ countEco }]] = await conn.execute(
+      `SELECT COUNT(*) AS countEco FROM \`bling_pedidos_venda_detalhes_ecommerce\` WHERE data BETWEEN ? AND ?`,
+      [d1, d2]
+    );
+
+    let pedidos = [];
+    let offE = 0, limE = 0, offD = 0, limD = 0;
+
+    if (off < countEco) {
+      offE = off; limE = PAGE;
+      limD = PAGE - Math.min(PAGE, countEco - off);
+      offD = 0;
+    } else {
+      offD = off - countEco; limD = PAGE;
+    }
+
+    if (limE > 0) {
+      const [rows] = await conn.execute(
+        `SELECT 
+          id, numero, data, datasaida, situacao_nome, situacao_id,
+          contato_nome, contato_numerodocumento, contato_tipopessoa,
+          total, totalprodutos, desconto_valor,
+          transporte_contato_nome, transporte_frete, transporte_pesobruto,
+          notafiscal_id, numeroloja, loja_id,
+          'ecommerce' AS origem
+         FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+         WHERE data BETWEEN ? AND ?
+         ORDER BY data DESC LIMIT ${limE} OFFSET ${offE}`,
+        [d1, d2]
+      );
+      pedidos = pedidos.concat(rows.map(r => montarPedido(r)));
+    }
+
+    if (limD > 0) {
+      const [rows] = await conn.execute(
+        `SELECT 
+          id, numero, data, datasaida, situacao_nome, situacao_id,
+          contato_nome, contato_numerodocumento, contato_tipopessoa,
+          total, totalprodutos, desconto_valor,
+          transporte_contato_nome, transporte_frete, transporte_pesobruto,
+          notafiscal_id, numeroloja, loja_id,
+          observacoes, observacoesinternas,
+          'distribuidor' AS origem
+         FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+         WHERE data BETWEEN ? AND ?
+         ORDER BY data DESC LIMIT ${limD} OFFSET ${offD}`,
+        [d1, d2]
+      );
+      pedidos = pedidos.concat(rows.map(r => montarPedido(r)));
+    }
+
+    conn.release();
+
+    pedidos.sort((a, b) => {
+      const da = a.data ? new Date(a.data).getTime() : 0;
+      const db = b.data ? new Date(b.data).getTime() : 0;
+      return db - da;
+    });
+
+    // ── Buscar itens dos pedidos ──────────────────────────────
+    if (pedidos.length > 0) {
+      const conn2 = await pool.getConnection();
+      const ids = pedidos.map(p => p.id);
+      const ph = ids.map(() => '?').join(',');
+
+      // Itens E-commerce com JOIN para pegar nome e SKU do produto
+      const [itensE] = await conn2.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
+                i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
+                p.nome AS produto_nome, p.codigo AS produto_sku
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
+         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${ph})`,
+        ids
+      ).catch(() => [[]]);
+
+      // Itens Distribuição com JOIN para pegar nome e SKU do produto
+      const [itensD] = await conn2.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
+                i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
+                p.nome AS produto_nome, p.codigo AS produto_sku
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
+         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${ph})`,
+        ids
+      ).catch(() => [[]]);
+
+      conn2.release();
+
+      // Mapear itens por pedido
+      const itensMap = {};
+      [...itensE, ...itensD].forEach(item => {
+        if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
+        itensMap[item.pedido_venda_id].push({
+          codigo: item.itens_codigo,
+          sku: item.produto_sku || item.itens_codigo || '—',
+          nome: item.produto_nome || item.itens_codigo || 'Produto sem nome',
+          id: item.itens_id,
+          produto_id: item.itens_produto_id,
+          unidade: item.itens_unidade,
+          quantidade: item.itens_quantidade,
+          valor: item.itens_valor,
+          desconto: item.itens_desconto
+        });
+      });
+
+      // Adicionar itens aos pedidos
+      pedidos.forEach(p => {
+        p.itens = itensMap[p.id] || [];
+      });
+    }
+
+    res.json({ pedidos, offset: off, pageSize: PAGE, total, hasMore: pedidos.length === PAGE });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/notas ────────────────────────────────────────────
+app.get('/api/notas', async (req, res) => {
+  const { from, to, offset = 0 } = req.query;
+  if (!from || !to) return res.json({ error: 'Parametros from e to obrigatorios.' });
+
+  const d1  = from + ' 00:00:00';
+  const d2  = to   + ' 23:59:59';
+  const off = parseInt(offset) || 0;
+
+  try {
+    const conn = await pool.getConnection();
+    let total = null;
+
+    if (off === 0) {
+      const [[row]] = await conn.execute(
+        `SELECT
+          (SELECT COUNT(*) FROM \`bling_nfe_saida_detalhes_ecommerce\`    WHERE dataemissao BETWEEN ? AND ?) +
+          (SELECT COUNT(*) FROM \`bling_nfe_saida_detalhes_distribuicao\` WHERE dataemissao BETWEEN ? AND ?) AS total`,
+        [d1, d2, d1, d2]
+      );
+      total = row.total;
+    }
+
+    const [[{ countEco }]] = await conn.execute(
+      `SELECT COUNT(*) AS countEco FROM \`bling_nfe_saida_detalhes_ecommerce\` WHERE dataemissao BETWEEN ? AND ?`,
+      [d1, d2]
+    );
+
+    let notas = [];
+    let offE = 0, limE = 0, offD = 0, limD = 0;
+
+    if (off < countEco) {
+      offE = off; limE = PAGE;
+      limD = PAGE - Math.min(PAGE, countEco - off);
+      offD = 0;
+    } else {
+      offD = off - countEco; limD = PAGE;
+    }
+
+    const COLS = `
+      n.id, n.numero, n.serie, n.chaveacesso, n.dataemissao, n.situacao,
+      n.contato_nome, n.contato_numerodocumento, n.contato_email, n.contato_telefone,
+      n.contato_endereco_endereco, n.contato_endereco_numero, n.contato_endereco_bairro,
+      n.contato_endereco_municipio, n.contato_endereco_uf, n.contato_endereco_cep,
+      n.contato_endereco_complemento,
+      n.transporte_transportador_nome, n.transporte_transportador_numerodocumento,
+      n.transporte_freteporconta,
+      n.x_total_icmstot_vnf, n.x_total_icmstot_vprod,
+      n.x_total_icmstot_vdesc, n.x_total_icmstot_vfrete,
+      n.linkdanfe, n.linkpdf, n.xml,
+      n.x_ide_finnfe, n.x_infadic_infcpl
+    `;
+
+    if (limE > 0) {
+      const [rows] = await conn.execute(
+        `SELECT ${COLS},
+                COALESCE(p.numero, '')        AS numeropedido,
+                COALESCE(p.situacao_nome, '') AS pedido_situacao,
+                COALESCE(p.numeroloja, '')    AS pedido_numeroloja,
+                ''                            AS pedido_observacoes,
+                ''                            AS pedido_observacoesinternas,
+                'ecommerce'                   AS origem
+         FROM \`bling_nfe_saida_detalhes_ecommerce\` n
+         LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.numero
+         WHERE n.dataemissao BETWEEN ? AND ?
+         ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
+        [d1, d2]
+      );
+      notas = notas.concat(rows.map(r => montarNota(r)));
+    }
+
+    if (limD > 0) {
+      const [rows] = await conn.execute(
+        `SELECT ${COLS},
+                COALESCE(p.numero, '')               AS numeropedido,
+                COALESCE(p.situacao_nome, '')        AS pedido_situacao,
+                COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
+                COALESCE(p.observacoes, '')          AS pedido_observacoes,
+                COALESCE(p.observacoesinternas, '')  AS pedido_observacoesinternas,
+                'distribuidor'                       AS origem
+         FROM \`bling_nfe_saida_detalhes_distribuicao\` n
+         LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.numero
+         WHERE n.dataemissao BETWEEN ? AND ?
+         ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
+        [d1, d2]
+      );
+      notas = notas.concat(rows.map(r => montarNota(r)));
+    }
+
+    // Vínculo 2: notas sem pedido → busca pelo CPF
+    const semPedido = notas.filter(n => !n.numeropedido && n.cpf);
+    if (semPedido.length > 0) {
+      const cpfsEco  = [...new Set(semPedido.filter(n => n.origem === 'ecommerce').map(n => n.cpf))];
+      const cpfsDist = [...new Set(semPedido.filter(n => n.origem === 'distribuidor').map(n => n.cpf))];
+      const cpfPedidoMap = {};
+
+      if (cpfsEco.length > 0) {
+        const ph = cpfsEco.map(() => '?').join(',');
+        const [rowsCpf] = await conn.execute(
+          `SELECT contato_numerodocumento, numero, situacao_nome, numeroloja,
+                  '' AS observacoes, '' AS observacoesinternas
+           FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+           WHERE contato_numerodocumento IN (${ph})
+             AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
+           ORDER BY id DESC`, cpfsEco
+        ).catch(() => [[]]);
+        rowsCpf.forEach(r => {
+          if (!cpfPedidoMap[r.contato_numerodocumento]) cpfPedidoMap[r.contato_numerodocumento] = r;
+        });
+      }
+
+      if (cpfsDist.length > 0) {
+        const ph = cpfsDist.map(() => '?').join(',');
+        const [rowsCpf] = await conn.execute(
+          `SELECT contato_numerodocumento, numero, situacao_nome, numeroloja,
+                  COALESCE(observacoes,'') AS observacoes,
+                  COALESCE(observacoesinternas,'') AS observacoesinternas
+           FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+           WHERE contato_numerodocumento IN (${ph})
+             AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
+           ORDER BY id DESC`, cpfsDist
+        ).catch(() => [[]]);
+        rowsCpf.forEach(r => {
+          if (!cpfPedidoMap[r.contato_numerodocumento]) cpfPedidoMap[r.contato_numerodocumento] = r;
+        });
+      }
+
+      notas.forEach(n => {
+        if (!n.numeropedido && n.cpf && cpfPedidoMap[n.cpf]) {
+          const p = cpfPedidoMap[n.cpf];
+          n.numeropedido               = p.numero        || null;
+          n.pedido_situacao            = p.situacao_nome || null;
+          n.pedido_numeroloja          = p.numeroloja    || null;
+          n.pedido_observacoes         = p.observacoes && p.observacoes.trim() ? p.observacoes.trim() : null;
+          n.pedido_observacoesinternas = p.observacoesinternas && p.observacoesinternas.trim() ? p.observacoesinternas.trim() : null;
+        }
+      });
+    }
+
+    // ── Forma de pagamento NF (detpag) ────────────────────
+    if (notas.length > 0) {
+      const ids = notas.map(n => n.id);
+      const ph  = ids.map(() => '?').join(',');
+
+      const [detpagE] = await conn.execute(
+        `SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag
+         FROM \`bling_nfe_saida_detpag_ecommerce\` WHERE nfe_id IN (${ph})`, ids
+      ).catch(() => [[]]);
+      const [detpagD] = await conn.execute(
+        `SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag
+         FROM \`bling_nfe_saida_detpag_distribuicao\` WHERE nfe_id IN (${ph})`, ids
+      ).catch(() => [[]]);
+
+      const pagMap = {};
+      [...detpagE, ...detpagD].forEach(p => {
+        if (!pagMap[p.nfe_id]) pagMap[p.nfe_id] = [];
+        pagMap[p.nfe_id].push({ tipo: nomeTpag(p.x_pag_detpag_tpag), valor: p.x_pag_detpag_vpag });
+      });
+      notas.forEach(n => { n.formas_pagamento = pagMap[n.id] || []; });
+    }
+
+    // ── Obs Tray + cupom + parcelas (e-commerce) ─────────
+    const notasEco = notas.filter(n => n.origem === 'ecommerce');
+    if (notasEco.length > 0) {
+      const numeros     = [...new Set(notasEco.map(n => n.numeropedido).filter(Boolean))];
+      const numerosLoja = [...new Set(notasEco.map(n => n.pedido_numeroloja).filter(Boolean))];
+
+      const trayMap = {};
+
+      const fetchTray = async (ids) => {
+        if (!ids.length) return;
+        const ph = ids.map(() => '?').join(',');
+        // Obs cliente
+        const [tObs] = await conn.execute(
+          `SELECT order_id, MAX(order_customer_note) AS customer_note
+           FROM \`detalhes_pedidos_ecommerce_tray\`
+           WHERE order_id IN (${ph}) AND order_customer_note IS NOT NULL AND order_customer_note != ''
+           GROUP BY order_id`, ids
+        ).catch(() => [[]]);
+        tObs.forEach(r => {
+          if (!trayMap[String(r.order_id)]) trayMap[String(r.order_id)] = {};
+          trayMap[String(r.order_id)].customer_note = r.customer_note;
+        });
+        // Parcelas + payment_form
+        const [tPag] = await conn.execute(
+          `SELECT d.order_id, MAX(d.order_installment) AS parcelas, MAX(d.order_interest) AS juros,
+                  p.payment_form, p.discount_coupon
+           FROM \`detalhes_pedidos_ecommerce_tray\` d
+           LEFT JOIN \`pedidos_ecommerce_tray\` p ON p.id = d.order_id
+           WHERE d.order_id IN (${ph})
+           GROUP BY d.order_id, p.payment_form, p.discount_coupon`, ids
+        ).catch(() => [[]]);
+        tPag.forEach(r => {
+          if (!trayMap[String(r.order_id)]) trayMap[String(r.order_id)] = {};
+          trayMap[String(r.order_id)].parcelas     = r.parcelas;
+          trayMap[String(r.order_id)].juros        = r.juros;
+          trayMap[String(r.order_id)].payment_form = r.payment_form;
+          trayMap[String(r.order_id)].discount_coupon = r.discount_coupon;
+        });
+      };
+
+      await fetchTray(numeros);
+      await fetchTray(numerosLoja.filter(id => !trayMap[String(id)]));
+
+      notasEco.forEach(n => {
+        const t = trayMap[String(n.numeropedido)] || trayMap[String(n.pedido_numeroloja)] || {};
+        n.tray_customer_note  = t.customer_note  && t.customer_note.trim()  ? t.customer_note.trim()  : null;
+        n.tray_payment_form   = t.payment_form   || null;
+        n.tray_parcelas       = t.parcelas       || null;
+        n.tray_juros          = t.juros          || null;
+        // Cupom: formato "NOME/valor"
+        if (t.discount_coupon && t.discount_coupon.trim()) {
+          const parts = t.discount_coupon.split('/');
+          n.tray_cupom_nome  = parts[0] ? parts[0].trim() : t.discount_coupon.trim();
+          n.tray_cupom_valor = parts[1] ? parseFloat(parts[1]) : null;
+        } else {
+          n.tray_cupom_nome  = null;
+          n.tray_cupom_valor = null;
+        }
+      });
+    }
+
+    // ── Parcelas distribuidor ─────────────────────────────
+    const notasDist = notas.filter(n => n.origem === 'distribuidor' && n.numeropedido);
+    if (notasDist.length > 0) {
+      const pedidoIds = [...new Set(notasDist.map(n => n._pedido_id).filter(Boolean))];
+      // Busca pelo numero do pedido
+      const numPedidos = [...new Set(notasDist.map(n => n.numeropedido).filter(Boolean))];
+      if (numPedidos.length > 0) {
+        const ph = numPedidos.map(() => '?').join(',');
+        const [parcs] = await conn.execute(
+          `SELECT pv.numero AS pedido_numero,
+                  COUNT(pa.parcelas_id) AS qtd_parcelas,
+                  GROUP_CONCAT(pa.parcelas_observacoes SEPARATOR ' | ') AS obs_parcelas,
+                  SUM(pa.parcelas_valor) AS total_parcelas
+           FROM \`bling_pedidos_venda_detalhes_distribuicao\` pv
+           JOIN \`bling_pedidos_venda_detalhes_parcelas_distribuicao\` pa ON pa.pedido_venda_id = pv.id
+           WHERE pv.numero IN (${ph})
+           GROUP BY pv.numero`, numPedidos
+        ).catch(() => [[]]);
+        const parcMap = {};
+        parcs.forEach(p => { parcMap[p.pedido_numero] = p; });
+        notasDist.forEach(n => {
+          const p = parcMap[n.numeropedido];
+          if (p) {
+            n.dist_qtd_parcelas   = p.qtd_parcelas   || null;
+            n.dist_obs_parcelas   = p.obs_parcelas   || null;
+          }
+        });
+      }
+    }
+
+    // ── Pesos ─────────────────────────────────────────────
+    if (notas.length > 0) {
+      const ids = notas.map(n => n.id);
+      const ph  = ids.map(() => '?').join(',');
+      const [pesosE] = await conn.execute(
+        `SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol
+         FROM \`bling_nfe_saida_x_transp_vol_ecommerce\` WHERE nfe_id IN (${ph})`, ids
+      ).catch(() => [[]]);
+      const [pesosD] = await conn.execute(
+        `SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol
+         FROM \`bling_nfe_saida_x_transp_vol_distribuicao\` WHERE nfe_id IN (${ph})`, ids
+      ).catch(() => [[]]);
+      const pm = {};
+      [...pesosE, ...pesosD].forEach(p => {
+        pm[p.nfe_id] = { pesoBruto: p.x_transp_vol_pesob, pesoLiquido: p.x_transp_vol_pesol, qtdVolumes: p.x_transp_vol_qvol };
+      });
+      notas.forEach(n => {
+        const p = pm[n.id];
+        if (p) { n.pesoBruto = p.pesoBruto; n.pesoLiquido = p.pesoLiquido; n.qtdVolumes = p.qtdVolumes; }
+      });
+    }
+
+    conn.release();
+
+    notas.sort((a, b) => {
+      const da = a.dataemissao ? new Date(a.dataemissao).getTime() : 0;
+      const db = b.dataemissao ? new Date(b.dataemissao).getTime() : 0;
+      return db - da;
+    });
+
+    res.json({ notas, offset: off, pageSize: PAGE, total, hasMore: notas.length === PAGE });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/produtos-lista ───────────────────────────────────
+app.get('/api/produtos-lista', async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return res.json({ error: 'Parametros from e to obrigatorios.' });
+  const d1 = from + ' 00:00:00', d2 = to + ' 23:59:59';
+  try {
+    const conn = await pool.getConnection();
+    const [rowsE] = await conn.execute(
+      'SELECT xml FROM `bling_nfe_saida_detalhes_ecommerce` WHERE dataemissao BETWEEN ? AND ? AND xml IS NOT NULL AND xml != ""', [d1, d2]
+    );
+    const [rowsD] = await conn.execute(
+      'SELECT xml FROM `bling_nfe_saida_detalhes_distribuicao` WHERE dataemissao BETWEEN ? AND ? AND xml IS NOT NULL AND xml != ""', [d1, d2]
+    );
+    conn.release();
+    const urls = [...rowsE, ...rowsD].map(r => r.xml).filter(Boolean).slice(0, 20);
+    const fetch = (await import('node-fetch')).default;
+    const prodMap = {};
+    await Promise.all(urls.map(async url => {
+      try {
+        const r = await fetch(url, { timeout: 8000 });
+        if (!r.ok) return;
+        parseXmlProdutos(await r.text()).forEach(p => {
+          const key = p.codigo || p.nome;
+          if (key && !prodMap[key]) prodMap[key] = { codigo: p.codigo, nome: p.nome };
+        });
+      } catch(e) { /* ignora */ }
+    }));
+    const produtos = Object.values(prodMap).sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+    res.json({ produtos, total: produtos.length });
+  } catch(err) { res.json({ error: err.message }); }
+});
+
+// ── /api/produtos ─────────────────────────────────────────
+app.get('/api/produtos', async (req, res) => {
+  const { xmlUrl } = req.query;
+  if (!xmlUrl) return res.json({ error: 'xmlUrl obrigatorio.' });
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const resp  = await fetch(xmlUrl, { timeout: 15000 });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const produtos = parseXmlProdutos(await resp.text());
+    res.json({ produtos, total: produtos.length });
+  } catch (err) { res.json({ error: err.message }); }
+});
+
+// ── Helpers ───────────────────────────────────────────────
+function montarNota(r) {
+  const mun = r.contato_endereco_municipio || '';
+  const uf  = r.contato_endereco_uf || '';
+  
+  // Extrair número do pedido do campo x_infadic_infcpl se não vier do JOIN
+  let numeropedido = r.numeropedido || null;
+  if (!numeropedido && r.x_infadic_infcpl) {
+    // Procura por padrões específicos de pedido (evita pegar números de leis como LC 123/2006)
+    const match = r.x_infadic_infcpl.match(/(?:pedido|ped|pv|order)[:\s#]*(\d{5,})/i);
+    if (match) numeropedido = match[1];
+  }
+  
+  // Extrair produtos do XML se disponível
+  let produtos = [];
+  // NÃO parsear XML aqui - r.xml é uma URL, não o conteúdo XML
+  // Produtos serão carregados no frontend quando necessário
+  
+  return {
+    id:                 r.id,
+    origem:             r.origem,
+    numero:             r.numero,
+    serie:              r.serie,
+    chaveacesso:        r.chaveacesso,
+    dataemissao:        r.dataemissao ? new Date(r.dataemissao).toISOString() : null,
+    situacao:           r.situacao,
+    finnfe:             r.x_ide_finnfe || null,   // '2' = devolução/reversa
+    cliente:            r.contato_nome,
+    cpf:                r.contato_numerodocumento,
+    email:              r.contato_email,
+    telefone:           r.contato_telefone,
+    endereco:           r.contato_endereco_endereco,
+    endNumero:          r.contato_endereco_numero,
+    bairro:             r.contato_endereco_bairro,
+    cidade:             mun && uf ? mun + '/' + uf : (mun || uf || ''),
+    cep:                r.contato_endereco_cep,
+    complemento:        r.contato_endereco_complemento,
+    transportadora:     r.transporte_transportador_nome,
+    transportadoraCnpj: r.transporte_transportador_numerodocumento,
+    fretePorConta:      r.transporte_freteporconta,
+    valor:              r.x_total_icmstot_vnf    || null,
+    valorProdutos:      r.x_total_icmstot_vprod  || null,
+    desconto:           r.x_total_icmstot_vdesc  || null,
+    frete:              r.x_total_icmstot_vfrete || null,
+    linkdanfe:          r.linkdanfe,
+    linkpdf:            r.linkpdf,
+    xmlUrl:             r.xml,
+    produtos:           produtos,  // ← PRODUTOS JÁ INCLUÍDOS
+    numeropedido:       numeropedido,
+    pedido_situacao:    r.pedido_situacao   || null,
+    pedido_numeroloja:  r.pedido_numeroloja || null,
+    pedido_observacoes: r.pedido_observacoes && r.pedido_observacoes.trim() ? r.pedido_observacoes.trim() : null,
+    pedido_observacoesinternas: r.pedido_observacoesinternas && r.pedido_observacoesinternas.trim() ? r.pedido_observacoesinternas.trim() : null,
+    formas_pagamento:   [],   // preenchido depois
+    tray_customer_note: null,
+    tray_payment_form:  null,
+    tray_parcelas:      null,
+    tray_juros:         null,
+    tray_cupom_nome:    null,
+    tray_cupom_valor:   null,
+    dist_qtd_parcelas:  null,
+    dist_obs_parcelas:  null,
+    pesoBruto:          null,
+    pesoLiquido:        null,
+    qtdVolumes:         null
+  };
+}
+
+function montarPedido(r) {
+  return {
+    id:                 r.id,
+    origem:             r.origem,
+    numero:             r.numero,
+    data:               r.data ? new Date(r.data).toISOString() : null,
+    datasaida:          r.datasaida ? new Date(r.datasaida).toISOString() : null,
+    situacao:           r.situacao_nome,
+    situacao_id:        r.situacao_id,
+    cliente:            r.contato_nome,
+    cpf:                r.contato_numerodocumento,
+    tipoPessoa:         r.contato_tipopessoa,
+    valor:              r.total || null,
+    valorProdutos:      r.totalprodutos || null,
+    desconto:           r.desconto_valor || null,
+    transportadora:     r.transporte_contato_nome,
+    frete:              r.transporte_frete || null,
+    pesoBruto:          r.transporte_pesobruto || null,
+    notafiscal_id:      r.notafiscal_id,
+    numeroloja:         r.numeroloja,
+    loja_id:            r.loja_id,
+    observacoes:        r.observacoes && r.observacoes.trim() ? r.observacoes.trim() : null,
+    observacoesinternas: r.observacoesinternas && r.observacoesinternas.trim() ? r.observacoesinternas.trim() : null
+  };
+}
+
+function parseXmlProdutos(xml) {
+  const produtos = [];
+  const dets = xml.match(/<det\b[^>]*>[\s\S]*?<\/det>/g) || [];
+  dets.forEach(det => {
+    const prod = det.match(/<prod>([\s\S]*?)<\/prod>/);
+    if (!prod) return;
+    const p = prod[1];
+    produtos.push({
+      codigo:    tag(p,'cProd'), nome:      tag(p,'xProd'),
+      ncm:       tag(p,'NCM'),   cfop:      tag(p,'CFOP'),
+      unidade:   tag(p,'uCom'),  qtd:       parseFloat(tag(p,'qCom'))   || 0,
+      valorUnit: parseFloat(tag(p,'vUnCom')) || 0,
+      valor:     parseFloat(tag(p,'vProd'))  || 0,
+      desconto:  parseFloat(tag(p,'vDesc'))  || 0
+    });
+  });
+  return produtos;
+}
+
+function tag(xml, name) {
+  const m = xml.match(new RegExp('<' + name + '>([^<]*)</' + name + '>'));
+  return m ? m[1] : '';
+}
+
+app.listen(PORT, () => console.log('NF-e API rodando na porta ' + PORT));
