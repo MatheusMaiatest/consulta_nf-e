@@ -3602,6 +3602,7 @@ G('searchPCP').oninput = function(){
            (p.sku && String(p.sku).toLowerCase().includes(q)) ||
            (p.codigo && p.codigo.toLowerCase().includes(q));
   });
+};
   renderPCPGrid(filtered);
 // ── ESTOQUE: parse CSV ────────────────────────────────────
 function parseCsvEstoque(texto) {
@@ -3687,8 +3688,6 @@ G('inputEstoqueDist').onchange = async function() {
     G('pcp-estoque-dist-info').textContent = file.name + ' (' + d.totalItens + ' itens)';
     this.value = '';
   } catch(e) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + e.message; }
-};
-
 };
 // Carregar status ao iniciar
 carregarStatusPCP();
