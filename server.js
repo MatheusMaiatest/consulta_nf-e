@@ -38,6 +38,31 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
+// ── /api/produtos-cd ──────────────────────────────────────
+app.get('/api/produtos-cd', (req, res) => {
+  try {
+    const fs = require('fs');
+    const produtosJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'produtos-cd.json'), 'utf8'));
+    
+    // Criar mapa SKU -> Produto para busca rápida
+    const mapaProdutos = {};
+    produtosJson.forEach(p => {
+      mapaProdutos[String(p.SKU)] = {
+        sku: p.SKU,
+        descricao: p['DESCRIÇÃO '] || p.DESCRIÇÃO || '',
+        codigoBarras: p['CÓD. DE BARRAS'] || p.CODIGO_BARRAS || '',
+        situacao: p['SITUAÇÃO'] || p.SITUACAO || '',
+        linha: p.LINHA || ''
+      };
+    });
+    
+    res.json(mapaProdutos);
+  } catch (err) {
+    console.error('Erro ao ler produtos-cd.json:', err);
+    res.json({});
+  }
+});
+
 // ── /api/stats ────────────────────────────────────────────
 app.get('/api/stats', async (req, res) => {
   try {
