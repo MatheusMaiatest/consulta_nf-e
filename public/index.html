@@ -285,7 +285,7 @@
     <aside class="panel" id="panel">
       <div class="panel-title">Painel de Controle</div>
       <div class="psec">
-        <span class="plabel">?? Per�odo</span>
+        <span class="plabel">?? Período</span>
         <div class="date-row">
           <div class="fg"><label>De</label><input type="date" id="dtFrom"/></div>
           <div class="fg"><label>At�</label><input type="date" id="dtTo"/></div>
@@ -317,7 +317,7 @@
           <label class="ctog"><input type="checkbox" data-c="transp" checked/>Transportadora</label>
           <label class="ctog"><input type="checkbox" data-c="cpf" checked/>CPF</label>
           <label class="ctog"><input type="checkbox" data-c="cidade" checked/>Cidade/UF</label>
-          <label class="ctog"><input type="checkbox" data-c="numero" checked/>N� NF</label>
+          <label class="ctog"><input type="checkbox" data-c="numero" checked/>Nº NF</label>
           <label class="ctog"><input type="checkbox" data-c="data" checked/>Data</label>
         </div>
       </div>
@@ -342,10 +342,10 @@
         <div id="prodFiltroChip"></div>
       </div>
       <div class="psec">
-        <span class="plabel">?? Filtros Avan�ados</span>
+        <span class="plabel">?? Filtros AvaNºados</span>
         <div class="filtros-extra">
           <button class="btn-filtro-extra" data-filtro="numero" id="btnFiltroNumero">
-            <span>?? N�mero NF</span><span class="fex-count" id="cntNumero">0</span>
+            <span>?? Nºmero NF</span><span class="fex-count" id="cntNumero">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="cliente" id="btnFiltroCliente">
             <span>?? Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
@@ -371,7 +371,7 @@
         <span class="rcount" id="rcount"></span>
       </div>
       <div class="grid" id="grid">
-        <div class="empty"><div class="empty-icon">??</div><p>Selecione um per�odo e clique em <strong>Buscar Notas</strong></p></div>
+        <div class="empty"><div class="empty-icon">??</div><p>Selecione um Período e clique em <strong>Buscar Notas</strong></p></div>
       </div>
     </main>
   </div>
@@ -383,7 +383,7 @@
     <aside class="panel" id="panel-pedidos">
       <div class="panel-title">Painel de Controle</div>
       <div class="psec">
-        <span class="plabel">?? Per�odo</span>
+        <span class="plabel">?? Período</span>
         <div class="date-row">
           <div class="fg"><label>De</label><input type="date" id="dtFromPed"/></div>
           <div class="fg"><label>At�</label><input type="date" id="dtToPed"/></div>
@@ -405,7 +405,7 @@
         <span class="rcount" id="rcountPed"></span>
       </div>
       <div class="grid" id="gridPed">
-        <div class="empty"><div class="empty-icon">??</div><p>Selecione um per�odo e clique em <strong>Buscar Pedidos</strong></p></div>
+        <div class="empty"><div class="empty-icon">??</div><p>Selecione um Período e clique em <strong>Buscar Pedidos</strong></p></div>
       </div>
     </main>
   </div>
@@ -428,11 +428,11 @@
         <span class="plabel">?? Prioridade</span>
         <div class="tog-grp" style="flex-direction:column;gap:6px">
           <label class="tchip on" data-prio="antigo">
-            <input type="radio" name="prioridade" value="antigo" checked/>
+            <input type="radio" name="Prioridade" value="antigo" checked/>
             ?? Mais Antigo
           </label>
           <label class="tchip" data-prio="volume">
-            <input type="radio" name="prioridade" value="volume"/>
+            <input type="radio" name="Prioridade" value="volume"/>
             ?? Solta Mais Pedidos
           </label>
         </div>
@@ -450,7 +450,7 @@
       <div class="grid" id="gridPCP">
         <div class="empty">
           <div class="empty-icon">??</div>
-          <p>Selecione os status e prioridade, depois clique em <strong>Processar PCP</strong></p>
+          <p>Selecione os status e Prioridade, depois clique em <strong>Processar PCP</strong></p>
         </div>
       </div>
     </main>
@@ -488,7 +488,7 @@
         <div class="dash-chart-wrap"><canvas id="chart-pb-pl"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>??</span> Distribui��o de Peso Bruto (faixas)</div>
+        <div class="dash-card-title"><span>??</span> Distribui📋o de Peso Bruto (faixas)</div>
         <div class="dash-chart-wrap"><canvas id="chart-hist"></canvas></div>
       </div>
       <div class="dash-card">
@@ -575,14 +575,14 @@
         <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>??</span> Situa��o dos Pedidos</div>
+        <div class="dash-card-title"><span>??</span> Situa📋o dos Pedidos</div>
         <div class="dash-chart-wrap"><canvas id="chart-situacao"></canvas></div>
       </div>
     </div>
   </div>
   </div><!-- /view-vendas -->
 
-  <!-- MODAL GEN�RICO DE FILTRO (reutilizado para todos os 5 filtros) -->
+  <!-- MODAL GENºRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
   <div class="pmod-overlay" id="fexOverlay">
     <div class="pmod">
       <div class="pmod-head">
@@ -691,7 +691,7 @@
   // -- Painel -------------------------------------------------
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
-  // -- Fun��o de filtro (definida ANTES dos event listeners) --
+  // -- Fun📋o de filtro (definida ANTES dos event listeners) --
   function applyFilters(){
     console.log('?? applyFilters BASE chamada (ser� sobrescrita)');
     G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
@@ -708,11 +708,11 @@
     }
     
     c.onclick=function(e){
-      e.preventDefault(); // Previne comportamento padr�o do label
-      e.stopPropagation(); // Para propaga��o do evento
+      e.preventDefault(); // Previne comportamento padrão do label
+      e.stopPropagation(); // Para propaga📋o do evento
       
       var o=c.dataset.o;
-      if(!o) return; // Ignora chips que n�o s�o de origem
+      if(!o) return; // Ignora chips que Nºo s�o de origem
       
       // Bot�o "TODAS" para origem
       if(o === 'todas'){
@@ -759,7 +759,7 @@
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
-        console.error('? applyFilters N�O � UMA FUN��O!');
+        console.error('? applyFilters NºO � UMA FUN📋O!');
       }
     };
   });
@@ -794,7 +794,7 @@
       }
     }
     
-    // Se n�o encontrar, tenta buscar por similaridade no nome
+    // Se Nºo encontrar, tenta buscar por similaridade no nome
     if (nomeProduto) {
       const nomeLimpo = nomeProduto.toLowerCase().trim();
       
@@ -812,7 +812,7 @@
         const prod = produtosCD[sku];
         const descLimpa = (prod.descricao || '').toLowerCase().trim();
         
-        // Verifica se o nome do produto cont�m a descri��o do JSON ou vice-versa
+        // Verifica se o nome do produto cont�m a descri📋o do JSON ou vice-versa
         if (descLimpa.length > 10 && (nomeLimpo.includes(descLimpa) || descLimpa.includes(nomeLimpo))) {
           return prod;
         }
@@ -852,14 +852,14 @@
 
   function buscar(){
     var f=G('dtFrom').value, t=G('dtTo').value;
-    if(!f||!t){setStatus('?? Selecione o per�odo.','warn');return;}
+    if(!f||!t){setStatus('?? Selecione o Período.','warn');return;}
     if(f>t){setStatus('?? Data inicial maior que final.','warn');return;}
     allNotas=[];
     _buscarFrom=f; _buscarTo=t; _buscarOffset=0; _buscarTotal=0; _buscarAtivo=true;
     loading(true); setStatus('Buscando...');
     buscarPagina();
     
-    // SINCRONIZA��O: Buscar pedidos automaticamente com as mesmas datas
+    // SINCRONIZA📋O: Buscar pedidos automaticamente com as mesmas datas
     G('dtFromPed').value = f;
     G('dtToPed').value = t;
     setTimeout(function(){ buscarPedidos(); }, 200);
@@ -898,7 +898,7 @@
   G('search').oninput=function(e){
     activeSearch=e.target.value.toLowerCase().trim();
     applyFilters();
-    // SINCRONIZA��O: Aplicar mesma busca nos pedidos
+    // SINCRONIZA📋O: Aplicar mesma busca nos pedidos
     G('searchPed').value = e.target.value;
     activeSearchPed = activeSearch;
     applyFiltersPed();
@@ -1029,7 +1029,7 @@
     d.innerHTML=
       (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
       (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'�')+'</div>':'')+
-      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'�')+' � S�rie '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">? Reversa</span>':'')+' </div>':'')+
+      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'�')+' � Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">? Reversa</span>':'')+' </div>':'')+
       (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
         '<span style="color:var(--ac);font-size:.75rem;font-weight:700">?? Pedido '+esc(n.numeropedido)+'</span>'+
         sitBadgeCard(n.pedido_situacao)+
@@ -1068,9 +1068,9 @@
     console.log('?? abrirModal chamada:', n);
     var ol=n.origem==='ecommerce'?'?? E-commerce':'?? Distribuidor';
     
-    // Badge de situa��o da NF
+    // Badge de situa📋o da NF
     var nfSituacao = n.situacao ? String(n.situacao) : 'Autorizada';
-    var nfSitClass = 'ok'; // Verde por padr�o (autorizada)
+    var nfSitClass = 'ok'; // Verde por padrão (autorizada)
     if(nfSituacao.toLowerCase().includes('cancelad')) nfSitClass = 'err';
     else if(nfSituacao.toLowerCase().includes('denegad')) nfSitClass = 'err';
     else if(nfSituacao.toLowerCase().includes('rejeitad')) nfSitClass = 'err';
@@ -1082,15 +1082,15 @@
     
     G('mbody').innerHTML=
       // -----------------------------------------------------------
-      // SE��O: NOTA FISCAL
+      // SE📋O: NOTA FISCAL
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(92,107,192,.05);border:2px solid var(--ac);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
         '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">?? NOTA FISCAL</h3>'+
         '<div class="dgrid">'+
-          di('N�mero',n.numero)+
-          di('S�rie',n.serie)+
-          di('Data Emiss�o',fmtDate(n.dataemissao))+
-          '<div class="di"><label>Situa��o NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
+          di('Nºmero',n.numero)+
+          di('Série',n.serie)+
+          di('Data Emissão',fmtDate(n.dataemissao))+
+          '<div class="di"><label>Situa📋o NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
           diV('Valor Total',brl(n.valor))+
           di('Valor Produtos',brl(n.valorProdutos))+
           di('Desconto',brl(n.desconto))+
@@ -1100,18 +1100,18 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE��O: PEDIDO DE VENDA
+      // SE📋O: PEDIDO DE VENDA
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
         '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">?? PEDIDO DE VENDA</h3>'+
         (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? 
           '<div class="dgrid">'+
-            diCopy('N� Pedido Bling', n.numeropedido||'�')+
-            di('N� Loja/Marketplace', n.pedido_numeroloja||'�')+
-            (n.pedido_situacao ? '<div class="di"><label>Situa��o Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
+            diCopy('Nº Pedido Bling', n.numeropedido||'�')+
+            di('Nº Loja/Marketplace', n.pedido_numeroloja||'�')+
+            (n.pedido_situacao ? '<div class="di"><label>Situa📋o Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
           '</div>'+
-          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">?? Observa��es do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
-          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">?? Observa��es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
+          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">?? Observa📋es do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
+          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">?? Observa📋es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
           '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
             '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">?? Ver Detalhes Bling</button>'+
             (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">?? Obs. Cliente (Tray)</button>' : '')+
@@ -1120,7 +1120,7 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE��O: DESTINAT�RIO
+      // SE📋O: DESTINAT�RIO
       // -----------------------------------------------------------
       '<div class="dsec">'+
         '<h3>?? Destinat�rio</h3>'+
@@ -1130,7 +1130,7 @@
           di('E-mail',n.email)+
           di('Telefone',n.telefone)+
           di('Endere�o',n.endereco)+
-          di('N�mero',n.endNumero)+
+          di('Nºmero',n.endNumero)+
           di('Bairro',n.bairro)+
           di('Cidade/UF',n.cidade)+
           di('CEP',n.cep)+
@@ -1139,7 +1139,7 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE��O: TRANSPORTE
+      // SE📋O: TRANSPORTE
       // -----------------------------------------------------------
       '<div class="dsec">'+
         '<h3>?? Transporte</h3>'+
@@ -1154,7 +1154,7 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE��O: PAGAMENTO
+      // SE📋O: PAGAMENTO
       // -----------------------------------------------------------
       '<div class="dsec">'+
         '<h3>?? Pagamento</h3>'+
@@ -1168,7 +1168,7 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE��O: PRODUTOS
+      // SE📋O: PRODUTOS
       // -----------------------------------------------------------
       '<div class="dsec">'+
         '<h3>?? Produtos</h3>'+
@@ -1178,7 +1178,7 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE��O: LINKS
+      // SE📋O: LINKS
       // -----------------------------------------------------------
       '<div class="dsec">'+
         '<h3>?? Links</h3>'+
@@ -1196,7 +1196,7 @@
     carregarProdutosNF(n);
   }
   
-  // Helper para determinar classe de cor da situa��o
+  // Helper para determinar classe de cor da situa📋o
   function getSitClass(sit){
     if(!sit) return 'info';
     var s = sit.toLowerCase();
@@ -1212,7 +1212,7 @@
     if(!lista) return;
     
     if(!n.xmlUrl){
-      lista.innerHTML='<div class="pload">XML n�o dispon�vel.</div>';
+      lista.innerHTML='<div class="pload">XML Nºo dispoNºvel.</div>';
       return;
     }
     
@@ -1245,7 +1245,7 @@
         '</div>';
       }).join('');
       
-      // Salvar produtos na nota para n�o precisar carregar novamente
+      // Salvar produtos na nota para Nºo precisar carregar novamente
       n.produtos = produtos;
       
     } catch(err){
@@ -1256,7 +1256,7 @@
 
   async function carregarProdutos(n){
     var lista=G('plist');
-    if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML n�o dispon�vel.</div>';return;}
+    if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML Nºo dispoNºvel.</div>';return;}
     try{
       var resp=await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
       var d=await resp.json();
@@ -1322,16 +1322,16 @@
   }
   function setStatus(m,t){var s=G('status');s.textContent=m;s.style.color=t==='err'?'var(--err)':t==='warn'?'var(--warn)':'var(--tm)';}
   function loading(on){G('loverlay').classList.toggle('on',on);}
-  // -- FILTROS AVAN�ADOS (numero, cliente, cpf, telefone, email) --
+  // -- FILTROS AVANºADOS (numero, cliente, cpf, telefone, email) --
   var _fexConfig = {
-    numero:   { titulo:'?? N�mero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
+    numero:   { titulo:'?? Nºmero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
     cliente:  { titulo:'?? Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
     cpf:      { titulo:'?? CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
     telefone: { titulo:'?? Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
     email:    { titulo:'?? E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
   };
 
-  // Mapa de sele��es: { numero: Set, cliente: Set, ... }
+  // Mapa de sele📋es: { numero: Set, cliente: Set, ... }
   var _fexSel = { numero:new Set(), cliente:new Set(), cpf:new Set(), telefone:new Set(), email:new Set() };
   var _fexAtual = null; // qual filtro est� aberto agora
 
@@ -1458,7 +1458,7 @@
     applyFilters();
   }
 
-  // Sobrescreve applyFilters para incluir filtros avan�ados
+  // Sobrescreve applyFilters para incluir filtros avaNºados
   var _applyFiltersBase = applyFilters;
   applyFilters = function(){
     console.log('?? applyFilters INTERMEDI�RIA chamada (ser� sobrescrita novamente)');
@@ -1472,10 +1472,10 @@
         var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
         if(h.indexOf(activeSearch) < 0) return false;
       }
-      // Filtros avan�ados � AND entre filtros, OR dentro de cada filtro
+      // Filtros avaNºados � AND entre filtros, OR dentro de cada filtro
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
-          if(_fexSel[key].size === 0) return true; // filtro n�o aplicado = passa
+          if(_fexSel[key].size === 0) return true; // filtro Nºo aplicado = passa
           var campo = _fexConfig[key].campo;
           var val = (n[campo]||'').toString().trim();
           return _fexSel[key].has(val);
@@ -1620,7 +1620,7 @@
         if(h.indexOf(activeSearch) < 0) return false;
       }
       
-      // Filtros avan�ados
+      // Filtros avaNºados
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
           if(_fexSel[key].size === 0) return true;
@@ -1684,7 +1684,7 @@
     setStatus('? '+filteredNotas.length+' notas com os produtos selecionados.');
   }
 
-  // -- Helper badge situa��o no card --------------------------
+  // -- Helper badge situa📋o no card --------------------------
   function sitBadgeCard(sit){
     if(!sit) return '';
     var cls='info';
@@ -1720,23 +1720,23 @@
       '</div>';
 
     var body = '<div class="dgrid">';
-    if(n.numeropedido)      body += diCopy('N� Pedido', n.numeropedido);
-    if(n.pedido_numeroloja) body += di('N� Loja/Marketplace', n.pedido_numeroloja);
-    if(sit)                 body += '<div class="di"><label>Situa��o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
+    if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
+    if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
+    if(sit)                 body += '<div class="di"><label>Situa📋o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
     body += '</div>';
 
-    body += '<div><div class="obs-label">?? Observa��es</div>';
+    body += '<div><div class="obs-label">?? Observa📋es</div>';
     if(n.pedido_observacoes){
       body += '<div class="obs-box">'+esc(n.pedido_observacoes)+'</div>';
     } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa��es.</div>';
+      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa📋es.</div>';
     }
     body += '</div>';
-    body += '<div><div class="obs-label">?? Observa��es Internas</div>';
+    body += '<div><div class="obs-label">?? Observa📋es Internas</div>';
     if(n.pedido_observacoesinternas){
       body += '<div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div>';
     } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa��es internas.</div>';
+      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa📋es internas.</div>';
     }
     body += '</div>';
 
@@ -1750,14 +1750,14 @@
   function abrirModalTray(e, n){
     e.stopPropagation();
     if(!n) return;
-    G('trayHead').innerHTML = '<h3>?? Observa��o do Cliente (Tray)</h3>'+
+    G('trayHead').innerHTML = '<h3>?? Observa📋o do Cliente (Tray)</h3>'+
       (n.numeropedido ? '<div style="font-size:.8rem;color:var(--tm);margin-top:4px">Pedido #'+esc(n.numeropedido)+'</div>' : '')+
       (n.pedido_numeroloja ? '<div style="font-size:.8rem;color:var(--tm)">Loja: '+esc(n.pedido_numeroloja)+'</div>' : '');
     var body = '';
     if(n.tray_customer_note){
       body += '<div><div class="obs-label">?? Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
     } else {
-      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa��o do cliente neste pedido.</div>';
+      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa📋o do cliente neste pedido.</div>';
     }
     G('trayBody').innerHTML = body;
     G('trayOverlay').classList.add('open');
@@ -1769,7 +1769,7 @@
   ['todas','com','sem'].forEach(function(tipo){
     var chip = document.querySelector('[data-cupom="'+tipo+'"]');
     if(!chip) {
-      if(tipo !== 'todas') console.error('? Chip n�o encontrado para cupom:', tipo);
+      if(tipo !== 'todas') console.error('? Chip Nºo encontrado para cupom:', tipo);
       return;
     }
     console.log('? Chip encontrado para cupom:', tipo, 'classes:', chip.className);
@@ -1782,8 +1782,8 @@
     }
     
     chip.onclick = function(e){
-      e.preventDefault(); // Previne comportamento padr�o do label
-      e.stopPropagation(); // Para propaga��o do evento
+      e.preventDefault(); // Previne comportamento padrão do label
+      e.stopPropagation(); // Para propaga📋o do evento
       
       // Bot�o "TODAS" para cupom
       if(tipo === 'todas'){
@@ -1814,7 +1814,7 @@
       
       _filtroCupom[tipo] = !_filtroCupom[tipo];
       
-      // FOR�A atualiza��o visual
+      // FOR�A atualiza📋o visual
       if(_filtroCupom[tipo]) {
         chip.classList.add('on');
       } else {
@@ -1829,7 +1829,7 @@
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
-        console.error('? applyFilters N�O � UMA FUN��O!');
+        console.error('? applyFilters NºO � UMA FUN📋O!');
       }
     };
   });
@@ -1849,7 +1849,7 @@
     });
     var lista = Object.keys(formas).sort();
     if(!lista.length){ alert('Fa�a uma busca primeiro.'); return; }
-    // Reutiliza o modal gen�rico fexOverlay
+    // Reutiliza o modal geNºrico fexOverlay
     _fexAtual = '__pag__';
     G('fexTitulo').textContent = '?? Forma de Pagamento';
     G('fexSearch').value = '';
@@ -1926,7 +1926,7 @@
         }
       }
       
-      // Filtros avan�ados
+      // Filtros avaNºados
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
           if(_fexSel[key].size === 0) return true;
@@ -2067,7 +2067,7 @@
     var nTransp = Object.keys(transpSet).length;
 
     var kpis = [
-      {label:'NFs no per�odo', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
+      {label:'NFs no Período', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
       {label:'Transportadoras', value:nTransp, sub:'Transportadoras ativas', cls:''},
       {label:'Peso Bruto Total', value:fmtNum(totalPB)+' kg', sub:nfComPeso+' NFs com peso', cls:''},
       {label:'Peso M�dio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto m�dio', cls:'ok'},
@@ -2272,7 +2272,7 @@
       {label:'Total Descontos',    value:fmtBRL(totalDesc),        sub:'Descontos aplicados',         cls:'warn'},
       {label:'Total Frete',        value:fmtBRL(totalFrete),       sub:'Frete nas NFs',               cls:''},
       {label:'Com Cupom',          value:comCupom,                 sub:'NFs com cupom Tray',          cls:''},
-      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu��o',          cls:'warn'}
+      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu📋o',          cls:'warn'}
     ];
     document.getElementById('kpi-vendas').innerHTML = kpis.map(function(k){
       return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
@@ -2394,7 +2394,7 @@
       var ctx=document.getElementById('chart-cupons'); if(!ctx) return;
       destroyDashChart('cupons');
       ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
-      ctx.parentElement.innerHTML='<div class="dash-empty">Nenhum cupom no per�odo.</div>';
+      ctx.parentElement.innerHTML='<div class="dash-empty">Nenhum cupom no Período.</div>';
       return;
     }
     var data=labels.map(function(l){ return cupons[l].count; });
@@ -2475,7 +2475,7 @@
       })
       .catch(function(){
         ['map-nf-loading','map-transp-loading','map-vendas-loading'].forEach(function(id){
-          var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--tm);padding:20px;text-align:center">Mapa indispon�vel.</p>';
+          var el=document.getElementById(id); if(el) el.innerHTML='<p style="font-size:12px;color:var(--tm);padding:20px;text-align:center">Mapa indispoNºvel.</p>';
         });
       });
   }
@@ -2710,7 +2710,7 @@
     var titleId = 'drillTitle-' + mode;
     var subId = 'drillSub-' + mode;
     
-    // Criar container de drill se n�o existir
+    // Criar container de drill se Nºo existir
     var drillContainer = mapCard.querySelector('.drill-container');
     if(!drillContainer){
       drillContainer = document.createElement('div');
@@ -2740,7 +2740,7 @@
 
     var code = UF_IBGE_CODES[uf];
     if(!code){
-      document.getElementById(loadingId).textContent = 'Estado n�o dispon�vel para drill-down.';
+      document.getElementById(loadingId).textContent = 'Estado Nºo dispoNºvel para drill-down.';
       return;
     }
     if(_drillGeoCache[uf]){
@@ -2752,7 +2752,7 @@
       .then(function(r){ return r.json(); })
       .then(function(geo){ _drillGeoCache[uf] = geo; renderDrillMap(geo, uf, stateName, mode); })
       .catch(function(){
-        document.getElementById(loadingId).textContent = 'N�o foi poss�vel carregar o mapa municipal.';
+        document.getElementById(loadingId).textContent = 'Nºo foi poss�vel carregar o mapa municipal.';
       });
   }
 
@@ -2849,8 +2849,8 @@
         .on('mousemove',moveMapTip)
         .on('mouseleave',hideMapTip);
 
-      // REMOVIDO: N�o renderiza mais os nomes das cidades no mapa
-      // REMOVIDO: Clique n�o filtra mais as NFs
+      // REMOVIDO: Nºo renderiza mais os nomes das cidades no mapa
+      // REMOVIDO: Clique Nºo filtra mais as NFs
     });
 
     // Criar lista de cidades no rodap�
@@ -2947,7 +2947,7 @@
 
   // Inicializar evento de fechar drill ao clicar fora (aguarda DOM)
   document.addEventListener('DOMContentLoaded', function(){
-    // N�o precisa mais do overlay, drill agora substitui o mapa
+    // Nºo precisa mais do overlay, drill agora substitui o mapa
   });
 
   // -----------------------------------------------------------
@@ -2970,7 +2970,7 @@
   
   function buscarPedidos(){
     var f = G('dtFromPed').value, t = G('dtToPed').value;
-    if(!f || !t){ setStatusPed('?? Selecione o per�odo.', 'warn'); return; }
+    if(!f || !t){ setStatusPed('?? Selecione o Período.', 'warn'); return; }
     if(f > t){ setStatusPed('?? Data inicial maior que final.', 'warn'); return; }
     
     allPedidos = [];
@@ -2979,7 +2979,7 @@
     setStatusPed('Buscando pedidos...');
     buscarPedidosPagina();
     
-    // SINCRONIZA��O REVERSA: Buscar NFs automaticamente se as datas forem diferentes
+    // SINCRONIZA📋O REVERSA: Buscar NFs automaticamente se as datas forem diferentes
     if(G('dtFrom').value !== f || G('dtTo').value !== t){
       G('dtFrom').value = f;
       G('dtTo').value = t;
@@ -3039,7 +3039,7 @@
   G('searchPed').oninput = function(e){
     activeSearchPed = e.target.value.toLowerCase().trim();
     applyFiltersPed();
-    // SINCRONIZA��O REVERSA: Aplicar mesma busca nas NFs
+    // SINCRONIZA📋O REVERSA: Aplicar mesma busca nas NFs
     G('search').value = e.target.value;
     activeSearch = activeSearchPed;
     applyFilters();
@@ -3096,25 +3096,25 @@
       '<div class="msub">Pedido ' + esc(p.numero || '�') + ' � ' + fmtDate(p.data) + '</div>';
     
     G('mbodyPed').innerHTML =
-      // SE��O: PEDIDO
+      // SE📋O: PEDIDO
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">' +
         '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">?? PEDIDO DE VENDA</h3>' +
         '<div class="dgrid">' +
-          di('N�mero', p.numero) +
+          di('Nºmero', p.numero) +
           di('Data Pedido', fmtDate(p.data)) +
           di('Data Sa�da', fmtDate(p.datasaida)) +
-          '<div class="di"><label>Situa��o</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
+          '<div class="di"><label>Situa📋o</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
           diV('Valor Total', brl(p.valor)) +
           di('Valor Produtos', brl(p.valorProdutos)) +
           di('Desconto', brl(p.desconto)) +
-          di('N� Loja', p.numeroloja || '�') +
+          di('Nº Loja', p.numeroloja || '�') +
           (temNF ? '<div class="di"><label>Nota Fiscal</label><span><span class="card-sit-badge ok">? NF Vinculada (ID: ' + p.notafiscal_id + ')</span></span></div>' : '<div class="di"><label>Nota Fiscal</label><span style="color:var(--warn)">? Sem NF vinculada</span></div>') +
         '</div>' +
-        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">?? Observa��es</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
-        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">?? Observa��es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
+        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">?? Observa📋es</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
+        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">?? Observa📋es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
       '</div>' +
       
-      // SE��O: CLIENTE
+      // SE📋O: CLIENTE
       '<div class="dsec">' +
         '<h3>?? Cliente</h3>' +
         '<div class="dgrid">' +
@@ -3124,7 +3124,7 @@
         '</div>' +
       '</div>' +
       
-      // SE��O: TRANSPORTE
+      // SE📋O: TRANSPORTE
       '<div class="dsec">' +
         '<h3>?? Transporte</h3>' +
         '<div class="dgrid">' +
@@ -3134,7 +3134,7 @@
         '</div>' +
       '</div>' +
       
-      // SE��O: PRODUTOS
+      // SE📋O: PRODUTOS
       '<div class="dsec">' +
         '<h3>?? Produtos</h3>' +
         (p.itens && p.itens.length ? 
@@ -3225,7 +3225,7 @@ async function carregarStatusPCP(){
   }
 }
 
-// Event listeners para prioridade
+// Event listeners para Prioridade
 G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(lbl){
   lbl.onclick = function(e){
     e.preventDefault();
@@ -3266,11 +3266,11 @@ G('btnProcessarPCP').onclick = async function(){
     pcpTodosPedidos = d.pedidos || [];
     
     // Avisar se atingiu o limite
-    if(pcpTodosPedidos.length >= 1000){
-      console.warn('⚠️ Limite de 1000 pedidos atingido. Resultados podem estar incompletos.');
+    if(pcpTodosPedidos.length >= 500){
+      console.warn('⚠️ Limite de 500 pedidos atingido para performance.');
     }
     
-    // Processar produtos por prioridade
+    // Processar produtos por Prioridade
     processarProdutosPCP();
     
     setStatusPCP('✅ '+pcpProdutos.length+' produtos processados');
@@ -3323,7 +3323,7 @@ function processarProdutosPCP(){
   // Converter para array
   pcpProdutos = Object.values(produtoMap);
   
-  // Ordenar por prioridade
+  // Ordenar por Prioridade
   if(pcpPrioridade === 'antigo'){
     // Mais antigo primeiro
     pcpProdutos.sort(function(a, b){
@@ -3486,3 +3486,4 @@ carregarStatusPCP();
 </script>
   </body>
   </html>
+
