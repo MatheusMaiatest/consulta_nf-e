@@ -3580,7 +3580,6 @@ G('mclosePCPProduto').onclick = function(){ G('moverlayPCPProduto').classList.re
 G('moverlayPCPProduto').onclick = function(e){ 
   if(e.target === G('moverlayPCPProduto')) G('moverlayPCPProduto').classList.remove('open'); 
 };
-
 function setStatusPCP(m, t){
   var s = G('statusPCP');
   s.textContent = m;
@@ -3602,7 +3601,7 @@ G('searchPCP').oninput = function(){
   });
   renderPCPGrid(filtered);
 };
-  renderPCPGrid(filtered);
+
 // ── ESTOQUE: parse CSV ────────────────────────────────────
 function parseCsvEstoque(texto) {
   var linhas = texto.split(/\r?\n/).filter(function(l){ return l.trim(); });
