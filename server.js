@@ -153,15 +153,21 @@ app.post('/api/pcp-pedidos', async (req, res) => {
       const ids = pedidos.map(p => p.id);
       const phIds = ids.map(() => '?').join(',');
 
+      // Ecommerce: sem itens_descricao, precisa JOIN com produtos
       const [itensE] = await conn.execute(
-        `SELECT pedido_venda_id, itens_codigo, itens_quantidade, itens_valor
-         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\`
-         WHERE pedido_venda_id IN (${phIds})`,
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_produto_id,
+                i.itens_quantidade, i.itens_valor,
+                p.nome AS itens_descricao
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
+         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
         ids
       ).catch(err => { console.error('Erro itens E:', err); return [[]]; });
 
+      // Distribuição: tem itens_descricao direto
       const [itensD] = await conn.execute(
-        `SELECT pedido_venda_id, itens_codigo, itens_quantidade, itens_valor
+        `SELECT pedido_venda_id, itens_codigo, itens_descricao,
+                itens_quantidade, itens_valor
          FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\`
          WHERE pedido_venda_id IN (${phIds})`,
         ids
@@ -175,7 +181,7 @@ app.post('/api/pcp-pedidos', async (req, res) => {
         itensMap[item.pedido_venda_id].push({
           codigo: item.itens_codigo,
           sku: item.itens_codigo,
-          nome: item.itens_codigo,
+          nome: item.itens_descricao || item.itens_codigo,
           quantidade: item.itens_quantidade,
           valor: item.itens_valor
         });
