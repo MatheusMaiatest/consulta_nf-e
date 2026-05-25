@@ -418,7 +418,7 @@
       <div class="panel-title">🏭 Planejamento e Controle</div>
       
       <div class="psec">
-        <span class="plabel">� Status dos Pedidos</span>
+        <span class="plabel"> Status dos Pedidos</span>
         <div id="pcp-status-list" class="tog-grp" style="flex-direction:column;gap:6px">
           <!-- Status carregados dinamicamente -->
         </div>
@@ -429,22 +429,36 @@
         <div class="tog-grp" style="flex-direction:column;gap:6px">
           <label class="tchip on" data-prio="antigo">
             <input type="radio" name="Prioridade" value="antigo" checked/>
-            � Mais Antigo
+             Mais Antigo
           </label>
           <label class="tchip" data-prio="volume">
             <input type="radio" name="Prioridade" value="volume"/>
-            � Solta Mais Pedidos
+             Solta Mais Pedidos
           </label>
         </div>
       </div>
       
+
+      <div class="psec">
+        <span class="plabel">&#x1F500; Origem dos Pedidos</span>
+        <div class="tog-grp" style="flex-direction:column;gap:6px">
+          <label class="tchip on" id="chip-origem-ecommerce" data-origem="ecommerce">
+            <input type="checkbox" value="ecommerce" checked/>
+            &#x1F6D2; E-commerce
+          </label>
+          <label class="tchip on" id="chip-origem-distribuidor" data-origem="distribuidor">
+            <input type="checkbox" value="distribuidor" checked/>
+            &#x1F3ED; Distribuidor
+          </label>
+        </div>
+      </div>
       <button class="btn-primary" id="btnProcessarPCP">🏭 Processar PCP</button>
       <div class="statusbar" id="statusPCP">Aguardando processamento...</div>
     </aside>
     
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="searchPCP" placeholder="� Buscar produto, SKU..."/>
+        <input type="text" class="sinput" id="searchPCP" placeholder=" Buscar produto, SKU..."/>
         <span class="rcount" id="rcountPCP"></span>
       </div>
       <div id="gridPCP">
@@ -678,6 +692,7 @@
   // Estado global PCP
   var pcpProdutos=[], pcpStatusSelecionados=new Set(), pcpPrioridade='antigo';
   var pcpTodosPedidos=[];  // Cache de todos os pedidos para PCP
+  var pcpOrigemFiltro = new Set(['ecommerce','distribuidor']); // ambos ativos por padrão
   
   var G=function(id){return document.getElementById(id);};
 
@@ -3232,14 +3247,42 @@ G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(lbl){
     var radio = lbl.querySelector('input[type="radio"]');
     radio.checked = true;
     pcpPrioridade = radio.value;
-    
-    // Atualizar visual
     G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(l){
       l.classList.remove('on');
     });
     lbl.classList.add('on');
   };
 });
+
+// Event listeners para Origem
+G('panel-pcp').querySelectorAll('label[data-origem]').forEach(function(lbl){
+  lbl.onclick = function(e){
+    e.preventDefault();
+    var chk = lbl.querySelector('input[type="checkbox"]');
+    chk.checked = !chk.checked;
+    lbl.classList.toggle('on', chk.checked);
+    var origem = lbl.getAttribute('data-origem');
+    if(chk.checked){ pcpOrigemFiltro.add(origem); }
+    else { pcpOrigemFiltro.delete(origem); }
+    // Reaplicar filtro imediatamente se já houver dados
+    if(pcpProdutos.length > 0){ aplicarFiltroOrigemPCP(); }
+  };
+});
+
+function aplicarFiltroOrigemPCP(){
+  // Se ambos ou nenhum selecionado → mostra tudo
+  if(pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2){
+    renderPCPGrid();
+    return;
+  }
+  // Filtra produtos que têm pelo menos 1 pedido da origem selecionada
+  var filtrado = pcpProdutos.filter(function(prod){
+    return prod.pedidos.some(function(p){
+      return pcpOrigemFiltro.has(p.pedido.origem);
+    });
+  });
+  renderPCPGrid(filtrado);
+}
 
 // Processar PCP
 G('btnProcessarPCP').onclick = async function(){
@@ -3276,8 +3319,9 @@ G('btnProcessarPCP').onclick = async function(){
       console.warn('⚠️ Limite de 100 pedidos atingido para performance.');
     }
     
-    // Processar produtos por Prioridade
+    // Processar produtos por Prioridade e aplicar filtro de origem
     processarProdutosPCP();
+    aplicarFiltroOrigemPCP();
     
     setStatusPCP('✅ '+pcpProdutos.length+' produtos processados ('+pcpTodosPedidos.length+' pedidos)');
     loadingPed(false);
@@ -3508,10 +3552,16 @@ function setStatusPCP(m, t){
 // Busca no PCP
 G('searchPCP').oninput = function(){
   var q = this.value.toLowerCase().trim();
-  if(!q){ renderPCPGrid(); return; }
-  var filtered = pcpProdutos.filter(function(p){
+  // Parte do conjunto já filtrado por origem
+  var base = (pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2)
+    ? pcpProdutos
+    : pcpProdutos.filter(function(p){
+        return p.pedidos.some(function(x){ return pcpOrigemFiltro.has(x.pedido.origem); });
+      });
+  if(!q){ renderPCPGrid(base.length === pcpProdutos.length ? null : base); return; }
+  var filtered = base.filter(function(p){
     return (p.nome && p.nome.toLowerCase().includes(q)) ||
-           (p.sku && p.sku.toLowerCase().includes(q)) ||
+           (p.sku && String(p.sku).toLowerCase().includes(q)) ||
            (p.codigo && p.codigo.toLowerCase().includes(q));
   });
   renderPCPGrid(filtered);
