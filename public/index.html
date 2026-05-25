@@ -3290,25 +3290,43 @@ G('btnProcessarPCP').onclick = async function(){
 };
 
 function processarProdutosPCP(){
-  // Mapear produtos e seus pedidos
   var produtoMap = {};
   
   pcpTodosPedidos.forEach(function(ped){
     if(!ped.itens || ped.itens.length === 0) return;
     
     ped.itens.forEach(function(item){
-      var key = item.sku || item.codigo || item.nome;
+      // Chave de agrupamento = código Bling (itens_codigo)
+      var key = item.codigo || item.sku;
       if(!key) return;
       
       if(!produtoMap[key]){
+        // Buscar SKU e nome real no produtos-cd.json pelo nome do produto
+        var prodCD = buscarProdutoCD(item.codigo, item.nome);
         produtoMap[key] = {
-          sku: item.sku,
-          codigo: item.codigo,
-          nome: item.nome,
+          sku: prodCD ? String(prodCD.sku) : key,          // SKU do CD ou código Bling
+          skuCD: prodCD ? String(prodCD.sku) : null,       // SKU do CD (pode ser null)
+          codigo: item.codigo,                              // Código Bling
+          nome: prodCD ? prodCD.descricao : (item.nome || item.codigo), // Nome real
           quantidadeTotal: 0,
           pedidos: [],
           dataMinima: null
         };
+      }
+      
+      // Se ainda não tem nome real, tenta novamente (pode ter chegado de outra origem)
+      if(!produtoMap[key].skuCD && item.nome && item.nome !== item.codigo){
+        var prodCD2 = buscarProdutoCD(item.codigo, item.nome);
+        if(prodCD2){
+          produtoMap[key].sku    = String(prodCD2.sku);
+          produtoMap[key].skuCD  = String(prodCD2.sku);
+          produtoMap[key].nome   = prodCD2.descricao || produtoMap[key].nome;
+        } else {
+          // Usa o nome que veio do banco se for melhor que o código
+          if(item.nome && item.nome !== item.codigo){
+            produtoMap[key].nome = item.nome;
+          }
+        }
       }
       
       produtoMap[key].quantidadeTotal += parseFloat(item.quantidade) || 0;
@@ -3318,7 +3336,6 @@ function processarProdutosPCP(){
         valor: item.valor
       });
       
-      // Atualizar data mínima (pedido mais antigo)
       var dataPed = ped.data ? new Date(ped.data) : null;
       if(dataPed && (!produtoMap[key].dataMinima || dataPed < produtoMap[key].dataMinima)){
         produtoMap[key].dataMinima = dataPed;
@@ -3326,19 +3343,15 @@ function processarProdutosPCP(){
     });
   });
   
-  // Converter para array
   pcpProdutos = Object.values(produtoMap);
   
-  // Ordenar por Prioridade
   if(pcpPrioridade === 'antigo'){
-    // Mais antigo primeiro
     pcpProdutos.sort(function(a, b){
       if(!a.dataMinima) return 1;
       if(!b.dataMinima) return -1;
       return a.dataMinima - b.dataMinima;
     });
   } else {
-    // Solta mais pedidos (mais pedidos primeiro)
     pcpProdutos.sort(function(a, b){
       return b.pedidos.length - a.pedidos.length;
     });
@@ -3376,8 +3389,9 @@ function renderPCPGrid(lista){
 
   fonte.forEach(function(prod, idx){
     var realIdx = pcpProdutos.indexOf(prod);
-    var prodCD = buscarProdutoCD(prod.codigo, prod.nome);
-    var skuDisplay = prodCD ? prodCD.sku : (prod.sku || prod.codigo || '—');
+    // SKU e nome já resolvidos no processarProdutosPCP
+    var skuDisplay = prod.skuCD || prod.sku || prod.codigo || '—';
+    var nomeDisplay = prod.nome || prod.codigo || '—';
     var nPedidos = prod.pedidos.length;
 
     var prioVal = pcpPrioridade === 'antigo'
@@ -3402,7 +3416,7 @@ function renderPCPGrid(lista){
         '</span>'+
       '</td>'+
       '<td style="padding:10px 6px;font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+
-        esc(prod.nome || '—')+
+        esc(nomeDisplay)+
       '</td>'+
       '<td style="padding:10px 6px;text-align:center">'+
         '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+
