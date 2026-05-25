@@ -3248,8 +3248,14 @@ G('btnProcessarPCP').onclick = async function(){
     return;
   }
   
+  // LIMITE: apenas 1 status por vez para performance
+  if(pcpStatusSelecionados.size > 1){
+    setStatusPCP('⚠️ Selecione apenas 1 status por vez (limite: 100 pedidos)', 'warn');
+    return;
+  }
+  
   loadingPed(true);
-  setStatusPCP('⏳ Processando PCP...');
+  setStatusPCP('⏳ Processando PCP... (limite: 100 pedidos)');
   
   try{
     // Buscar todos os pedidos com os status selecionados
@@ -3266,14 +3272,14 @@ G('btnProcessarPCP').onclick = async function(){
     pcpTodosPedidos = d.pedidos || [];
     
     // Avisar se atingiu o limite
-    if(pcpTodosPedidos.length >= 500){
-      console.warn('⚠️ Limite de 500 pedidos atingido para performance.');
+    if(pcpTodosPedidos.length >= 100){
+      console.warn('⚠️ Limite de 100 pedidos atingido para performance.');
     }
     
     // Processar produtos por Prioridade
     processarProdutosPCP();
     
-    setStatusPCP('✅ '+pcpProdutos.length+' produtos processados');
+    setStatusPCP('✅ '+pcpProdutos.length+' produtos processados ('+pcpTodosPedidos.length+' pedidos)');
     loadingPed(false);
     
   } catch(err){
