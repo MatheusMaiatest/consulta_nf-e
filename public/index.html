@@ -416,83 +416,104 @@
   <div class="layout">
     <aside class="panel" id="panel-pcp">
       <div class="panel-title">🏭 Planejamento e Controle</div>
-      
+
+      <!-- STATUS DOS PEDIDOS (retrátil) -->
       <div class="psec">
-        <span class="plabel"> Status dos Pedidos</span>
-        <div id="pcp-status-list" class="tog-grp" style="flex-direction:column;gap:6px">
+        <button id="pcp-status-toggle" onclick="toggleStatusPCP()" style="
+          width:100%;display:flex;align-items:center;justify-content:space-between;
+          background:none;border:none;cursor:pointer;padding:0;color:var(--tp);
+          font-size:.8rem;font-weight:600;letter-spacing:.3px;transition:all .2s">
+          <span style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:.9rem">📌</span> Status dos Pedidos
+          </span>
+          <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">▼</span>
+        </button>
+        <div id="pcp-status-list" class="tog-grp" style="flex-direction:column;gap:5px;margin-top:8px;
+          overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
           <!-- Status carregados dinamicamente -->
         </div>
       </div>
-      
-      <div class="psec">
-        <span class="plabel">⚡ Prioridade</span>
-        <div class="tog-grp" style="flex-direction:column;gap:6px">
-          <label class="tchip on" data-prio="antigo">
-            <input type="radio" name="Prioridade" value="antigo" checked/>
-             Mais Antigo
-          </label>
-          <label class="tchip" data-prio="volume">
-            <input type="radio" name="Prioridade" value="volume"/>
-             Solta Mais Pedidos
-          </label>
-        </div>
-      </div>
-      
 
+      <!-- PRIORIDADE -->
       <div class="psec">
-        <span class="plabel">&#x1F500; Origem dos Pedidos</span>
-        <div class="tog-grp" style="flex-direction:column;gap:6px">
-          <label class="tchip on" id="chip-origem-ecommerce" data-origem="ecommerce">
-            <input type="checkbox" value="ecommerce" checked/>
-            &#x1F6D2; E-commerce
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>⚡</span> Prioridade</span>
+        <div class="tog-grp" style="flex-direction:column;gap:6px;margin-top:6px">
+          <label class="tchip on pcp-prio-chip" data-prio="antigo" style="transition:all .18s;cursor:pointer">
+            <input type="radio" name="Prioridade" value="antigo" checked/>
+            🕐 Mais Antigo
           </label>
-          <label class="tchip on" id="chip-origem-distribuidor" data-origem="distribuidor">
-            <input type="checkbox" value="distribuidor" checked/>
-            &#x1F3ED; Distribuidor
+          <label class="tchip pcp-prio-chip" data-prio="volume" style="transition:all .18s;cursor:pointer">
+            <input type="radio" name="Prioridade" value="volume"/>
+            📦 Solta Mais Pedidos
           </label>
         </div>
       </div>
+
+      <!-- ORIGEM DOS PEDIDOS (cores padrão) -->
       <div class="psec">
-        <span class="plabel">&#x1F4C5; Per&#237;odo dos Pedidos</span>
-        <div style="display:flex;flex-direction:column;gap:6px">
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>🔀</span> Origem dos Pedidos</span>
+        <div class="tog-grp" style="flex-direction:column;gap:6px;margin-top:6px">
+          <label id="chip-origem-ecommerce" data-origem="ecommerce" class="tchip on" style="
+            transition:all .18s;cursor:pointer;
+            background:rgba(66,165,245,.15);border-color:var(--eco);color:var(--eco)">
+            <input type="checkbox" value="ecommerce" checked/>
+            🛒 E-commerce
+          </label>
+          <label id="chip-origem-distribuidor" data-origem="distribuidor" class="tchip on" style="
+            transition:all .18s;cursor:pointer;
+            background:rgba(171,71,188,.15);border-color:var(--dist);color:var(--dist)">
+            <input type="checkbox" value="distribuidor" checked/>
+            🏭 Distribuidor
+          </label>
+        </div>
+      </div>
+
+      <!-- PERÍODO -->
+      <div class="psec">
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>📅</span> Período dos Pedidos</span>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
           <div style="display:flex;flex-direction:column;gap:3px">
             <label style="font-size:.72rem;color:var(--tm)">De</label>
             <input type="date" id="pcpDateFrom" class="sinput" style="padding:5px 8px;font-size:.8rem"/>
           </div>
           <div style="display:flex;flex-direction:column;gap:3px">
-            <label style="font-size:.72rem;color:var(--tm)">At&#233;</label>
+            <label style="font-size:.72rem;color:var(--tm)">Até</label>
             <input type="date" id="pcpDateTo" class="sinput" style="padding:5px 8px;font-size:.8rem"/>
           </div>
         </div>
       </div>
+
+      <!-- SALDO DE ESTOQUE -->
       <div class="psec">
-        <span class="plabel">&#x1F4E6; Saldo de Estoque</span>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div>
-            <div style="font-size:.72rem;color:var(--tm);margin-bottom:4px">&#x1F6D2; E-commerce</div>
-            <div id="pcp-estoque-eco-info" style="font-size:.72rem;color:var(--tm);font-style:italic;margin-bottom:4px">Nenhum arquivo importado</div>
-            <label class="btn-secondary" style="display:block;text-align:center;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--r);border:1px solid var(--bdr)">
+        <span class="plabel" style="display:flex;align-items:center;gap:6px"><span>📦</span> Saldo de Estoque</span>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+          <div style="border:1px solid rgba(66,165,245,.25);border-radius:var(--rs);padding:8px">
+            <div style="font-size:.72rem;color:var(--eco);font-weight:600;margin-bottom:4px">🛒 E-commerce</div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--rs);border:1px solid var(--eco);color:var(--eco);background:rgba(66,165,245,.08);transition:all .18s" onmousedown="this.style.transform='scale(.96)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
               &#x1F4C2; Importar CSV
               <input type="file" id="inputEstoqueEco" accept=".csv" style="display:none"/>
             </label>
           </div>
-          <div>
-            <div style="font-size:.72rem;color:var(--tm);margin-bottom:4px">&#x1F3ED; Distribuidor</div>
-            <div id="pcp-estoque-dist-info" style="font-size:.72rem;color:var(--tm);font-style:italic;margin-bottom:4px">Nenhum arquivo importado</div>
-            <label class="btn-secondary" style="display:block;text-align:center;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--r);border:1px solid var(--bdr)">
+          <div style="border:1px solid rgba(171,71,188,.25);border-radius:var(--rs);padding:8px">
+            <div style="font-size:.72rem;color:var(--dist);font-weight:600;margin-bottom:4px">&#x1F3ED; Distribuidor</div>
+            <div id="pcp-estoque-dist-info" style="font-size:.7rem;color:var(--tm);font-style:italic;margin-bottom:6px;line-height:1.4">Nenhum arquivo importado</div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:5px 8px;font-size:.78rem;border-radius:var(--rs);border:1px solid var(--dist);color:var(--dist);background:rgba(171,71,188,.08);transition:all .18s" onmousedown="this.style.transform='scale(.96)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
               &#x1F4C2; Importar CSV
               <input type="file" id="inputEstoqueDist" accept=".csv" style="display:none"/>
             </label>
           </div>
         </div>
       </div>
-      <button class="btn-primary" id="btnProcessarPCP">🏭 Processar PCP</button>
+
+      <button class="btn-primary" id="btnProcessarPCP" style="transition:all .18s" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform=''" onmouseleave="this.style.transform=''">
+        &#x1F3ED; Processar PCP
+      </button>
       <div class="statusbar" id="statusPCP">Aguardando processamento...</div>
     </aside>
-    
+
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="searchPCP" placeholder=" Buscar produto, SKU..."/>
+        <input type="text" class="sinput" id="searchPCP" placeholder="🔍 Buscar produto, SKU..."/>
         <span class="rcount" id="rcountPCP"></span>
       </div>
       <div id="gridPCP">
@@ -501,6 +522,9 @@
           <p>Selecione o status e a prioridade, depois clique em <strong>Processar PCP</strong></p>
         </div>
       </div>
+    </main>
+  </div>
+  </div><!-- /view-pcp -->
     </main>
   </div>
   </div><!-- /view-pcp -->
@@ -3275,32 +3299,61 @@ async function carregarStatusPCP(){
     console.error('Erro ao carregar status:', err);
   }
 }
+// Toggle retratil dos status
+var pcpStatusAberto = true;
+function toggleStatusPCP(){
+  pcpStatusAberto = !pcpStatusAberto;
+  var lista = G('pcp-status-list');
+  var arrow = G('pcp-status-arrow');
+  if(pcpStatusAberto){
+    lista.style.maxHeight = '400px';
+    lista.style.opacity   = '1';
+    arrow.style.transform = 'rotate(0deg)';
+  } else {
+    lista.style.maxHeight = '0';
+    lista.style.opacity   = '0';
+    arrow.style.transform = 'rotate(-90deg)';
+  }
+}
 
 // Event listeners para Prioridade
 G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(lbl){
   lbl.onclick = function(e){
     e.preventDefault();
+    lbl.style.transform = 'scale(.95)';
+    setTimeout(function(){ lbl.style.transform = ''; }, 150);
     var radio = lbl.querySelector('input[type="radio"]');
     radio.checked = true;
     pcpPrioridade = radio.value;
-    G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(l){
-      l.classList.remove('on');
-    });
+    G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(l){ l.classList.remove('on'); });
     lbl.classList.add('on');
   };
 });
 
-// Event listeners para Origem
+// Event listeners para Origem (cores padrao eco/dist)
 G('panel-pcp').querySelectorAll('label[data-origem]').forEach(function(lbl){
+  var origem = lbl.getAttribute('data-origem');
+  var isEco  = origem === 'ecommerce';
+  var bgOn   = isEco ? 'rgba(66,165,245,.15)'  : 'rgba(171,71,188,.15)';
+  var border = isEco ? 'var(--eco)'             : 'var(--dist)';
+  var color  = isEco ? 'var(--eco)'             : 'var(--dist)';
+  function atualizarEstilo(){
+    var on = lbl.classList.contains('on');
+    lbl.style.background  = on ? bgOn : '';
+    lbl.style.borderColor = on ? border : '';
+    lbl.style.color       = on ? color : '';
+  }
+  atualizarEstilo();
   lbl.onclick = function(e){
     e.preventDefault();
+    lbl.style.transform = 'scale(.95)';
+    setTimeout(function(){ lbl.style.transform = ''; }, 150);
     var chk = lbl.querySelector('input[type="checkbox"]');
     chk.checked = !chk.checked;
     lbl.classList.toggle('on', chk.checked);
-    var origem = lbl.getAttribute('data-origem');
+    atualizarEstilo();
     if(chk.checked){ pcpOrigemFiltro.add(origem); }
-    else { pcpOrigemFiltro.delete(origem); }
-    // Reaplicar filtro imediatamente se já houver dados
+    else            { pcpOrigemFiltro.delete(origem); }
     if(pcpProdutos.length > 0){ aplicarFiltroOrigemPCP(); }
   };
 });
@@ -3686,4 +3739,3 @@ carregarMetaEstoque();
 </script>
   </body>
   </html>
-
