@@ -3256,7 +3256,6 @@
 // ═══════════════════════════════════════════════════════════
 // PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÃO
 // ═══════════════════════════════════════════════════════════
-
 async function carregarStatusPCP(){
   try{
     var resp = await fetch(API_BASE+'/api/pedidos-status');
@@ -3264,9 +3263,13 @@ async function carregarStatusPCP(){
     if(d.error){ console.error('Erro ao carregar status:', d.error); return; }
     var statusList = d.status || [];
     var html = '';
-    statusList.forEach(function(st){
-      html += '<label class="tchip" data-status="' + esc(st) + '" style="width:100%;justify-content:flex-start;white-space:normal;word-break:break-word;transition:all .18s;cursor:pointer"><input type="checkbox" value="' + esc(st) + '"/>' + esc(st) + '</label>';
-    }).join('');
+    for(var i=0; i<statusList.length; i++){
+      var st = statusList[i];
+      var s = 'width:100%;justify-content:flex-start;white-space:normal;word-break:break-word;transition:all .18s;cursor:pointer';
+      html += '<label class="tchip" data-status="' + esc(st) + '" style="' + s + '">';
+      html += '<input type="checkbox" value="' + esc(st) + '"/>';
+      html += esc(st) + '</label>';
+    }
     G('pcp-status-list').innerHTML = html;
     G('pcp-status-list').querySelectorAll('label').forEach(function(lbl){
       lbl.onclick = function(e){
