@@ -3358,86 +3358,76 @@ G('btnProcessarPCP').onclick = async function(){
     loadingPed(false);
   }
 };
-
 function processarProdutosPCP(){
   var produtoMap = {};
-  
+
   pcpTodosPedidos.forEach(function(ped){
     if(!ped.itens || ped.itens.length === 0) return;
-    
     ped.itens.forEach(function(item){
-      // Chave de agrupamento = código Bling (itens_codigo)
       var key = item.codigo || item.sku;
       if(!key) return;
-      
+
       if(!produtoMap[key]){
-        // Buscar SKU e nome real no produtos-cd.json pelo nome do produto
         var prodCD = buscarProdutoCD(item.codigo, item.nome);
         produtoMap[key] = {
-          sku: prodCD ? String(prodCD.sku) : key,          // SKU do CD ou código Bling
-          skuCD: prodCD ? String(prodCD.sku) : null,       // SKU do CD (pode ser null)
-          codigo: item.codigo,                              // Código Bling
+          sku:            prodCD ? String(prodCD.sku) : key,
+          skuCD:          prodCD ? String(prodCD.sku) : null,
+          codigo:         item.codigo,
+          nome:           prodCD ? (prodCD.descricao || item.nome || item.codigo)
+                                 : (item.nome && item.nome !== item.codigo ? item.nome : item.codigo),
           quantidadeTotal: 0,
-          saldoEstoque: null,   // preenchido após montar todos os pedidos
-          pedidos: [],
-          dataMinima: null
+          saldoEstoque:   null,
+          pedidos:        [],
+          dataMinima:     null
         };
       }
-      
-      // Se ainda não tem nome real, tenta novamente (pode ter chegado de outra origem)
-      if(!produtoMap[key].skuCD && item.nome && item.nome !== item.codigo){
+
+      // Atualizar nome/SKU se chegou dado melhor de outra origem
+      var p = produtoMap[key];
+      if(!p.skuCD && item.nome && item.nome !== item.codigo){
         var prodCD2 = buscarProdutoCD(item.codigo, item.nome);
         if(prodCD2){
-          produtoMap[key].sku    = String(prodCD2.sku);
-          produtoMap[key].skuCD  = String(prodCD2.sku);
-          produtoMap[key].nome   = prodCD2.descricao || produtoMap[key].nome;
-        } else {
-          // Usa o nome que veio do banco se for melhor que o código
-          if(item.nome && item.nome !== item.codigo){
-            produtoMap[key].nome = item.nome;
-          }
+          p.sku   = String(prodCD2.sku);
+          p.skuCD = String(prodCD2.sku);
+          p.nome  = prodCD2.descricao || p.nome;
+        } else if(item.nome !== item.codigo){
+          p.nome = item.nome;
         }
       }
-      
-      produtoMap[key].quantidadeTotal += parseFloat(item.quantidade) || 0;
-      produtoMap[key].pedidos.push({
-        pedido: ped,
-        quantidade: item.quantidade,
-        valor: item.valor
-      });
-      
+
+      p.quantidadeTotal += parseFloat(item.quantidade) || 0;
+      p.pedidos.push({ pedido: ped, quantidade: item.quantidade, valor: item.valor });
+
       var dataPed = ped.data ? new Date(ped.data) : null;
-      if(dataPed && (!produtoMap[key].dataMinima || dataPed < produtoMap[key].dataMinima)){
-        produtoMap[key].dataMinima = dataPed;
-      }
+      if(dataPed && (!p.dataMinima || dataPed < p.dataMinima)) p.dataMinima = dataPed;
     });
   });
-  
 
-  // Calcular saldo de estoque para cada produto
+  // Converter para array ANTES de calcular saldo
+  pcpProdutos = Object.values(produtoMap);
+
+  // Calcular saldo de estoque
   pcpProdutos.forEach(function(prod){
     var cod = prod.codigo;
-    var sE = estoqueEco[cod]  ? (estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
-    var sD = estoqueDist[cod] ? (estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
+    var sE = estoqueEco[cod]  ? parseFloat(estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
+    var sD = estoqueDist[cod] ? parseFloat(estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
     if(sE !== null && sD !== null) prod.saldoEstoque = sE + sD;
     else if(sE !== null)           prod.saldoEstoque = sE;
     else if(sD !== null)           prod.saldoEstoque = sD;
     else                           prod.saldoEstoque = null;
   });
-  pcpProdutos = Object.values(produtoMap);
-  
+
+  // Ordenar por prioridade
   if(pcpPrioridade === 'antigo'){
-    pcpProdutos.sort(function(a, b){
+    pcpProdutos.sort(function(a,b){
       if(!a.dataMinima) return 1;
       if(!b.dataMinima) return -1;
       return a.dataMinima - b.dataMinima;
     });
   } else {
-    pcpProdutos.sort(function(a, b){
-      return b.pedidos.length - a.pedidos.length;
-    });
+    pcpProdutos.sort(function(a,b){ return b.pedidos.length - a.pedidos.length; });
   }
-  
+
   renderPCPGrid();
 }
 
