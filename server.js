@@ -148,43 +148,112 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     
     console.log('PCP: Encontrados', pedidos.length, 'pedidos');
     
-    // Buscar itens SEM JOIN
+    // Buscar itens dos pedidos
     if (pedidos.length > 0) {
       const ids = pedidos.map(p => p.id);
       const phIds = ids.map(() => '?').join(',');
 
-      // Ecommerce: sem itens_descricao, precisa JOIN com produtos
+      // Ecommerce: JOIN com produtos para pegar nome + id do produto pai
       const [itensE] = await conn.execute(
         `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_produto_id,
                 i.itens_quantidade, i.itens_valor,
-                p.nome AS itens_descricao
+                p.nome AS itens_descricao, p.id AS produto_id
          FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
          LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
          WHERE i.pedido_venda_id IN (${phIds})`,
         ids
       ).catch(err => { console.error('Erro itens E:', err); return [[]]; });
 
-      // Distribuição: tem itens_descricao direto
+      // Distribuição: tem itens_descricao + JOIN para pegar id do produto pai
       const [itensD] = await conn.execute(
-        `SELECT pedido_venda_id, itens_codigo, itens_descricao,
-                itens_quantidade, itens_valor
-         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\`
-         WHERE pedido_venda_id IN (${phIds})`,
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_produto_id,
+                i.itens_descricao, i.itens_quantidade, i.itens_valor,
+                p.id AS produto_id
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
+         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
         ids
       ).catch(err => { console.error('Erro itens D:', err); return [[]]; });
 
-      console.log('PCP: Encontrados', itensE.length + itensD.length, 'itens');
+      console.log('PCP: Encontrados', itensE.length + itensD.length, 'itens brutos');
 
+      // ── Explosão de kits ──────────────────────────────────────────────────
+      // Coletar todos os produto_id para verificar quais são kits
+      const todosProdutoIds = [...new Set(
+        [...itensE, ...itensD]
+          .map(i => i.produto_id)
+          .filter(Boolean)
+      )];
+
+      let kitMap = {}; // produto_id → [ { componentes_produto_id, componentes_quantidade } ]
+
+      if (todosProdutoIds.length > 0) {
+        const phProd = todosProdutoIds.map(() => '?').join(',');
+
+        // Buscar componentes ecommerce
+        const [compE] = await conn.execute(
+          `SELECT ec.produto_pai_id, ec.componentes_produto_id, ec.componentes_quantidade,
+                  p.codigo AS comp_codigo, p.nome AS comp_nome
+           FROM \`bling_produtos_estruturas_componentes_ecommerce\` ec
+           JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = ec.componentes_produto_id
+           WHERE ec.produto_pai_id IN (${phProd})`,
+          todosProdutoIds
+        ).catch(err => { console.error('Erro comp E:', err); return [[]]; });
+
+        // Buscar componentes distribuição
+        const [compD] = await conn.execute(
+          `SELECT dc.produto_pai_id, dc.componentes_produto_id, dc.componentes_quantidade,
+                  p.codigo AS comp_codigo, p.nome AS comp_nome
+           FROM \`bling_produtos_estruturas_componentes_distribuicao\` dc
+           JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = dc.componentes_produto_id
+           WHERE dc.produto_pai_id IN (${phProd})`,
+          todosProdutoIds
+        ).catch(err => { console.error('Erro comp D:', err); return [[]]; });
+
+        [...compE, ...compD].forEach(c => {
+          if (!kitMap[c.produto_pai_id]) kitMap[c.produto_pai_id] = [];
+          kitMap[c.produto_pai_id].push({
+            componentes_produto_id: c.componentes_produto_id,
+            componentes_quantidade: c.componentes_quantidade,
+            comp_codigo: c.comp_codigo,
+            comp_nome:   c.comp_nome
+          });
+        });
+
+        const kitsEncontrados = Object.keys(kitMap).length;
+        console.log('PCP: Kits encontrados:', kitsEncontrados);
+      }
+
+      // Montar itens finais — explodindo kits em componentes individuais
       const itensMap = {};
       [...itensE, ...itensD].forEach(item => {
-        if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
-        itensMap[item.pedido_venda_id].push({
-          codigo: item.itens_codigo,
-          sku: item.itens_codigo,
-          nome: item.itens_descricao || item.itens_codigo,
-          quantidade: item.itens_quantidade,
-          valor: item.itens_valor
-        });
+        const pedId = item.pedido_venda_id;
+        if (!itensMap[pedId]) itensMap[pedId] = [];
+
+        const componentes = item.produto_id ? kitMap[item.produto_id] : null;
+
+        if (componentes && componentes.length > 0) {
+          // É um kit → substituir pelo(s) componente(s) multiplicando a quantidade
+          const qtdKit = parseFloat(item.itens_quantidade) || 1;
+          componentes.forEach(comp => {
+            itensMap[pedId].push({
+              codigo:    comp.comp_codigo,
+              sku:       comp.comp_codigo,
+              nome:      comp.comp_nome || comp.comp_codigo,
+              quantidade: (comp.componentes_quantidade || 1) * qtdKit,
+              valor:     null  // valor unitário do componente não disponível diretamente
+            });
+          });
+        } else {
+          // Item simples
+          itensMap[pedId].push({
+            codigo:    item.itens_codigo,
+            sku:       item.itens_codigo,
+            nome:      item.itens_descricao || item.itens_codigo,
+            quantidade: item.itens_quantidade,
+            valor:     item.itens_valor
+          });
+        }
       });
 
       pedidos.forEach(p => {
