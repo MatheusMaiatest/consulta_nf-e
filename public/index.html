@@ -3586,11 +3586,9 @@ function setStatusPCP(m, t){
   s.textContent = m;
   s.style.color = t === 'err' ? 'var(--err)' : t === 'warn' ? 'var(--warn)' : 'var(--tm)';
 }
-
 // Busca no PCP
 G('searchPCP').oninput = function(){
   var q = this.value.toLowerCase().trim();
-  // Parte do conjunto já filtrado por origem
   var base = (pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2)
     ? pcpProdutos
     : pcpProdutos.filter(function(p){
@@ -3602,6 +3600,7 @@ G('searchPCP').oninput = function(){
            (p.sku && String(p.sku).toLowerCase().includes(q)) ||
            (p.codigo && p.codigo.toLowerCase().includes(q));
   });
+  renderPCPGrid(filtered);
 };
   renderPCPGrid(filtered);
 // ── ESTOQUE: parse CSV ────────────────────────────────────
