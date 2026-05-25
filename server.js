@@ -63,6 +63,138 @@ app.get('/api/produtos-cd', (req, res) => {
   }
 });
 
+// ── /api/pedidos-status ───────────────────────────────────
+app.get('/api/pedidos-status', async (req, res) => {
+  try {
+    const conn = await pool.getConnection();
+    
+    // Buscar todos os status únicos de pedidos
+    const [statusEco] = await conn.execute(
+      'SELECT DISTINCT situacao_nome FROM `bling_pedidos_venda_detalhes_ecommerce` WHERE situacao_nome IS NOT NULL AND situacao_nome != "" ORDER BY situacao_nome'
+    );
+    const [statusDist] = await conn.execute(
+      'SELECT DISTINCT situacao_nome FROM `bling_pedidos_venda_detalhes_distribuicao` WHERE situacao_nome IS NOT NULL AND situacao_nome != "" ORDER BY situacao_nome'
+    );
+    
+    conn.release();
+    
+    // Combinar e remover duplicatas
+    const statusSet = new Set();
+    statusEco.forEach(r => statusSet.add(r.situacao_nome));
+    statusDist.forEach(r => statusSet.add(r.situacao_nome));
+    
+    const status = Array.from(statusSet).sort();
+    
+    res.json({ status, total: status.length });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
+// ── /api/pcp-pedidos ──────────────────────────────────────
+app.post('/api/pcp-pedidos', async (req, res) => {
+  const { status } = req.body;
+  if (!status || !Array.isArray(status) || status.length === 0) {
+    return res.json({ error: 'Status obrigatório (array).' });
+  }
+
+  try {
+    const conn = await pool.getConnection();
+    const ph = status.map(() => '?').join(',');
+    
+    // Buscar pedidos com os status selecionados
+    const [pedidosE] = await conn.execute(
+      `SELECT 
+        id, numero, data, datasaida, situacao_nome, situacao_id,
+        contato_nome, contato_numerodocumento, contato_tipopessoa,
+        total, totalprodutos, desconto_valor,
+        transporte_contato_nome, transporte_frete, transporte_pesobruto,
+        notafiscal_id, numeroloja, loja_id,
+        'ecommerce' AS origem
+       FROM \`bling_pedidos_venda_detalhes_ecommerce\`
+       WHERE situacao_nome IN (${ph})
+       ORDER BY data ASC`,
+      status
+    );
+    
+    const [pedidosD] = await conn.execute(
+      `SELECT 
+        id, numero, data, datasaida, situacao_nome, situacao_id,
+        contato_nome, contato_numerodocumento, contato_tipopessoa,
+        total, totalprodutos, desconto_valor,
+        transporte_contato_nome, transporte_frete, transporte_pesobruto,
+        notafiscal_id, numeroloja, loja_id,
+        observacoes, observacoesinternas,
+        'distribuidor' AS origem
+       FROM \`bling_pedidos_venda_detalhes_distribuicao\`
+       WHERE situacao_nome IN (${ph})
+       ORDER BY data ASC`,
+      status
+    );
+    
+    let pedidos = [...pedidosE, ...pedidosD].map(r => montarPedido(r));
+    
+    // Buscar itens dos pedidos
+    if (pedidos.length > 0) {
+      const ids = pedidos.map(p => p.id);
+      const phIds = ids.map(() => '?').join(',');
+
+      // Itens E-commerce
+      const [itensE] = await conn.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
+                i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
+                p.nome AS produto_nome, p.codigo AS produto_sku
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
+         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
+        ids
+      ).catch(() => [[]]);
+
+      // Itens Distribuição
+      const [itensD] = await conn.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
+                i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
+                p.nome AS produto_nome, p.codigo AS produto_sku
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
+         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
+        ids
+      ).catch(() => [[]]);
+
+      // Mapear itens por pedido
+      const itensMap = {};
+      [...itensE, ...itensD].forEach(item => {
+        if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
+        itensMap[item.pedido_venda_id].push({
+          codigo: item.itens_codigo,
+          sku: item.produto_sku || item.itens_codigo || '—',
+          nome: item.produto_nome || item.itens_codigo || 'Produto sem nome',
+          id: item.itens_id,
+          produto_id: item.itens_produto_id,
+          unidade: item.itens_unidade,
+          quantidade: item.itens_quantidade,
+          valor: item.itens_valor,
+          desconto: item.itens_desconto
+        });
+      });
+
+      // Adicionar itens aos pedidos
+      pedidos.forEach(p => {
+        p.itens = itensMap[p.id] || [];
+      });
+    }
+    
+    conn.release();
+    
+    res.json({ pedidos, total: pedidos.length });
+
+  } catch (err) {
+    console.error(err);
+    res.json({ error: err.message });
+  }
+});
+
 // ── /api/stats ────────────────────────────────────────────
 app.get('/api/stats', async (req, res) => {
   try {
