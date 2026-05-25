@@ -96,48 +96,49 @@ app.get('/api/pedidos-status', async (req, res) => {
 
 // ── /api/pcp-pedidos ──────────────────────────────────────
 app.post('/api/pcp-pedidos', async (req, res) => {
-  const { status } = req.body;
+  const { status, from, to } = req.body;
   if (!status || !Array.isArray(status) || status.length === 0) {
     return res.json({ error: 'Status obrigatório (array).' });
   }
+  if (!from || !to) {
+    return res.json({ error: 'Período obrigatório (from e to).' });
+  }
 
-  // Timeout de 25 segundos
-  req.setTimeout(25000);
+  const d1 = from + ' 00:00:00';
+  const d2 = to   + ' 23:59:59';
+
+  // Timeout proporcional ao número de status
+  req.setTimeout(60000);
 
   try {
     const conn = await pool.getConnection();
-    
-    // Apenas 1 status por vez
-    const statusToQuery = [status[0]];
-    const ph = '?';
-    
-    // Apenas 100 pedidos
-    const LIMIT = 100;
-    
-    console.log('PCP: Buscando pedidos com status:', statusToQuery[0]);
-    
-    // Query ultra simplificada
+
+    const phStatus = status.map(() => '?').join(',');
+
+    console.log('PCP: Buscando pedidos | status:', status, '| período:', from, '→', to);
+
     const [pedidosE] = await conn.execute(
       `SELECT id, numero, data, situacao_nome AS situacao, contato_nome AS cliente, total AS valor
        FROM \`bling_pedidos_venda_detalhes_ecommerce\`
-       WHERE situacao_nome = ?
-       ORDER BY data ASC 
-       LIMIT ${LIMIT}`,
-      statusToQuery
+       WHERE situacao_nome IN (${phStatus})
+         AND data BETWEEN ? AND ?
+       ORDER BY data ASC`,
+      [...status, d1, d2]
     ).catch(err => { console.error('Erro E:', err); return [[]]; });
-    
+
     const [pedidosD] = await conn.execute(
       `SELECT id, numero, data, situacao_nome AS situacao, contato_nome AS cliente, total AS valor
        FROM \`bling_pedidos_venda_detalhes_distribuicao\`
-       WHERE situacao_nome = ?
-       ORDER BY data ASC 
-       LIMIT ${LIMIT}`,
-      statusToQuery
+       WHERE situacao_nome IN (${phStatus})
+         AND data BETWEEN ? AND ?
+       ORDER BY data ASC`,
+      [...status, d1, d2]
     ).catch(err => { console.error('Erro D:', err); return [[]]; });
-    
+
+    const setE = new Set(pedidosE.map(r => r.id));
     let pedidos = [...pedidosE, ...pedidosD].map(r => ({
       id: r.id,
-      origem: pedidosE.includes(r) ? 'ecommerce' : 'distribuidor',
+      origem: setE.has(r.id) ? 'ecommerce' : 'distribuidor',
       numero: r.numero,
       data: r.data ? new Date(r.data).toISOString() : null,
       situacao: r.situacao,
@@ -145,7 +146,7 @@ app.post('/api/pcp-pedidos', async (req, res) => {
       valor: r.valor || null,
       itens: []
     }));
-    
+
     console.log('PCP: Encontrados', pedidos.length, 'pedidos');
     
     // Buscar itens dos pedidos
@@ -267,9 +268,10 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     
     res.json({ 
       pedidos, 
-      total: pedidos.length, 
-      limit: LIMIT,
-      status: statusToQuery[0]
+      total: pedidos.length,
+      from,
+      to,
+      status
     });
 
   } catch (err) {
