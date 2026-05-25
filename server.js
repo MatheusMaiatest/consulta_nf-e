@@ -101,31 +101,32 @@ app.post('/api/pcp-pedidos', async (req, res) => {
 
   try {
     const conn = await pool.getConnection();
-    const ph = status.map(() => '?').join(',');
     
-    // Reduzir limite para 500 pedidos para resposta mais rápida
-    const LIMIT = 500;
+    // Limitar a apenas 1 status por vez se houver muitos
+    const statusToQuery = status.slice(0, 2); // Máximo 2 status
+    const ph = statusToQuery.map(() => '?').join(',');
     
-    // Buscar apenas campos essenciais
+    // Apenas 200 pedidos para resposta instantânea
+    const LIMIT = 200;
+    
+    // Query super simplificada - apenas o essencial
+    const query = `
+      SELECT id, numero, data, situacao_nome, contato_nome, total, ? AS origem
+      FROM ?? 
+      WHERE situacao_nome IN (${ph})
+      ORDER BY data ASC 
+      LIMIT ${LIMIT}
+    `;
+    
     const [pedidosE] = await conn.execute(
-      `SELECT 
-        id, numero, data, situacao_nome, contato_nome, total, 'ecommerce' AS origem
-       FROM \`bling_pedidos_venda_detalhes_ecommerce\`
-       WHERE situacao_nome IN (${ph})
-       ORDER BY data ASC
-       LIMIT ${LIMIT}`,
-      status
-    );
+      query.replace('??', '`bling_pedidos_venda_detalhes_ecommerce`').replace('?', "'ecommerce'"),
+      statusToQuery
+    ).catch(() => [[]]);
     
     const [pedidosD] = await conn.execute(
-      `SELECT 
-        id, numero, data, situacao_nome, contato_nome, total, 'distribuidor' AS origem
-       FROM \`bling_pedidos_venda_detalhes_distribuicao\`
-       WHERE situacao_nome IN (${ph})
-       ORDER BY data ASC
-       LIMIT ${LIMIT}`,
-      status
-    );
+      query.replace('??', '`bling_pedidos_venda_detalhes_distribuicao`').replace('?', "'distribuidor'"),
+      statusToQuery
+    ).catch(() => [[]]);
     
     let pedidos = [...pedidosE, ...pedidosD].map(r => ({
       id: r.id,
@@ -138,30 +139,23 @@ app.post('/api/pcp-pedidos', async (req, res) => {
       itens: []
     }));
     
-    // Buscar itens em uma única query otimizada
+    // Buscar itens apenas se houver pedidos
     if (pedidos.length > 0) {
       const ids = pedidos.map(p => p.id);
       const phIds = ids.map(() => '?').join(',');
 
-      // Itens E-commerce (apenas campos necessários)
+      // Query simplificada de itens
       const [itensE] = await conn.execute(
-        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_quantidade, i.itens_valor,
-                COALESCE(p.nome, i.itens_codigo) AS produto_nome, 
-                COALESCE(p.codigo, i.itens_codigo) AS produto_sku
-         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
-         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
-         WHERE i.pedido_venda_id IN (${phIds})`,
+        `SELECT pedido_venda_id, itens_codigo, itens_quantidade, itens_valor
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\`
+         WHERE pedido_venda_id IN (${phIds})`,
         ids
       ).catch(() => [[]]);
 
-      // Itens Distribuição
       const [itensD] = await conn.execute(
-        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_quantidade, i.itens_valor,
-                COALESCE(p.nome, i.itens_codigo) AS produto_nome,
-                COALESCE(p.codigo, i.itens_codigo) AS produto_sku
-         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
-         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
-         WHERE i.pedido_venda_id IN (${phIds})`,
+        `SELECT pedido_venda_id, itens_codigo, itens_quantidade, itens_valor
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\`
+         WHERE pedido_venda_id IN (${phIds})`,
         ids
       ).catch(() => [[]]);
 
@@ -171,8 +165,8 @@ app.post('/api/pcp-pedidos', async (req, res) => {
         if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
         itensMap[item.pedido_venda_id].push({
           codigo: item.itens_codigo,
-          sku: item.produto_sku,
-          nome: item.produto_nome,
+          sku: item.itens_codigo,
+          nome: item.itens_codigo,
           quantidade: item.itens_quantidade,
           valor: item.itens_valor
         });
@@ -185,11 +179,16 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     
     conn.release();
     
-    res.json({ pedidos, total: pedidos.length, limit: LIMIT });
+    res.json({ 
+      pedidos, 
+      total: pedidos.length, 
+      limit: LIMIT,
+      statusProcessados: statusToQuery.length
+    });
 
   } catch (err) {
-    console.error(err);
-    res.json({ error: err.message });
+    console.error('Erro PCP:', err);
+    res.status(500).json({ error: 'Erro ao processar. Tente com menos status.' });
   }
 });
 
