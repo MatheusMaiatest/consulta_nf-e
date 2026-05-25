@@ -267,13 +267,13 @@
   </head>
   <body>
   <header class="topbar">
-    <span class="logo">📋 NF-e Viewer</span>
+    <span class="logo">&#x1F4CB; NF-e Viewer</span>
     <nav class="tab-nav">
-      <button class="tab-btn active" onclick="switchView('nfe',this)">📋 NF-e <span id="count-nf" style="opacity:0.6;font-size:0.7rem;margin-left:4px"></span></button>
-      <button class="tab-btn" onclick="switchView('pedidos',this)">📋 Pedidos <span id="count-pedidos" style="opacity:0.6;font-size:0.7rem;margin-left:4px"></span></button>
-      <button class="tab-btn" onclick="switchView('pcp',this)">📋 PCP</button>
-      <button class="tab-btn" onclick="switchView('transporte',this)">📋 Transporte</button>
-      <button class="tab-btn" onclick="switchView('vendas',this)">📋 Vendas</button>
+      <button class="tab-btn active" onclick="switchView('nfe',this)">&#x1F9FE; NF-e <span id="count-nf" style="opacity:0.6;font-size:.8em"></span></button>
+      <button class="tab-btn" onclick="switchView('pedidos',this)">&#x1F6D2; Pedidos <span id="count-pedidos" style="opacity:0.6;font-size:.8em"></span></button>
+      <button class="tab-btn" onclick="switchView('pcp',this)">&#x1F3ED; PCP</button>
+      <button class="tab-btn" onclick="switchView('transporte',this)">&#x1F69A; Transporte</button>
+      <button class="tab-btn" onclick="switchView('vendas',this)">&#x1F4C8; Vendas</button>
     </nav>
     <div class="topbar-right">
       <button class="btn-icon" id="btnTheme" title="Tema">📋</button>
@@ -427,8 +427,8 @@
             <span style="font-size:.9rem">📌</span> Status dos Pedidos
           </span>
           <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">▼</span>
-        </button>
-        <div id="pcp-status-list" class="tog-grp" style="flex-direction:column;gap:5px;margin-top:8px;
+        <div id="pcp-status-list" style="display:flex;flex-direction:column;gap:5px;margin-top:8px;overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
+          <!-- Status carregados dinamicamente -->
           overflow:hidden;max-height:400px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
           <!-- Status carregados dinamicamente -->
         </div>
@@ -3261,40 +3261,30 @@
 // PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÃO
 // ═══════════════════════════════════════════════════════════
 
-// Carregar status disponíveis ao iniciar
 async function carregarStatusPCP(){
   try{
     var resp = await fetch(API_BASE+'/api/pedidos-status');
     var d = await resp.json();
     if(d.error){ console.error('Erro ao carregar status:', d.error); return; }
-    
     var statusList = d.status || [];
-    var html = statusList.map(function(st){
-      return '<label class="tchip" data-status="'+esc(st)+'">'+
-        '<input type="checkbox" value="'+esc(st)+'"/>'+
-        esc(st)+
-      '</label>';
+    var html = '';
+    statusList.forEach(function(st){
+      html += '<label class="tchip" data-status="' + esc(st) + '" style="width:100%;justify-content:flex-start;white-space:normal;word-break:break-word;transition:all .18s;cursor:pointer"><input type="checkbox" value="' + esc(st) + '"/>' + esc(st) + '</label>';
     }).join('');
-    
     G('pcp-status-list').innerHTML = html;
-    
-    // Event listeners para os checkboxes de status
     G('pcp-status-list').querySelectorAll('label').forEach(function(lbl){
       lbl.onclick = function(e){
         e.preventDefault();
+        lbl.style.transform = 'scale(.97)';
+        setTimeout(function(){ lbl.style.transform = ''; }, 150);
         var chk = lbl.querySelector('input[type="checkbox"]');
         chk.checked = !chk.checked;
         lbl.classList.toggle('on', chk.checked);
-        
         var status = lbl.getAttribute('data-status');
-        if(chk.checked){
-          pcpStatusSelecionados.add(status);
-        } else {
-          pcpStatusSelecionados.delete(status);
-        }
+        if(chk.checked){ pcpStatusSelecionados.add(status); }
+        else            { pcpStatusSelecionados.delete(status); }
       };
     });
-    
   } catch(err){
     console.error('Erro ao carregar status:', err);
   }
