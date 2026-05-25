@@ -103,18 +103,13 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     const conn = await pool.getConnection();
     const ph = status.map(() => '?').join(',');
     
-    // Limitar a 1000 pedidos para evitar timeout
-    const LIMIT = 1000;
+    // Reduzir limite para 500 pedidos para resposta mais rápida
+    const LIMIT = 500;
     
-    // Buscar pedidos com os status selecionados (limitado)
+    // Buscar apenas campos essenciais
     const [pedidosE] = await conn.execute(
       `SELECT 
-        id, numero, data, datasaida, situacao_nome, situacao_id,
-        contato_nome, contato_numerodocumento, contato_tipopessoa,
-        total, totalprodutos, desconto_valor,
-        transporte_contato_nome, transporte_frete, transporte_pesobruto,
-        notafiscal_id, numeroloja, loja_id,
-        'ecommerce' AS origem
+        id, numero, data, situacao_nome, contato_nome, total, 'ecommerce' AS origem
        FROM \`bling_pedidos_venda_detalhes_ecommerce\`
        WHERE situacao_nome IN (${ph})
        ORDER BY data ASC
@@ -124,13 +119,7 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     
     const [pedidosD] = await conn.execute(
       `SELECT 
-        id, numero, data, datasaida, situacao_nome, situacao_id,
-        contato_nome, contato_numerodocumento, contato_tipopessoa,
-        total, totalprodutos, desconto_valor,
-        transporte_contato_nome, transporte_frete, transporte_pesobruto,
-        notafiscal_id, numeroloja, loja_id,
-        observacoes, observacoesinternas,
-        'distribuidor' AS origem
+        id, numero, data, situacao_nome, contato_nome, total, 'distribuidor' AS origem
        FROM \`bling_pedidos_venda_detalhes_distribuicao\`
        WHERE situacao_nome IN (${ph})
        ORDER BY data ASC
@@ -138,60 +127,57 @@ app.post('/api/pcp-pedidos', async (req, res) => {
       status
     );
     
-    let pedidos = [...pedidosE, ...pedidosD].map(r => montarPedido(r));
+    let pedidos = [...pedidosE, ...pedidosD].map(r => ({
+      id: r.id,
+      origem: r.origem,
+      numero: r.numero,
+      data: r.data ? new Date(r.data).toISOString() : null,
+      situacao: r.situacao_nome,
+      cliente: r.contato_nome,
+      valor: r.total || null,
+      itens: []
+    }));
     
-    // Buscar itens dos pedidos em lotes menores
+    // Buscar itens em uma única query otimizada
     if (pedidos.length > 0) {
       const ids = pedidos.map(p => p.id);
-      
-      // Processar em lotes de 500 IDs por vez
-      const BATCH_SIZE = 500;
+      const phIds = ids.map(() => '?').join(',');
+
+      // Itens E-commerce (apenas campos necessários)
+      const [itensE] = await conn.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_quantidade, i.itens_valor,
+                COALESCE(p.nome, i.itens_codigo) AS produto_nome, 
+                COALESCE(p.codigo, i.itens_codigo) AS produto_sku
+         FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
+         LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
+        ids
+      ).catch(() => [[]]);
+
+      // Itens Distribuição
+      const [itensD] = await conn.execute(
+        `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_quantidade, i.itens_valor,
+                COALESCE(p.nome, i.itens_codigo) AS produto_nome,
+                COALESCE(p.codigo, i.itens_codigo) AS produto_sku
+         FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
+         LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
+         WHERE i.pedido_venda_id IN (${phIds})`,
+        ids
+      ).catch(() => [[]]);
+
+      // Mapear itens
       const itensMap = {};
-      
-      for (let i = 0; i < ids.length; i += BATCH_SIZE) {
-        const batchIds = ids.slice(i, i + BATCH_SIZE);
-        const phIds = batchIds.map(() => '?').join(',');
-
-        // Itens E-commerce
-        const [itensE] = await conn.execute(
-          `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
-                  i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
-                  p.nome AS produto_nome, p.codigo AS produto_sku
-           FROM \`bling_pedidos_venda_detalhes_itens_ecommerce\` i
-           LEFT JOIN \`bling_produtos_detalhes_ecommerce\` p ON p.id = i.itens_produto_id
-           WHERE i.pedido_venda_id IN (${phIds})`,
-          batchIds
-        ).catch(() => [[]]);
-
-        // Itens Distribuição
-        const [itensD] = await conn.execute(
-          `SELECT i.pedido_venda_id, i.itens_codigo, i.itens_id, i.itens_produto_id,
-                  i.itens_unidade, i.itens_quantidade, i.itens_valor, i.itens_desconto,
-                  p.nome AS produto_nome, p.codigo AS produto_sku
-           FROM \`bling_pedidos_venda_detalhes_itens_distribuicao\` i
-           LEFT JOIN \`bling_produtos_detalhes_distribuicao\` p ON p.id = i.itens_produto_id
-           WHERE i.pedido_venda_id IN (${phIds})`,
-          batchIds
-        ).catch(() => [[]]);
-
-        // Mapear itens por pedido
-        [...itensE, ...itensD].forEach(item => {
-          if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
-          itensMap[item.pedido_venda_id].push({
-            codigo: item.itens_codigo,
-            sku: item.produto_sku || item.itens_codigo || '—',
-            nome: item.produto_nome || item.itens_codigo || 'Produto sem nome',
-            id: item.itens_id,
-            produto_id: item.itens_produto_id,
-            unidade: item.itens_unidade,
-            quantidade: item.itens_quantidade,
-            valor: item.itens_valor,
-            desconto: item.itens_desconto
-          });
+      [...itensE, ...itensD].forEach(item => {
+        if (!itensMap[item.pedido_venda_id]) itensMap[item.pedido_venda_id] = [];
+        itensMap[item.pedido_venda_id].push({
+          codigo: item.itens_codigo,
+          sku: item.produto_sku,
+          nome: item.produto_nome,
+          quantidade: item.itens_quantidade,
+          valor: item.itens_valor
         });
-      }
+      });
 
-      // Adicionar itens aos pedidos
       pedidos.forEach(p => {
         p.itens = itensMap[p.id] || [];
       });
@@ -199,7 +185,7 @@ app.post('/api/pcp-pedidos', async (req, res) => {
     
     conn.release();
     
-    res.json({ pedidos, total: pedidos.length });
+    res.json({ pedidos, total: pedidos.length, limit: LIMIT });
 
   } catch (err) {
     console.error(err);
