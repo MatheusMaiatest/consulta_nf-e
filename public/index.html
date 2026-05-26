@@ -815,6 +815,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   // Status selecionados por unidade: { ecommerce: Set, distribuidor: Set }
   var pcpStatusSel = { ecommerce: new Set(), distribuidor: new Set() };
   var pcpModoConsolidado = false;  // true = lista única, false = listas separadas
+  var pcpModoCascata    = false;  // true = consumo progressivo de estoque
   var estoqueEco  = {};
   var estoqueDist = {};
   
@@ -3712,19 +3713,38 @@ function renderPCPGrid(lista){
 
   var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:var(--tm);font-style:italic">'+prioHeader+'</div>';
 
-  // Botão consolidar quando há duas unidades
-  if(temEco && temDist){
+  // Botões de controle
+  if(temEco && temDist || pcpProdutos.length > 0){
     var btnLabel = pcpModoConsolidado ? '&#x1F500; Ver Separado' : '&#x1F4CB; Consolidar Listas';
-    html += '<div style="margin-bottom:12px">' +
-      '<button onclick="toggleConsolidarPCP()" style="' +
-        'padding:6px 14px;border-radius:var(--rs);border:1px solid var(--bdr);' +
-        'background:var(--bgc);color:var(--tp);font-size:.78rem;cursor:pointer;' +
-        'transition:all .18s" ' +
-        'onmouseover="this.style.borderColor=\'var(--ac)\'" ' +
-        'onmouseout="this.style.borderColor=\'var(--bdr)\'">' +
-        btnLabel +
-      '</button>' +
-    '</div>';
+    var cascataAtivo = pcpModoCascata;
+    var cascataBg    = cascataAtivo ? 'rgba(255,152,0,.15)' : 'var(--bgc)';
+    var cascataBdr   = cascataAtivo ? '#ff9800'             : 'var(--bdr)';
+    var cascataColor = cascataAtivo ? '#ff9800'             : 'var(--tp)';
+    var cascataLabel = cascataAtivo ? '&#x26A1; Cascata ON' : '&#x26A1; Ativar Cascata';
+
+    html += '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+
+    if(temEco && temDist){
+      html +=
+        '<button onclick="toggleConsolidarPCP()" style="' +
+          'padding:6px 14px;border-radius:var(--rs);border:1px solid var(--bdr);' +
+          'background:var(--bgc);color:var(--tp);font-size:.78rem;cursor:pointer;transition:all .18s" ' +
+          'onmouseover="this.style.borderColor=\'var(--ac)\'" ' +
+          'onmouseout="this.style.borderColor=\'var(--bdr)\'">' +
+          btnLabel +
+        '</button>';
+    }
+
+    html +=
+      '<button onclick="toggleCascataPCP()" style="' +
+        'padding:6px 14px;border-radius:var(--rs);' +
+        'border:1px solid '+cascataBdr+';' +
+        'background:'+cascataBg+';color:'+cascataColor+';' +
+        'font-size:.78rem;cursor:pointer;font-weight:'+(cascataAtivo?'700':'400')+';transition:all .18s">' +
+        cascataLabel +
+      '</button>';
+
+    html += '</div>';
   }
 
   if(separado){
@@ -3759,6 +3779,123 @@ function renderPCPGrid(lista){
 function toggleConsolidarPCP(){
   pcpModoConsolidado = !pcpModoConsolidado;
   renderPCPGrid();
+}
+
+function toggleCascataPCP(){
+  pcpModoCascata = !pcpModoCascata;
+  if(pcpModoCascata){
+    renderCascata();
+  } else {
+    renderPCPGrid();
+  }
+}
+
+// Calcula e renderiza a lista em modo cascata
+// Simula consumo progressivo de estoque na ordem de prioridade atual
+function renderCascata(){
+  var grid = G('gridPCP');
+  if(pcpProdutos.length === 0){
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4E6;</div><p>Nenhum produto disponivel.</p></div>';
+    return;
+  }
+
+  // Clonar saldoMap com os valores atuais de estoque
+  var saldoRestante = {};
+  pcpProdutos.forEach(function(prod){
+    var cod = prod.codigo;
+    var sE = estoqueEco[cod]  ? parseFloat(estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
+    var sD = estoqueDist[cod] ? parseFloat(estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
+    var s  = sE !== null && sD !== null ? sE+sD : sE !== null ? sE : sD !== null ? sD : null;
+    saldoRestante[prod.skuCD || prod.codigo] = s;
+  });
+
+  // Função de validação usando saldo restante (não o original)
+  function pedidoLiberavelCascata(ped){
+    if(!ped.itens || ped.itens.length === 0) return false;
+    for(var i = 0; i < ped.itens.length; i++){
+      var item = ped.itens[i];
+      var prodCD = buscarProdutoCD(item.codigo, item.nome);
+      var mk = prodCD ? String(prodCD.sku) : item.codigo;
+      var s  = saldoRestante[mk];
+      if(s === null || s === undefined) continue;
+      if(s < (parseFloat(item.quantidade) || 0)) return false;
+    }
+    return true;
+  }
+
+  // Processar lista na ordem atual de prioridade
+  var listaFinal = [];
+  var produtosRestantes = pcpProdutos.slice(); // cópia da lista ordenada
+
+  while(produtosRestantes.length > 0){
+    var encontrou = false;
+
+    for(var i = 0; i < produtosRestantes.length; i++){
+      var prod = produtosRestantes[i];
+
+      // Verificar quais pedidos desse produto ainda são liberáveis com saldo restante
+      var pedidosLib = prod.pedidos.filter(function(p){ return pedidoLiberavelCascata(p.pedido); });
+
+      if(pedidosLib.length === 0){
+        // Produto não libera mais nada — remover da lista
+        produtosRestantes.splice(i, 1);
+        i--;
+        continue;
+      }
+
+      // Produto libera pedidos — adicionar à lista final e consumir estoque
+      var prodClone = {
+        sku:            prod.sku,
+        skuCD:          prod.skuCD,
+        codigo:         prod.codigo,
+        nome:           prod.nome,
+        pedidos:        pedidosLib,
+        quantidadeTotal: pedidosLib.reduce(function(acc,p){ return acc + (parseFloat(p.quantidade)||0); }, 0),
+        saldoEstoque:   prod.saldoEstoque,
+        dataMinima:     prod.dataMinima,
+        qtdLiberaveis:  pedidosLib.length
+      };
+      listaFinal.push(prodClone);
+
+      // Consumir estoque de todos os itens dos pedidos liberáveis
+      pedidosLib.forEach(function(p){
+        var ped = p.pedido;
+        if(!ped.itens) return;
+        ped.itens.forEach(function(item){
+          var prodCD = buscarProdutoCD(item.codigo, item.nome);
+          var mk = prodCD ? String(prodCD.sku) : item.codigo;
+          if(saldoRestante[mk] !== null && saldoRestante[mk] !== undefined){
+            saldoRestante[mk] -= (parseFloat(item.quantidade) || 0);
+            if(saldoRestante[mk] < 0) saldoRestante[mk] = 0;
+          }
+        });
+      });
+
+      // Remover produto processado
+      produtosRestantes.splice(i, 1);
+      encontrou = true;
+      break; // Reiniciar do início para respeitar prioridade com saldo atualizado
+    }
+
+    if(!encontrou) break; // Nenhum produto liberável restante
+  }
+
+  // Renderizar
+  var prioHeader = '&#x26A1; Modo Cascata — consumo progressivo de estoque (' + listaFinal.length + ' produtos liberáveis)';
+  var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:#ff9800;font-style:italic;font-weight:600">'+prioHeader+'</div>';
+
+  // Botões
+  html += '<div style="display:flex;gap:8px;margin-bottom:12px">';
+  if(pcpStatusSel.ecommerce.size > 0 && pcpStatusSel.distribuidor.size > 0){
+    html += '<button onclick="toggleConsolidarPCP()" style="padding:6px 14px;border-radius:var(--rs);border:1px solid var(--bdr);background:var(--bgc);color:var(--tp);font-size:.78rem;cursor:pointer;transition:all .18s">&#x1F4CB; Consolidar Listas</button>';
+  }
+  html += '<button onclick="toggleCascataPCP()" style="padding:6px 14px;border-radius:var(--rs);border:1px solid #ff9800;background:rgba(255,152,0,.15);color:#ff9800;font-size:.78rem;cursor:pointer;font-weight:700;transition:all .18s">&#x26A1; Cascata ON</button>';
+  html += '</div>';
+
+  html += buildTable(listaFinal, null);
+
+  grid.innerHTML = html;
+  G('rcountPCP').textContent = listaFinal.length + ' produto' + (listaFinal.length !== 1 ? 's' : '') + ' (cascata)';
 }
 
 function buildTable(fonte, unidade){
