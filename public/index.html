@@ -3366,8 +3366,8 @@ async function carregarStatusPCP(){
       });
     }
 
-    renderStatusList('pcp-status-eco',  d.ecommerce    || [], 'ecommerce',    'eco');
-    renderStatusList('pcp-status-dist', d.distribuidor || [], 'distribuidor', 'dist');
+    renderStatusList('pcp-status-eco',  d.ecommerce    || d.status || [], 'ecommerce',    'eco');
+    renderStatusList('pcp-status-dist', d.distribuidor || d.status || [], 'distribuidor', 'dist');
 
   } catch(err){
     console.error('Erro ao carregar status:', err);
@@ -3892,9 +3892,13 @@ G('inputEstoqueDist').onchange = async function() {
     this.value = '';
   } catch(e) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + e.message; }
 };
-// Carregar status ao iniciar
-carregarStatusPCP();
+
 carregarMetaEstoque();
+// Inicializar PCP
+setTimeout(function(){
+  carregarStatusPCP();
+  carregarMetaEstoque();
+}, 0);
 
 </script>
   
