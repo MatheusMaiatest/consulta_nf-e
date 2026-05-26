@@ -832,8 +832,12 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
   // -- Função de filtro (definida ANTES dos event listeners) --
+  var _lastFilterKey = '';
   function applyFilters(){
-    console.log('applyFilters BASE chamada (será sobrescrita)');
+    // Cache: evita re-render se filtros não mudaram
+    var key = activeSearch + '|' + Array.from(activeOrigens).sort().join(',') + '|' + (typeof _activeCupom !== 'undefined' ? _activeCupom : '') + '|' + (typeof _activePag !== 'undefined' ? Array.from(_activePag||[]).sort().join(',') : '');
+    if(key === _lastFilterKey && filteredNotas.length > 0) return;
+    _lastFilterKey = key;
     G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
     renderCards();
   }
@@ -856,8 +860,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       
       // Botão "TODAS" para origem
       if(o === 'todas'){
-        console.log('---------------------------------------------------');
-        console.log('• CLICOU EM TODAS (ORIGEM)');
         // Limpa todos os filtros de origem
         activeOrigens.clear();
         // Remove classe "on" de todos os botões de origem
@@ -866,15 +868,10 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         });
         // Adiciona classe "on" no botão TODAS
         c.classList.add('on');
-        console.log('Todas as origens limpas, mostrando TODAS as notas');
         applyFilters();
         return;
       }
       
-      console.log('---------------------------------------------------');
-      console.log('CLICOU EM ORIGEM:', o);
-      console.log('Estado antes:', Array.from(activeOrigens));
-      console.log('Classes antes:', c.className);
       
       // Remove classe "on" do botão TODAS
       var btnTodas = document.getElementById('chipTodasOrigens');
@@ -883,19 +880,11 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       if(activeOrigens.has(o)){
         activeOrigens.delete(o);
         c.classList.remove('on');
-        console.log('• Removido:', o);
       } else {
         activeOrigens.add(o);
         c.classList.add('on');
-        console.log('• Adicionado:', o);
       }
       
-      console.log('Estado depois:', Array.from(activeOrigens));
-      console.log('Classes depois:', c.className);
-      console.log('Tem classe "on"?', c.classList.contains('on'));
-      console.log('Tamanho do Set:', activeOrigens.size);
-      console.log('Chamando applyFilters()...');
-      console.log('Tipo de applyFilters:', typeof applyFilters);
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
@@ -914,7 +903,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     .then(r => r.json())
     .then(d => {
       produtosCD = d;
-      console.log('• Produtos CD carregados:', Object.keys(produtosCD).length);
     })
     .catch(e => console.error('✖ Erro ao carregar produtos CD:', e));
   
@@ -1034,92 +1022,59 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     }
   }
 
-  // -- Busca rápida -------------------------------------------
+  var _searchTimer=null;
   G('search').oninput=function(e){
-    activeSearch=e.target.value.toLowerCase().trim();
-    applyFilters();
-    // SINCRONIZAÇÃO: Aplicar mesma busca nos pedidos
-    G('searchPed').value = e.target.value;
-    activeSearchPed = activeSearch;
-    applyFiltersPed();
+    var _val=e.target.value;
+    clearTimeout(_searchTimer);
+    _searchTimer=setTimeout(function(){
+      activeSearch=_val.toLowerCase().trim();
+      applyFilters();
+      G('searchPed').value = _val;
+      activeSearchPed = activeSearch;
+      applyFiltersPed();
+    }, 200);
   };
 
   // -- Render cards com lazy load -----------------------------
-  var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
+  var _renderList=[], _renderIdx=0, _renderBatch=120, _renderObs=null;
 
   function renderCards(){
-    console.log('renderCards() chamada');
-    console.log('filteredNotas.length:', filteredNotas.length);
-    
     var grp=document.querySelector('input[name=grp]:checked').value||'nf';
     var cols=getCols();
     var grid=G('grid');
-    
-    console.log('📍 Agrupamento:', grp);
-    console.log('Colunas visíveis:', Array.from(cols));
-    console.log('Grid element:', grid);
-    console.log('Grid parent:', grid.parentElement);
-    console.log('Grid display:', window.getComputedStyle(grid).display);
-    console.log('Grid visibility:', window.getComputedStyle(grid).visibility);
-    
-    // FORÇA limpeza do grid
-    while(grid.firstChild) {
-      grid.removeChild(grid.firstChild);
-    }
-    
-    _renderIdx=0;
 
-    // Desconecta observer anterior
+    // Limpeza rápida
+    grid.textContent='';
+    _renderIdx=0;
     if(_renderObs){_renderObs.disconnect();_renderObs=null;}
 
     if(!filteredNotas.length){
-      grid.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma nota encontrada.</p></div>';
-      console.log('Nenhuma nota para renderizar');
+      grid.innerHTML='<div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Nenhuma nota encontrada.</p></div>';
       return;
     }
 
-    // Monta lista plana de itens a renderizar (headers + notas)
     _renderList=[];
     var groups=groupNotas(filteredNotas,grp);
     groups.forEach(function(g){
       if(groups.length>1) _renderList.push({type:'hdr',label:g.label});
       g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
     });
-    
-    console.log('Total de itens a renderizar:', _renderList.length);
 
-    // Sentinel para carregar mais ao rolar
     var sentinel=document.createElement('div');
     sentinel.style.height='1px';
-    sentinel.id='sentinel-' + Date.now(); // ID único
     grid.appendChild(sentinel);
-    
-    console.log('• Sentinel adicionado ao grid');
-    console.log('• Grid children após sentinel:', grid.children.length);
-    
-    // Renderiza primeiro lote DEPOIS de adicionar o sentinel
-    requestAnimationFrame(function(){
-      console.log('requestAnimationFrame executando...');
-      renderLote(cols, grid);
-      
-      // Observer para lazy loading
-      _renderObs=new IntersectionObserver(function(entries){
-        if(entries[0].isIntersecting) renderLote(cols, grid);
-      },{rootMargin:'200px'});
-      _renderObs.observe(sentinel);
-      console.log('📍 Observer configurado');
-    });
-    
-    console.log('• renderCards() concluída');
+
+    renderLote(cols, grid);
+
+    _renderObs=new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting) renderLote(cols, grid);
+    },{rootMargin:'600px'});
+    _renderObs.observe(sentinel);
   }
 
+
   function renderLote(cols, grid){
-    console.log('renderLote() chamada');
-    console.log('_renderIdx:', _renderIdx, '_renderBatch:', _renderBatch, '_renderList.length:', _renderList.length);
-    
     var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
-    console.log('Renderizando de', _renderIdx, 'até', fim);
-    
     var frag=document.createDocumentFragment();
     for(var i=_renderIdx;i<fim;i++){
       var item=_renderList[i];
@@ -1130,36 +1085,13 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         frag.appendChild(buildCard(item.nota,cols));
       }
     }
-    
-    console.log('Fragment criado com', frag.childNodes.length, 'elementos');
-    
-    // Insere antes do sentinel
-    var sentinel=grid.lastElementChild;
-    console.log('Sentinel:', sentinel);
-    console.log('Grid antes:', grid.children.length, 'elementos');
-    console.log('Grid display:', window.getComputedStyle(grid).display);
-    console.log('Grid visibility:', window.getComputedStyle(grid).visibility);
-    console.log('Grid opacity:', window.getComputedStyle(grid).opacity);
-    
-    grid.insertBefore(frag, sentinel);
-    
-    // FORÇA reflow do navegador
-    void grid.offsetHeight;
-    
-    console.log('Grid depois:', grid.children.length, 'elementos');
-    console.log('Primeiro card:', grid.children[0]);
-    if(grid.children[0]) {
-      console.log('Primeiro card display:', window.getComputedStyle(grid.children[0]).display);
-      console.log('Primeiro card visibility:', window.getComputedStyle(grid.children[0]).visibility);
-      console.log('Primeiro card opacity:', window.getComputedStyle(grid.children[0]).opacity);
-    }
-    
+    grid.insertBefore(frag, grid.lastElementChild);
     _renderIdx=fim;
     if(_renderIdx>=_renderList.length && _renderObs){
       _renderObs.disconnect(); _renderObs=null;
-      console.log('• Todos os itens renderizados, observer desconectado');
     }
   }
+
 
   function buildCard(n,cols){
     var d=document.createElement('div');
@@ -1182,7 +1114,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       '</div>';
     d.onclick=function(e){
       e.stopPropagation();
-      console.log('📍 Card clicado:', n.numero, n.cliente);
       abrirModal(n);
     };
     
@@ -1205,7 +1136,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
 
   // -- Modal --------------------------------------------------
   function abrirModal(n){
-    console.log('abrirModal chamada:', n);
     var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     
     // Badge de situação da NF
@@ -1329,7 +1259,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         '</div>'+
       '</div>';
     
-    console.log('• Modal HTML montado, abrindo overlay...');
     G('moverlay').classList.add('open');
     
     // Carregar produtos assincronamente
@@ -1601,7 +1530,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   // Sobrescreve applyFilters para incluir filtros avançados
   var _applyFiltersBase = applyFilters;
   applyFilters = function(){
-    console.log('applyFilters INTERMEDIÁRIA chamada (será sobrescrita novamente)');
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
 
     filteredNotas = allNotas.filter(function(n){
@@ -1743,7 +1671,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   async function filtrarNotasPorProdutos(){
     if(!_prodFiltroAtivo||_prodSelecionados.size===0){applyFilters();return;}
     
-    console.log('⏳ Filtrando por produtos...');
     setStatus('⏳ Filtrando por produtos...');
     
     // Primeiro aplica todos os outros filtros (origem, busca, cupom, pagamento, etc)
@@ -1790,13 +1717,11 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       return true;
     });
     
-    console.log('Notas após outros filtros:', notasBase.length);
     
     // Para cada nota, verifica se tem produto selecionado
     var resultado=[];
     var pendentes=notasBase.filter(function(n){return n.xmlUrl && !_notasProdCache[n.id];});
     
-    console.log('Notas pendentes de buscar produtos:', pendentes.length);
     
     // Busca XMLs em lotes de 10
     for(var i=0;i<pendentes.length;i+=10){
@@ -1816,7 +1741,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       if(tem)resultado.push(n);
     });
     
-    console.log('Notas com produtos selecionados:', resultado.length);
     
     filteredNotas=resultado;
     G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
@@ -1912,7 +1836,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       if(tipo !== 'todas') console.error('✖ Chip Não encontrado para cupom:', tipo);
       return;
     }
-    console.log('• Chip encontrado para cupom:', tipo, 'classes:', chip.className);
     
     // Remove o checkbox interno para evitar conflitos
     var checkbox = chip.querySelector('input[type="checkbox"]');
@@ -1927,8 +1850,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       
       // Botão "TODAS" para cupom
       if(tipo === 'todas'){
-        console.log('---------------------------------------------------');
-        console.log('• CLICOU EM TODAS (CUPOM)');
         // Ativa ambos os filtros (mostra todas as notas)
         _filtroCupom.com = true;
         _filtroCupom.sem = true;
@@ -1938,15 +1859,10 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         });
         // Adiciona classe "on" no botão TODAS
         chip.classList.add('on');
-        console.log('Todos os cupons ativos, mostrando TODAS as notas');
         applyFilters();
         return;
       }
       
-      console.log('---------------------------------------------------');
-      console.log('📍 CLICOU EM CUPOM:', tipo);
-      console.log('Estado antes:', JSON.stringify(_filtroCupom));
-      console.log('Classes antes:', chip.className);
       
       // Remove classe "on" do botão TODAS
       var btnTodas = document.getElementById('chipTodosCupons');
@@ -1961,11 +1877,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         chip.classList.remove('on');
       }
       
-      console.log('Estado depois:', JSON.stringify(_filtroCupom));
-      console.log('Classes depois:', chip.className);
-      console.log('Tem classe "on"?', chip.classList.contains('on'));
-      console.log('Chamando applyFilters()...');
-      console.log('Tipo de applyFilters:', typeof applyFilters);
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
@@ -2040,12 +1951,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   // Sobrescreve applyFilters para incluir filtros cupom e pagamento
   var _applyFiltersAnterior = applyFilters;
   applyFilters = function(){
-    console.log('---------------------------------------------------');
-    console.log('APLICANDO FILTROS (versão final)');
-    console.log('Total de notas:', allNotas.length);
-    console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
-    console.log('Filtro cupom:', _filtroCupom);
-    console.log('Busca:', activeSearch);
     
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
     var contadorBloqueios = { origem: 0, busca: 0, fex: 0, cupom: 0, pagamento: 0 };
@@ -2109,9 +2014,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       return true;
     });
     
-    console.log('Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
-    console.log('• Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
-    console.log('---------------------------------------------------');
     
     G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
     
@@ -2119,7 +2021,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     var grid = G('grid');
     if(grid && grid.parentElement) {
       grid.parentElement.scrollTop = 0;
-      console.log('Scroll para o topo do grid');
     }
     
     renderCards();
