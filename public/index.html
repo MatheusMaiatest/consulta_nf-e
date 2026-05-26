@@ -3975,7 +3975,6 @@ G('inputEstoqueDist').onchange = async function() {
     this.value = '';
   } catch(e) { G('pcp-estoque-dist-info').textContent = 'Erro: ' + e.message; }
 };
-
 carregarMetaEstoque();
 // Inicializar PCP
 setTimeout(function(){
