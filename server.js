@@ -665,7 +665,9 @@ app.get('/api/notas', async (req, res) => {
                 ''                            AS pedido_observacoesinternas,
                 'ecommerce'                   AS origem
          FROM \`bling_nfe_saida_detalhes_ecommerce\` n
-         LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p ON p.notafiscal_id = n.numero
+         LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p
+           ON TRIM(p.notafiscal_id) = TRIM(n.numero)
+           OR TRIM(p.notafiscal_id) = TRIM(n.id)
          WHERE n.dataemissao BETWEEN ? AND ?
          ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
         [d1, d2]
@@ -683,7 +685,9 @@ app.get('/api/notas', async (req, res) => {
                 COALESCE(p.observacoesinternas, '')  AS pedido_observacoesinternas,
                 'distribuidor'                       AS origem
          FROM \`bling_nfe_saida_detalhes_distribuicao\` n
-         LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p ON p.notafiscal_id = n.numero
+         LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p
+           ON TRIM(p.notafiscal_id) = TRIM(n.numero)
+           OR TRIM(p.notafiscal_id) = TRIM(n.id)
          WHERE n.dataemissao BETWEEN ? AND ?
          ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
         [d1, d2]
