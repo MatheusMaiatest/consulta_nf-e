@@ -4081,11 +4081,14 @@ function abrirPCPProduto(idx){
     if(ped.itens && ped.itens.length > 0){
       html += '<div style="border-top:1px solid '+uniBdr+';padding:8px 12px;background:var(--bg)">';
       html += '<table style="width:100%;border-collapse:collapse;font-size:.76rem">';
+      var cascataOn = pcpModoCascata;
       html += '<thead><tr style="border-bottom:1px solid var(--bdr)">' +
         '<th style="padding:4px 6px;text-align:left;color:var(--tm);font-weight:600">SKU</th>' +
         '<th style="padding:4px 6px;text-align:left;color:var(--tm);font-weight:600">Produto</th>' +
         '<th style="padding:4px 6px;text-align:right;color:var(--tm);font-weight:600">Pedido</th>' +
-        '<th style="padding:4px 6px;text-align:right;color:var(--tm);font-weight:600">Estoque</th>' +
+        '<th style="padding:4px 6px;text-align:right;color:var(--tm);font-weight:600">Estoque Real</th>' +
+        (cascataOn ? '<th style="padding:4px 6px;text-align:right;color:#f39c12;font-weight:600">Consumo</th>' : '') +
+        (cascataOn ? '<th style="padding:4px 6px;text-align:right;color:var(--tm);font-weight:600">Restante</th>' : '') +
       '</tr></thead><tbody>';
 
       ped.itens.forEach(function(item){
@@ -4108,6 +4111,14 @@ function abrirPCPProduto(idx){
         var saldoColor = saldo === null ? 'var(--tm)' : saldo <= 0 ? '#e74c3c' : saldo < itemQtd ? '#f39c12' : '#2ecc71';
         var saldoTxt   = saldo !== null ? saldo.toFixed(0)+' un' : '—';
 
+                // Dados de cascata por item
+        var itemMk = prodCD2 ? String(prodCD2.sku) : item.codigo;
+        var consumoItem = (cascataOn && pcpSaldoCascata !== undefined) ? 0 : 0;
+        // Calcular consumo deste item na cascata: saldo original - saldo restante
+        var saldoOrigItem = (cascataOn && pcpSaldoOriginal[itemMk] !== undefined) ? pcpSaldoOriginal[itemMk] : null;
+        var saldoRestItem = (cascataOn && pcpSaldoCascata[itemMk]  !== undefined) ? pcpSaldoCascata[itemMk]  : null;
+        var consumoItemVal = (saldoOrigItem !== null && saldoRestItem !== null) ? Math.max(0, saldoOrigItem - saldoRestItem) : null;
+
         html += '<tr style="border-bottom:1px solid var(--bdr)">' +
           '<td style="padding:4px 6px">' +
             '<span style="background:var(--ac);color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:600">'+esc(itemSku)+'</span>' +
@@ -4115,6 +4126,8 @@ function abrirPCPProduto(idx){
           '<td style="padding:4px 6px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(itemNome)+'</td>' +
           '<td style="padding:4px 6px;text-align:right;font-weight:600">'+itemQtd.toFixed(0)+' un</td>' +
           '<td style="padding:4px 6px;text-align:right;font-weight:600;color:'+saldoColor+'">'+saldoTxt+'</td>' +
+          (cascataOn ? '<td style="padding:4px 6px;text-align:right;font-size:.75rem;color:#f39c12;font-weight:600">'+(consumoItemVal !== null && consumoItemVal > 0 ? '-'+consumoItemVal.toFixed(0)+' un' : '—')+'</td>' : '') +
+          (cascataOn ? '<td style="padding:4px 6px;text-align:right;font-size:.75rem;font-weight:600;color:'+(saldoRestItem !== null ? (saldoRestItem <= 0 ? '#e74c3c' : '#2ecc71') : 'var(--tm)')+'">'+(saldoRestItem !== null ? saldoRestItem.toFixed(0)+' un' : '—')+'</td>' : '') +
         '</tr>';
       });
 
