@@ -3573,32 +3573,115 @@ function processarProdutosPCP(){
   // Converter para array
   pcpProdutos = Object.values(consolidado);
 
-  // Calcular saldo de estoque
+  // ── Passo 3: calcular saldo de estoque por produto ─────────────────────
+  // Mapa mergeKey → saldo disponível (soma eco + dist)
+  var saldoMap = {};
   pcpProdutos.forEach(function(prod){
     var cod = prod.codigo;
     var sE = estoqueEco[cod]  ? parseFloat(estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
     var sD = estoqueDist[cod] ? parseFloat(estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
-    if(sE !== null && sD !== null) prod.saldoEstoque = sE + sD;
-    else if(sE !== null)           prod.saldoEstoque = sE;
-    else if(sD !== null)           prod.saldoEstoque = sD;
-    else                           prod.saldoEstoque = null;
+    var saldo = null;
+    if(sE !== null && sD !== null) saldo = sE + sD;
+    else if(sE !== null)           saldo = sE;
+    else if(sD !== null)           saldo = sD;
+    prod.saldoEstoque = saldo;
+    saldoMap[prod.skuCD || prod.codigo] = saldo;
   });
 
-  // Ordenar por prioridade
+  // ── Passo 4: validar pedidos — só entra pedido que pode ser liberado integralmente ──
+  // Para cada pedido, verificar se TODOS os itens têm saldo suficiente
+  // Um item bloqueia o pedido se seu saldo < quantidade necessária no pedido
+
+  // Construir mapa: pedidoId → lista de itens com quantidade necessária
+  var pedidoItensMap = {};
+  pcpTodosPedidos.forEach(function(ped){
+    if(!ped.itens || ped.itens.length === 0) return;
+    pedidoItensMap[ped.id] = ped.itens.map(function(item){
+      return {
+        codigo: item.codigo,
+        mergeKey: (function(){
+          // Resolver mergeKey do item (mesmo critério do consolidado)
+          var prodCD = buscarProdutoCD(item.codigo, item.nome);
+          return prodCD ? String(prodCD.sku) : item.codigo;
+        })(),
+        quantidade: parseFloat(item.quantidade) || 0
+      };
+    });
+  });
+
+  // Para cada pedido, calcular se é liberável:
+  // Um pedido é liberável se para cada item, saldo >= quantidade do item no pedido
+  function pedidoEhLiberavel(pedidoId){
+    var itens = pedidoItensMap[pedidoId];
+    if(!itens || itens.length === 0) return false;
+    for(var i = 0; i < itens.length; i++){
+      var item = itens[i];
+      var saldo = saldoMap[item.mergeKey];
+      // Se não há saldo cadastrado para esse item, não bloqueia (sem dados = ignora)
+      if(saldo === null || saldo === undefined) continue;
+      if(saldo < item.quantidade) return false;
+    }
+    return true;
+  }
+
+  // ── Passo 5: filtrar e enriquecer produtos ────────────────────────────────
+  // Para cada produto, contar quantos pedidos ele consegue liberar integralmente
+  pcpProdutos.forEach(function(prod){
+    var pedidosLiberaveis = [];
+    var pedidosBloqueados = [];
+
+    prod.pedidos.forEach(function(p){
+      var pedId = p.pedido.id;
+      if(pedidoEhLiberavel(pedId)){
+        pedidosLiberaveis.push(p);
+      } else {
+        pedidosBloqueados.push(p);
+      }
+    });
+
+    prod.pedidosLiberaveis  = pedidosLiberaveis;
+    prod.pedidosBloqueados  = pedidosBloqueados;
+    prod.qtdLiberaveis      = pedidosLiberaveis.length;
+    // Quantidade total apenas dos pedidos liberáveis
+    prod.quantidadeLiberavel = pedidosLiberaveis.reduce(function(acc, p){
+      return acc + (parseFloat(p.quantidade) || 0);
+    }, 0);
+  });
+  // ── Filtro: manter apenas produtos com pedidos integralmente liberáveis ──
+  pcpProdutos = pcpProdutos.filter(function(prod){
+    return prod.qtdLiberaveis > 0;
+  });
+  // Substituir pedidos pelo subconjunto liberável (para contadores e modal)
+  pcpProdutos.forEach(function(prod){
+    prod.pedidos          = prod.pedidosLiberaveis;
+    prod.quantidadeTotal  = prod.quantidadeLiberavel;
+    // Recalcular dataMinima com base nos pedidos liberáveis
+    prod.dataMinima = null;
+    prod.pedidos.forEach(function(p){
+      var dt = p.pedido.data ? new Date(p.pedido.data) : null;
+      if(dt && (!prod.dataMinima || dt < prod.dataMinima)) prod.dataMinima = dt;
+    });
+  });
+
+  // ── Passo 6: ordenar por prioridade (todos já são liberáveis) ─────────
   if(pcpPrioridade === 'antigo'){
-    // Mais antigo primeiro — considera o pedido mais antigo de cada produto
-    pcpProdutos.sort(function(a,b){
+    // Mais antigo primeiro — data do pedido mais antigo liberável
+    pcpProdutos.sort(function(a, b){
       if(!a.dataMinima) return 1;
       if(!b.dataMinima) return -1;
       return a.dataMinima - b.dataMinima;
     });
   } else {
-    // Solta mais pedidos primeiro
-    pcpProdutos.sort(function(a,b){ return b.pedidos.length - a.pedidos.length; });
+    // Solta mais pedidos — quem libera mais pedidos completos primeiro
+    pcpProdutos.sort(function(a, b){
+      if(b.qtdLiberaveis !== a.qtdLiberaveis) return b.qtdLiberaveis - a.qtdLiberaveis;
+      return b.pedidos.length - a.pedidos.length;
+    });
   }
 
   renderPCPGrid();
 }
+
 
 function renderPCPGrid(lista){
   var grid = G('gridPCP');
