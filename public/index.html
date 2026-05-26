@@ -816,6 +816,10 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   var pcpStatusSel = { ecommerce: new Set(), distribuidor: new Set() };
   var pcpModoConsolidado = false;  // true = lista única, false = listas separadas
   var pcpModoCascata    = false;  // true = consumo progressivo de estoque
+  var pcpListaCascata   = [];    // lista calculada pela cascata
+  var pcpSaldoCascata   = {};    // saldoRestante após cascata (mergeKey -> saldo)
+  var pcpSaldoOriginal  = {};    // saldo original antes da cascata
+  var _prodCDCache      = {};    // cache de buscarProdutoCD para performance
   var estoqueEco  = {};
   var estoqueDist = {};
   
@@ -3402,6 +3406,18 @@ G('btnProcessarPCP').onclick = async function(){
 };
 
 function processarProdutosPCP(){
+  console.log("[PCP] Iniciando processamento de", pcpTodosPedidos.length, "pedidos...");
+  var t0 = Date.now();
+  // Cache de buscarProdutoCD para evitar chamadas repetidas
+  var _cdCache = {};
+  var _origBuscar = buscarProdutoCD;
+  buscarProdutoCD = function(cod, nome){
+    var k = cod + '|' + (nome||'');
+    if(_cdCache[k] !== undefined) return _cdCache[k];
+    var r = _origBuscar(cod, nome);
+    _cdCache[k] = r;
+    return r;
+  };
   // Passo 1: agrupar por código Bling (chave primária)
   var produtoMap = {};
 
@@ -3679,7 +3695,11 @@ function renderPCPGrid(lista){
 
 function toggleConsolidarPCP(){
   pcpModoConsolidado = !pcpModoConsolidado;
-  renderPCPGrid();
+  if(pcpModoCascata){
+    renderCascataGrid();
+  } else {
+    renderPCPGrid();
+  }
 }
 
 function toggleCascataPCP(){
@@ -3692,59 +3712,77 @@ function toggleCascataPCP(){
 }
 
 // Calcula e renderiza a lista em modo cascata
-// Simula consumo progressivo de estoque na ordem de prioridade atual
 function renderCascata(){
+  console.log('[PCP Cascata] Iniciando calculo...');
   var grid = G('gridPCP');
   if(pcpProdutos.length === 0){
     grid.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4E6;</div><p>Nenhum produto disponivel.</p></div>';
     return;
   }
 
-  // Clonar saldoMap com os valores atuais de estoque
-  var saldoRestante = {};
+  // Construir saldo original e saldoRestante (clone)
+  pcpSaldoOriginal = {};
+  pcpSaldoCascata  = {};
   pcpProdutos.forEach(function(prod){
     var cod = prod.codigo;
+    var mk  = prod.skuCD || prod.codigo;
     var sE = estoqueEco[cod]  ? parseFloat(estoqueEco[cod].saldo  || estoqueEco[cod].quantidade  || 0) : null;
     var sD = estoqueDist[cod] ? parseFloat(estoqueDist[cod].saldo || estoqueDist[cod].quantidade || 0) : null;
     var s  = sE !== null && sD !== null ? sE+sD : sE !== null ? sE : sD !== null ? sD : null;
-    saldoRestante[prod.skuCD || prod.codigo] = s;
+    pcpSaldoOriginal[mk] = s;
+    pcpSaldoCascata[mk]  = s;
   });
 
-  // Função de validação usando saldo restante (não o original)
+  // Cache de mergeKey por item.codigo para performance
+  var mkCache = {};
+  function getMergeKey(codigo, nome){
+    if(mkCache[codigo] !== undefined) return mkCache[codigo];
+    var prodCD = buscarProdutoCD(codigo, nome);
+    var mk = prodCD ? String(prodCD.sku) : codigo;
+    mkCache[codigo] = mk;
+    return mk;
+  }
+
   function pedidoLiberavelCascata(ped){
     if(!ped.itens || ped.itens.length === 0) return false;
     for(var i = 0; i < ped.itens.length; i++){
       var item = ped.itens[i];
-      var prodCD = buscarProdutoCD(item.codigo, item.nome);
-      var mk = prodCD ? String(prodCD.sku) : item.codigo;
-      var s  = saldoRestante[mk];
+      var mk   = getMergeKey(item.codigo, item.nome);
+      var s    = pcpSaldoCascata[mk];
       if(s === null || s === undefined) continue;
       if(s < (parseFloat(item.quantidade) || 0)) return false;
     }
     return true;
   }
 
-  // Processar lista na ordem atual de prioridade
   var listaFinal = [];
-  var produtosRestantes = pcpProdutos.slice(); // cópia da lista ordenada
+  var produtosRestantes = pcpProdutos.slice();
+  var iteracoes = 0;
+  var MAX_ITER = pcpProdutos.length * 3;
 
-  while(produtosRestantes.length > 0){
+  while(produtosRestantes.length > 0 && iteracoes++ < MAX_ITER){
     var encontrou = false;
-
     for(var i = 0; i < produtosRestantes.length; i++){
       var prod = produtosRestantes[i];
-
-      // Verificar quais pedidos desse produto ainda são liberáveis com saldo restante
       var pedidosLib = prod.pedidos.filter(function(p){ return pedidoLiberavelCascata(p.pedido); });
 
       if(pedidosLib.length === 0){
-        // Produto não libera mais nada — remover da lista
         produtosRestantes.splice(i, 1);
         i--;
         continue;
       }
 
-      // Produto libera pedidos — adicionar à lista final e consumir estoque
+      // Calcular consumo total por mergeKey para este produto
+      var consumo = {};
+      pedidosLib.forEach(function(p){
+        var ped = p.pedido;
+        if(!ped.itens) return;
+        ped.itens.forEach(function(item){
+          var mk = getMergeKey(item.codigo, item.nome);
+          consumo[mk] = (consumo[mk] || 0) + (parseFloat(item.quantidade) || 0);
+        });
+      });
+
       var prodClone = {
         sku:            prod.sku,
         skuCD:          prod.skuCD,
@@ -3752,52 +3790,192 @@ function renderCascata(){
         nome:           prod.nome,
         pedidos:        pedidosLib,
         quantidadeTotal: pedidosLib.reduce(function(acc,p){ return acc + (parseFloat(p.quantidade)||0); }, 0),
-        saldoEstoque:   prod.saldoEstoque,
+        saldoEstoque:   pcpSaldoCascata[prod.skuCD || prod.codigo],
+        saldoOriginal:  pcpSaldoOriginal[prod.skuCD || prod.codigo],
+        consumoCascata: consumo,
         dataMinima:     prod.dataMinima,
-        qtdLiberaveis:  pedidosLib.length
+        qtdLiberaveis:  pedidosLib.length,
+        _pcpIdx:        pcpProdutos.indexOf(prod)  // índice real para o modal
       };
       listaFinal.push(prodClone);
 
-      // Consumir estoque de todos os itens dos pedidos liberáveis
-      pedidosLib.forEach(function(p){
-        var ped = p.pedido;
-        if(!ped.itens) return;
-        ped.itens.forEach(function(item){
-          var prodCD = buscarProdutoCD(item.codigo, item.nome);
-          var mk = prodCD ? String(prodCD.sku) : item.codigo;
-          if(saldoRestante[mk] !== null && saldoRestante[mk] !== undefined){
-            saldoRestante[mk] -= (parseFloat(item.quantidade) || 0);
-            if(saldoRestante[mk] < 0) saldoRestante[mk] = 0;
-          }
-        });
+      // Abater estoque
+      Object.keys(consumo).forEach(function(mk){
+        if(pcpSaldoCascata[mk] !== null && pcpSaldoCascata[mk] !== undefined){
+          pcpSaldoCascata[mk] = Math.max(0, pcpSaldoCascata[mk] - consumo[mk]);
+        }
       });
 
-      // Remover produto processado
       produtosRestantes.splice(i, 1);
       encontrou = true;
-      break; // Reiniciar do início para respeitar prioridade com saldo atualizado
+      break;
     }
-
-    if(!encontrou) break; // Nenhum produto liberável restante
+    if(!encontrou) break;
   }
 
-  // Renderizar
-  var prioHeader = '&#x26A1; Modo Cascata — consumo progressivo de estoque (' + listaFinal.length + ' produtos liberáveis)';
+  pcpListaCascata = listaFinal;
+  console.log('[PCP Cascata] ' + listaFinal.length + ' produtos liberaveis calculados');
+
+  renderCascataGrid();
+}
+
+function renderCascataGrid(){
+  var grid = G('gridPCP');
+  var listaFinal = pcpListaCascata;
+
+  var prioHeader = '&#x26A1; Modo Cascata — ' + listaFinal.length + ' produtos liberáveis (consumo progressivo)';
   var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:#ff9800;font-style:italic;font-weight:600">'+prioHeader+'</div>';
 
-  // Botões
-  html += '<div style="display:flex;gap:8px;margin-bottom:12px">';
-  if(pcpStatusSel.ecommerce.size > 0 && pcpStatusSel.distribuidor.size > 0){
-    html += '<button onclick="toggleConsolidarPCP()" style="padding:6px 14px;border-radius:var(--rs);border:1px solid var(--bdr);background:var(--bgc);color:var(--tp);font-size:.78rem;cursor:pointer;transition:all .18s">&#x1F4CB; Consolidar Listas</button>';
+  // Botões — respeitar consolidado/separado
+  var temEco  = pcpStatusSel.ecommerce.size > 0;
+  var temDist = pcpStatusSel.distribuidor.size > 0;
+  html += '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+  if(temEco && temDist){
+    var lblCons = pcpModoConsolidado ? '&#x1F500; Ver Separado' : '&#x1F4CB; Consolidar Listas';
+    html += '<button onclick="toggleConsolidarPCP()" style="padding:6px 14px;border-radius:var(--rs);border:1px solid var(--bdr);background:var(--bgc);color:var(--tp);font-size:.78rem;cursor:pointer;transition:all .18s">'+lblCons+'</button>';
   }
   html += '<button onclick="toggleCascataPCP()" style="padding:6px 14px;border-radius:var(--rs);border:1px solid #ff9800;background:rgba(255,152,0,.15);color:#ff9800;font-size:.78rem;cursor:pointer;font-weight:700;transition:all .18s">&#x26A1; Cascata ON</button>';
   html += '</div>';
 
-  html += buildTable(listaFinal, null);
+  // Separado ou consolidado
+  var separado = temEco && temDist && !pcpModoConsolidado;
+  if(separado){
+    var ecoList  = listaFinal.filter(function(p){ return p.pedidos.some(function(x){ return x.pedido.origem === 'ecommerce'; }); });
+    var distList = listaFinal.filter(function(p){ return p.pedidos.some(function(x){ return x.pedido.origem === 'distribuidor'; }); });
+    if(ecoList.length > 0){
+      html += '<div style="margin-bottom:16px"><div style="font-size:.75rem;font-weight:700;color:var(--eco);letter-spacing:.5px;margin-bottom:8px">&#x1F6D2; E-COMMERCE — '+ecoList.length+' produto'+(ecoList.length!==1?'s':'')+'</div>';
+      html += buildCascataTable(ecoList, 'eco');
+      html += '</div>';
+    }
+    if(distList.length > 0){
+      html += '<div style="margin-bottom:16px"><div style="font-size:.75rem;font-weight:700;color:var(--dist);letter-spacing:.5px;margin-bottom:8px">&#x1F3ED; DISTRIBUIDOR — '+distList.length+' produto'+(distList.length!==1?'s':'')+'</div>';
+      html += buildCascataTable(distList, 'dist');
+      html += '</div>';
+    }
+  } else {
+    html += buildCascataTable(listaFinal, null);
+  }
 
   grid.innerHTML = html;
   G('rcountPCP').textContent = listaFinal.length + ' produto' + (listaFinal.length !== 1 ? 's' : '') + ' (cascata)';
 }
+
+function buildCascataTable(fonte, unidade){
+  var acColor = unidade === 'eco' ? 'var(--eco)' : unidade === 'dist' ? 'var(--dist)' : '#ff9800';
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
+  html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:36px">#</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:70px">SKU</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center;width:70px">Pedidos</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Estoque</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Consumo</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Restante</th>' +
+  '</tr></thead><tbody>';
+
+  fonte.forEach(function(prod, idx){
+    var skuDisplay  = prod.skuCD || prod.sku || prod.codigo || '—';
+    var nomeDisplay = prod.nome || prod.codigo || '—';
+    var nPedidos    = prod.pedidos.length;
+    var mk          = prod.skuCD || prod.codigo;
+    var saldoOrig   = prod.saldoOriginal !== null && prod.saldoOriginal !== undefined ? prod.saldoOriginal : null;
+    var consumoTotal = prod.consumoCascata ? (prod.consumoCascata[mk] || 0) : 0;
+    var saldoRest   = pcpSaldoCascata[mk] !== undefined ? pcpSaldoCascata[mk] : null;
+
+    var rowBg    = idx % 2 === 0 ? 'var(--bg)' : 'var(--bg2,var(--bg))';
+    var rankColor = idx === 0 ? '#f5a623' : idx === 1 ? '#9b9b9b' : idx === 2 ? '#c47a3a' : 'var(--tm)';
+
+    // Usar _pcpIdx para abrir o modal correto
+    var clickIdx = prod._pcpIdx !== undefined && prod._pcpIdx >= 0 ? prod._pcpIdx : -1;
+    var clickFn  = clickIdx >= 0 ? 'abrirPCPProduto('+clickIdx+')' : 'abrirPCPProdutoCascata('+idx+',\''+unidade+'\')';
+
+    html += '<tr onclick="'+clickFn+'" style="background:'+rowBg+';cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .15s" onmouseover="this.style.background=\'var(--hover,#2a2a3a)\'" onmouseout="this.style.background=\''+rowBg+'\'">' +
+      '<td style="padding:10px 6px;font-weight:700;color:'+rankColor+';text-align:center">'+(idx+1)+'</td>' +
+      '<td style="padding:10px 6px"><span style="background:'+acColor+';color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;white-space:nowrap">'+esc(skuDisplay)+'</span></td>' +
+      '<td style="padding:10px 6px;font-weight:500;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(nomeDisplay)+'</td>' +
+      '<td style="padding:10px 6px;text-align:center"><span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+nPedidos+'</span></td>' +
+      '<td style="padding:10px 6px;text-align:right;font-size:.8rem;color:var(--ts)">'+(saldoOrig !== null ? saldoOrig.toFixed(0)+' un' : '—')+'</td>' +
+      '<td style="padding:10px 6px;text-align:right;font-size:.8rem;color:#f39c12;font-weight:600">'+(consumoTotal > 0 ? '-'+consumoTotal.toFixed(0)+' un' : '—')+'</td>' +
+      '<td style="padding:10px 6px;text-align:right;font-size:.8rem;font-weight:600;color:'+(saldoRest !== null ? (saldoRest <= 0 ? '#e74c3c' : '#2ecc71') : 'var(--tm)')+'">'+(saldoRest !== null ? saldoRest.toFixed(0)+' un' : '—')+'</td>' +
+    '</tr>';
+  });
+
+  html += '</tbody></table>';
+  return html;
+}
+
+// Abre modal para produto da cascata (quando _pcpIdx não disponível)
+function abrirPCPProdutoCascata(idxCascata, unidade){
+  var lista = unidade === 'eco'
+    ? pcpListaCascata.filter(function(p){ return p.pedidos.some(function(x){ return x.pedido.origem === 'ecommerce'; }); })
+    : unidade === 'dist'
+    ? pcpListaCascata.filter(function(p){ return p.pedidos.some(function(x){ return x.pedido.origem === 'distribuidor'; }); })
+    : pcpListaCascata;
+  var prod = lista[idxCascata];
+  if(!prod) return;
+  abrirModalCascata(prod);
+}
+
+function abrirModalCascata(prod){
+  var skuDisplay = prod.skuCD || prod.sku || prod.codigo || '—';
+  var mk = prod.skuCD || prod.codigo;
+  var saldoOrig  = prod.saldoOriginal !== null && prod.saldoOriginal !== undefined ? prod.saldoOriginal.toFixed(0)+' un' : '—';
+  var consumoTot = prod.consumoCascata ? (prod.consumoCascata[mk] || 0) : 0;
+  var saldoRest  = pcpSaldoCascata[mk] !== undefined ? pcpSaldoCascata[mk].toFixed(0)+' un' : '—';
+
+  G('mheadPCPProduto').innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+      '<div style="background:#ff9800;color:#fff;padding:4px 12px;border-radius:var(--r);font-size:.8rem;font-weight:700">SKU '+esc(skuDisplay)+'</div>' +
+      '<span style="font-size:.72rem;color:#ff9800;font-weight:600">&#x26A1; Cascata</span>' +
+    '</div>' +
+    '<h2>'+esc(prod.nome || '—')+'</h2>' +
+    '<div class="msub">'+prod.quantidadeTotal.toFixed(0)+' un · '+prod.pedidos.length+' pedido'+(prod.pedidos.length > 1 ? 's' : '')+'</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;font-size:.78rem">' +
+      '<div style="background:var(--bgc);border-radius:var(--rs);padding:8px;text-align:center">' +
+        '<div style="color:var(--tm);margin-bottom:2px">Estoque Original</div>' +
+        '<div style="font-weight:700;color:var(--ts)">'+saldoOrig+'</div>' +
+      '</div>' +
+      '<div style="background:rgba(243,156,18,.1);border-radius:var(--rs);padding:8px;text-align:center">' +
+        '<div style="color:var(--tm);margin-bottom:2px">Consumo Cascata</div>' +
+        '<div style="font-weight:700;color:#f39c12">-'+consumoTot.toFixed(0)+' un</div>' +
+      '</div>' +
+      '<div style="background:var(--bgc);border-radius:var(--rs);padding:8px;text-align:center">' +
+        '<div style="color:var(--tm);margin-bottom:2px">Saldo Restante</div>' +
+        '<div style="font-weight:700;color:'+(pcpSaldoCascata[mk] <= 0 ? '#e74c3c' : '#2ecc71')+'">'+saldoRest+'</div>' +
+      '</div>' +
+    '</div>';
+
+  // Reutilizar o corpo do modal normal
+  var isEco    = prod.pedidos.length > 0 && prod.pedidos[0].pedido.origem === 'ecommerce';
+  var html = '<div style="display:flex;flex-direction:column;gap:10px">';
+  prod.pedidos.forEach(function(p){
+    var ped = p.pedido;
+    var ol       = ped.origem === 'ecommerce' ? '&#x1F6D2; E-commerce' : '&#x1F3ED; Distribuidor';
+    var sitClass = getSitClass(ped.situacao);
+    var uniColor = ped.origem === 'ecommerce' ? 'var(--eco)' : 'var(--dist)';
+    var uniBg    = ped.origem === 'ecommerce' ? 'rgba(66,165,245,.06)' : 'rgba(171,71,188,.06)';
+    var uniBdr   = ped.origem === 'ecommerce' ? 'rgba(66,165,245,.35)' : 'rgba(171,71,188,.35)';
+
+    html += '<div style="border:1px solid '+uniBdr+';border-radius:var(--r);overflow:hidden">';
+    html += '<div onclick="abrirModalPedFromPCP(\''+ped.id+'\')" style="padding:12px;cursor:pointer;background:'+uniBg+';transition:background .15s" onmouseover="this.style.background=\''+(ped.origem==='ecommerce'?'rgba(66,165,245,.14)':'rgba(171,71,188,.14)')+'\'" onmouseout="this.style.background=\''+uniBg+'\'">' +
+      '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">' +
+        '<div><div style="font-size:.7rem;color:'+uniColor+';font-weight:600;margin-bottom:3px">'+ol+'</div>' +
+        '<div style="font-weight:700;font-size:.92rem">Pedido '+esc(ped.numero||'—')+' <span style="font-size:.7rem;color:var(--tm);font-weight:400">&#x1F4C4; ver detalhes</span></div></div>' +
+        '<span class="sit-badge sit-'+sitClass+'">'+esc(ped.situacao||'—')+'</span>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.78rem;color:var(--ts)">' +
+        '<div>&#x1F464; '+esc(ped.cliente||'—')+'</div>' +
+        '<div>&#x1F4C5; '+fmtDate(ped.data)+'</div>' +
+      '</div>' +
+    '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  G('mbodyPCPProduto').innerHTML = html;
+  G('moverlayPCPProduto').classList.add('open');
+}
+
 
 function buildTable(fonte, unidade){
   var acColor = unidade === 'eco' ? 'var(--eco)' : unidade === 'dist' ? 'var(--dist)' : 'var(--ac)';
