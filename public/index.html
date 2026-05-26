@@ -3442,6 +3442,7 @@ G('btnProcessarPCP').onclick = async function(){
   }
 };
 function processarProdutosPCP(){
+  // Passo 1: agrupar por código Bling (chave primária)
   var produtoMap = {};
 
   pcpTodosPedidos.forEach(function(ped){
@@ -3465,7 +3466,6 @@ function processarProdutosPCP(){
         };
       }
 
-      // Atualizar nome/SKU se chegou dado melhor de outra origem
       var p = produtoMap[key];
       if(!p.skuCD && item.nome && item.nome !== item.codigo){
         var prodCD2 = buscarProdutoCD(item.codigo, item.nome);
@@ -3486,8 +3486,43 @@ function processarProdutosPCP(){
     });
   });
 
-  // Converter para array ANTES de calcular saldo
-  pcpProdutos = Object.values(produtoMap);
+  // Passo 2: consolidar entradas que resolvem para o mesmo SKU do CD
+  // Ex: código "621" e "000621" ambos → SKU "621" no CD → merge
+  var consolidado = {};
+  Object.values(produtoMap).forEach(function(prod){
+    // Chave de consolidação: SKU do CD se disponível, senão código Bling
+    var mergeKey = prod.skuCD || prod.codigo;
+
+    if(!consolidado[mergeKey]){
+      consolidado[mergeKey] = {
+        sku:            prod.sku,
+        skuCD:          prod.skuCD,
+        codigo:         prod.codigo,
+        nome:           prod.nome,
+        quantidadeTotal: 0,
+        saldoEstoque:   null,
+        pedidos:        [],
+        dataMinima:     null
+      };
+    }
+
+    var c = consolidado[mergeKey];
+    // Preferir nome mais descritivo (mais longo)
+    if(prod.nome && prod.nome.length > (c.nome || '').length) c.nome = prod.nome;
+    // Preferir SKU do CD
+    if(prod.skuCD && !c.skuCD){ c.sku = prod.sku; c.skuCD = prod.skuCD; }
+
+    c.quantidadeTotal += prod.quantidadeTotal;
+    c.pedidos = c.pedidos.concat(prod.pedidos);
+
+    // Data mínima = pedido mais antigo entre todos
+    if(prod.dataMinima && (!c.dataMinima || prod.dataMinima < c.dataMinima)){
+      c.dataMinima = prod.dataMinima;
+    }
+  });
+
+  // Converter para array
+  pcpProdutos = Object.values(consolidado);
 
   // Calcular saldo de estoque
   pcpProdutos.forEach(function(prod){
@@ -3502,12 +3537,14 @@ function processarProdutosPCP(){
 
   // Ordenar por prioridade
   if(pcpPrioridade === 'antigo'){
+    // Mais antigo primeiro — considera o pedido mais antigo de cada produto
     pcpProdutos.sort(function(a,b){
       if(!a.dataMinima) return 1;
       if(!b.dataMinima) return -1;
       return a.dataMinima - b.dataMinima;
     });
   } else {
+    // Solta mais pedidos primeiro
     pcpProdutos.sort(function(a,b){ return b.pedidos.length - a.pedidos.length; });
   }
 
