@@ -458,14 +458,31 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     <aside class="panel" id="panel-pcp">
       <div class="panel-title">&#x1F3ED; Planejamento e Controle</div>
 
-      <!-- STATUS DOS PEDIDOS (retratil) -->
+      <!-- STATUS DOS PEDIDOS (retratil, por unidade) -->
       <div class="psec">
         <button id="pcp-status-toggle" onclick="toggleStatusPCP()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:0;color:var(--tp);font-size:.8rem;font-weight:600;letter-spacing:.3px;transition:all .2s">
           <span style="display:flex;align-items:center;gap:6px"><span style="font-size:.9rem">&#x1F4CC;</span> Status dos Pedidos</span>
           <span id="pcp-status-arrow" style="font-size:.7rem;transition:transform .25s ease;display:inline-block">&#x25BC;</span>
         </button>
-        <div id="pcp-status-list" style="display:flex;flex-direction:column;gap:5px;margin-top:8px;overflow-y:auto;max-height:220px;transition:max-height .3s ease,opacity .25s ease;opacity:1;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent">
-          <!-- Status carregados dinamicamente -->
+        <div id="pcp-status-wrap" style="overflow:hidden;max-height:500px;transition:max-height .3s ease,opacity .25s ease;opacity:1">
+          <!-- E-COMMERCE -->
+          <div style="margin-top:8px">
+            <div style="font-size:.7rem;font-weight:700;color:var(--eco);letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
+              &#x1F6D2; E-COMMERCE
+            </div>
+            <div id="pcp-status-eco" style="display:flex;flex-direction:column;gap:4px;overflow-y:auto;max-height:180px;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--eco) transparent">
+              <!-- Status ecommerce carregados dinamicamente -->
+            </div>
+          </div>
+          <!-- DISTRIBUIDOR -->
+          <div style="margin-top:10px">
+            <div style="font-size:.7rem;font-weight:700;color:var(--dist);letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
+              &#x1F3ED; DISTRIBUIDOR
+            </div>
+            <div id="pcp-status-dist" style="display:flex;flex-direction:column;gap:4px;overflow-y:auto;max-height:180px;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--dist) transparent">
+              <!-- Status distribuidor carregados dinamicamente -->
+            </div>
+          </div>
         </div>
       </div>
 
@@ -784,11 +801,13 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   var allPedidos=[], filteredPedidos=[], activeSearchPed='', activeOrigensPed=new Set(['ecommerce','distribuidor']);
   
   // Estado global PCP
-  var pcpProdutos=[], pcpStatusSelecionados=new Set(), pcpPrioridade='antigo';
-  var pcpTodosPedidos=[];  // Cache de todos os pedidos para PCP
-  var pcpOrigemFiltro = new Set(['ecommerce','distribuidor']); // ambos ativos por padrão
-  var estoqueEco  = {};  // mapa codigo -> saldo (e-commerce)
-  var estoqueDist = {};  // mapa codigo -> saldo (distribuidor)
+  var pcpProdutos=[], pcpPrioridade='antigo';
+  var pcpTodosPedidos=[];
+  // Status selecionados por unidade: { ecommerce: Set, distribuidor: Set }
+  var pcpStatusSel = { ecommerce: new Set(), distribuidor: new Set() };
+  var pcpModoConsolidado = false;  // true = lista única, false = listas separadas
+  var estoqueEco  = {};
+  var estoqueDist = {};
   
   var G=function(id){return document.getElementById(id);};
 
@@ -3301,29 +3320,55 @@ async function carregarStatusPCP(){
     var resp = await fetch(API_BASE+'/api/pedidos-status');
     var d = await resp.json();
     if(d.error){ console.error('Erro ao carregar status:', d.error); return; }
-    var statusList = d.status || [];
-    var html = '';
-    for(var i=0; i<statusList.length; i++){
-      var st = statusList[i];
-      var s = 'width:100%;justify-content:flex-start;white-space:normal;word-break:break-word;transition:all .18s;cursor:pointer';
-      html += '<label class="tchip" data-status="' + esc(st) + '" style="' + s + '">';
-      html += '<input type="checkbox" value="' + esc(st) + '"/>';
-      html += esc(st) + '</label>';
+
+    function renderStatusList(containerId, statusList, unidade, corClass){
+      var html = '';
+      for(var i=0; i<statusList.length; i++){
+        var st = statusList[i];
+        var s = 'width:100%;justify-content:flex-start;white-space:normal;word-break:break-word;transition:all .18s;cursor:pointer';
+        html += '<label class="tchip" data-status="' + esc(st) + '" data-unidade="' + unidade + '" style="' + s + '">';
+        html += '<input type="checkbox" value="' + esc(st) + '"/>';
+        html += esc(st) + '</label>';
+      }
+      var container = G(containerId);
+      if(container) container.innerHTML = html;
+
+      if(container) container.querySelectorAll('label').forEach(function(lbl){
+        lbl.onclick = function(e){
+          e.preventDefault();
+          lbl.style.transform = 'scale(.97)';
+          setTimeout(function(){ lbl.style.transform = ''; }, 150);
+          var chk = lbl.querySelector('input[type="checkbox"]');
+          chk.checked = !chk.checked;
+          var status = lbl.getAttribute('data-status');
+          var uni    = lbl.getAttribute('data-unidade');
+          if(chk.checked){
+            lbl.classList.add('on');
+            // Cor da unidade quando ativo
+            if(uni === 'ecommerce'){
+              lbl.style.background  = 'rgba(66,165,245,.15)';
+              lbl.style.borderColor = 'var(--eco)';
+              lbl.style.color       = 'var(--eco)';
+            } else {
+              lbl.style.background  = 'rgba(171,71,188,.15)';
+              lbl.style.borderColor = 'var(--dist)';
+              lbl.style.color       = 'var(--dist)';
+            }
+            pcpStatusSel[uni].add(status);
+          } else {
+            lbl.classList.remove('on');
+            lbl.style.background  = '';
+            lbl.style.borderColor = '';
+            lbl.style.color       = '';
+            pcpStatusSel[uni].delete(status);
+          }
+        };
+      });
     }
-    G('pcp-status-list').innerHTML = html;
-    G('pcp-status-list').querySelectorAll('label').forEach(function(lbl){
-      lbl.onclick = function(e){
-        e.preventDefault();
-        lbl.style.transform = 'scale(.97)';
-        setTimeout(function(){ lbl.style.transform = ''; }, 150);
-        var chk = lbl.querySelector('input[type="checkbox"]');
-        chk.checked = !chk.checked;
-        lbl.classList.toggle('on', chk.checked);
-        var status = lbl.getAttribute('data-status');
-        if(chk.checked){ pcpStatusSelecionados.add(status); }
-        else            { pcpStatusSelecionados.delete(status); }
-      };
-    });
+
+    renderStatusList('pcp-status-eco',  d.ecommerce    || [], 'ecommerce',    'eco');
+    renderStatusList('pcp-status-dist', d.distribuidor || [], 'distribuidor', 'dist');
+
   } catch(err){
     console.error('Erro ao carregar status:', err);
   }
@@ -3332,19 +3377,19 @@ async function carregarStatusPCP(){
 var pcpStatusAberto = true;
 function toggleStatusPCP(){
   pcpStatusAberto = !pcpStatusAberto;
-  var lista = G('pcp-status-list');
+  var wrap  = G('pcp-status-wrap');
+  var arrow = G('pcp-status-arrow');
   if(pcpStatusAberto){
-    lista.style.maxHeight = '220px';
-    lista.style.overflowY = 'auto';
-    lista.style.opacity   = '1';
+    wrap.style.maxHeight = '500px';
+    wrap.style.opacity   = '1';
     arrow.style.transform = 'rotate(0deg)';
   } else {
-    lista.style.maxHeight = '0';
-    lista.style.overflowY = 'hidden';
-    lista.style.opacity   = '0';
+    wrap.style.maxHeight = '0';
+    wrap.style.opacity   = '0';
     arrow.style.transform = 'rotate(-90deg)';
-}
   }
+}
+
 
 // Event listeners para Prioridade
 G('panel-pcp').querySelectorAll('label[data-prio]').forEach(function(lbl){
@@ -3389,22 +3434,12 @@ G('panel-pcp').querySelectorAll('label[data-origem]').forEach(function(lbl){
 });
 
 function aplicarFiltroOrigemPCP(){
-  // Se ambos ou nenhum selecionado → mostra tudo
-  if(pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2){
-    renderPCPGrid();
-    return;
-  }
-  // Filtra produtos que têm pelo menos 1 pedido da origem selecionada
-  var filtrado = pcpProdutos.filter(function(prod){
-    return prod.pedidos.some(function(p){
-      return pcpOrigemFiltro.has(p.pedido.origem);
-    });
-  });
-  renderPCPGrid(filtrado);
+  renderPCPGrid();
 }
 
 G('btnProcessarPCP').onclick = async function(){
-  if(pcpStatusSelecionados.size === 0){
+  var totalSel = pcpStatusSel.ecommerce.size + pcpStatusSel.distribuidor.size;
+  if(totalSel === 0){
     setStatusPCP('Selecione pelo menos um status', 'warn');
     return;
   }
@@ -3419,20 +3454,33 @@ G('btnProcessarPCP').onclick = async function(){
     return;
   }
   loadingPed(true);
-  var nStatus = pcpStatusSelecionados.size;
-  setStatusPCP('Processando PCP... (' + nStatus + ' status | ' + from + ' a ' + to + ')');
+  setStatusPCP('Processando PCP... (' + totalSel + ' status | ' + from + ' a ' + to + ')');
   try{
-    var statusArray = Array.from(pcpStatusSelecionados);
-    var resp = await fetch(API_BASE+'/api/pcp-pedidos', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ status: statusArray, from: from, to: to })
-    });
-    var d = await resp.json();
-    if(d.error){ setStatusPCP('Erro: '+d.error, 'err'); loadingPed(false); return; }
-    pcpTodosPedidos = d.pedidos || [];
+    // Buscar pedidos de cada unidade separadamente
+    pcpTodosPedidos = [];
+
+    if(pcpStatusSel.ecommerce.size > 0){
+      var rE = await fetch(API_BASE+'/api/pcp-pedidos', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status: Array.from(pcpStatusSel.ecommerce), from: from, to: to, origemFiltro: 'ecommerce' })
+      });
+      var dE = await rE.json();
+      if(!dE.error) pcpTodosPedidos = pcpTodosPedidos.concat(dE.pedidos || []);
+    }
+
+    if(pcpStatusSel.distribuidor.size > 0){
+      var rD = await fetch(API_BASE+'/api/pcp-pedidos', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status: Array.from(pcpStatusSel.distribuidor), from: from, to: to, origemFiltro: 'distribuidor' })
+      });
+      var dD = await rD.json();
+      if(!dD.error) pcpTodosPedidos = pcpTodosPedidos.concat(dD.pedidos || []);
+    }
+
+    pcpModoConsolidado = false;
     processarProdutosPCP();
-    aplicarFiltroOrigemPCP();
     setStatusPCP(pcpProdutos.length+' produtos | '+pcpTodosPedidos.length+' pedidos | '+from+' a '+to);
     loadingPed(false);
   } catch(err){
@@ -3441,6 +3489,7 @@ G('btnProcessarPCP').onclick = async function(){
     loadingPed(false);
   }
 };
+
 function processarProdutosPCP(){
   // Passo 1: agrupar por código Bling (chave primária)
   var produtoMap = {};
@@ -3561,75 +3610,119 @@ function renderPCPGrid(lista){
     return;
   }
 
+  var temEco  = pcpStatusSel.ecommerce.size > 0;
+  var temDist = pcpStatusSel.distribuidor.size > 0;
+  var separado = temEco && temDist && !pcpModoConsolidado;
+
   var prioHeader = pcpPrioridade === 'antigo'
     ? '&#x1F550; Ordenado por: Pedido mais antigo primeiro'
     : '&#x1F4E6; Ordenado por: Produto que solta mais pedidos';
 
   var html = '<div style="padding:0 4px 8px;font-size:.75rem;color:var(--tm);font-style:italic">'+prioHeader+'</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
-  html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:36px">#</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:70px">SKU</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center;width:70px">Pedidos</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:90px">Qtd Pedida</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Saldo</th>'+
-    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:100px">'+
-      (pcpPrioridade === 'antigo' ? 'Mais Antigo' : 'Prioridade')+
-    '</th>'+
-  '</tr></thead><tbody>';
+
+  // Botão consolidar quando há duas unidades
+  if(temEco && temDist){
+    var btnLabel = pcpModoConsolidado ? '&#x1F500; Ver Separado' : '&#x1F4CB; Consolidar Listas';
+    html += '<div style="margin-bottom:12px">' +
+      '<button onclick="toggleConsolidarPCP()" style="' +
+        'padding:6px 14px;border-radius:var(--rs);border:1px solid var(--bdr);' +
+        'background:var(--bgc);color:var(--tp);font-size:.78rem;cursor:pointer;' +
+        'transition:all .18s" ' +
+        'onmouseover="this.style.borderColor=\'var(--ac)\'" ' +
+        'onmouseout="this.style.borderColor=\'var(--bdr)\'">' +
+        btnLabel +
+      '</button>' +
+    '</div>';
+  }
+
+  if(separado){
+    // Duas listas separadas por unidade
+    var ecoList  = fonte.filter(function(p){ return p.pedidos.some(function(x){ return x.pedido.origem === 'ecommerce'; }); });
+    var distList = fonte.filter(function(p){ return p.pedidos.some(function(x){ return x.pedido.origem === 'distribuidor'; }); });
+
+    if(ecoList.length > 0){
+      html += '<div style="margin-bottom:16px">';
+      html += '<div style="font-size:.75rem;font-weight:700;color:var(--eco);letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px">' +
+        '&#x1F6D2; E-COMMERCE — ' + ecoList.length + ' produto' + (ecoList.length !== 1 ? 's' : '') +
+      '</div>';
+      html += buildTable(ecoList, 'eco');
+      html += '</div>';
+    }
+    if(distList.length > 0){
+      html += '<div style="margin-bottom:16px">';
+      html += '<div style="font-size:.75rem;font-weight:700;color:var(--dist);letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px">' +
+        '&#x1F3ED; DISTRIBUIDOR — ' + distList.length + ' produto' + (distList.length !== 1 ? 's' : '') +
+      '</div>';
+      html += buildTable(distList, 'dist');
+      html += '</div>';
+    }
+  } else {
+    html += buildTable(fonte, null);
+  }
+
+  grid.innerHTML = html;
+  G('rcountPCP').textContent = fonte.length + ' produto' + (fonte.length !== 1 ? 's' : '');
+}
+
+function toggleConsolidarPCP(){
+  pcpModoConsolidado = !pcpModoConsolidado;
+  renderPCPGrid();
+}
+
+function buildTable(fonte, unidade){
+  var acColor = unidade === 'eco' ? 'var(--eco)' : unidade === 'dist' ? 'var(--dist)' : 'var(--ac)';
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:.85rem">';
+  html += '<thead><tr style="border-bottom:2px solid var(--bdr);text-align:left">' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:36px">#</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;width:70px">SKU</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600">Produto</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:center;width:70px">Pedidos</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:90px">Qtd Pedida</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:80px">Saldo</th>' +
+    '<th style="padding:8px 6px;color:var(--tm);font-weight:600;text-align:right;width:100px">' +
+      (pcpPrioridade === 'antigo' ? 'Mais Antigo' : 'Prioridade') +
+    '</th>' +
   '</tr></thead><tbody>';
 
   fonte.forEach(function(prod, idx){
     var realIdx = pcpProdutos.indexOf(prod);
-    // SKU e nome já resolvidos no processarProdutosPCP
-    var skuDisplay = prod.skuCD || prod.sku || prod.codigo || '—';
+    var skuDisplay  = prod.skuCD || prod.sku || prod.codigo || '—';
     var nomeDisplay = prod.nome || prod.codigo || '—';
-    var nPedidos = prod.pedidos.length;
+    var nPedidos    = prod.pedidos.length;
 
     var prioVal = pcpPrioridade === 'antigo'
       ? (prod.dataMinima ? fmtDate(prod.dataMinima.toISOString()) : '—')
       : nPedidos + ' pedido' + (nPedidos !== 1 ? 's' : '');
 
-    var rowBg = idx % 2 === 0 ? 'var(--bg)' : 'var(--bg2,var(--bg))';
+    var rowBg    = idx % 2 === 0 ? 'var(--bg)' : 'var(--bg2,var(--bg))';
     var rankColor = idx === 0 ? '#f5a623' : idx === 1 ? '#9b9b9b' : idx === 2 ? '#c47a3a' : 'var(--tm)';
 
-    html += '<tr onclick="abrirPCPProduto('+realIdx+')" style="'+
-      'background:'+rowBg+';cursor:pointer;border-bottom:1px solid var(--bdr);'+
-      'transition:background .15s" '+
-      'onmouseover="this.style.background=\'var(--hover,#2a2a3a)\'" '+
-      'onmouseout="this.style.background=\''+rowBg+'\'"'+
-    '>'+
-      '<td style="padding:10px 6px;font-weight:700;color:'+rankColor+';text-align:center">'+
-        (idx+1)+
-      '</td>'+
-      '<td style="padding:10px 6px">'+
-        '<span style="background:var(--ac);color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;white-space:nowrap">'+
-          esc(skuDisplay)+
-        '</span>'+
-      '</td>'+
-      '<td style="padding:10px 6px;font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+
-        esc(nomeDisplay)+
-      '</td>'+
-      '<td style="padding:10px 6px;text-align:center">'+
-        '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+nPedidos+'</span>'+
-      '</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-weight:600;color:var(--ac)">'+prod.quantidadeTotal.toFixed(0)+' un</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-size:.8rem">'+  
+    html += '<tr onclick="abrirPCPProduto('+realIdx+')" style="' +
+      'background:'+rowBg+';cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .15s" ' +
+      'onmouseover="this.style.background=\'var(--hover,#2a2a3a)\'" ' +
+      'onmouseout="this.style.background=\''+rowBg+'\'">' +
+      '<td style="padding:10px 6px;font-weight:700;color:'+rankColor+';text-align:center">'+(idx+1)+'</td>' +
+      '<td style="padding:10px 6px">' +
+        '<span style="background:'+acColor+';color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;white-space:nowrap">'+esc(skuDisplay)+'</span>' +
+      '</td>' +
+      '<td style="padding:10px 6px;font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(nomeDisplay)+'</td>' +
+      '<td style="padding:10px 6px;text-align:center">' +
+        '<span style="background:var(--bdr);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem">'+nPedidos+'</span>' +
+      '</td>' +
+      '<td style="padding:10px 6px;text-align:right;font-weight:600;color:'+acColor+'">'+prod.quantidadeTotal.toFixed(0)+' un</td>' +
+      '<td style="padding:10px 6px;text-align:right;font-size:.8rem">' +
         (prod.saldoEstoque !== null
           ? '<span style="color:'+(prod.saldoEstoque <= 0 ? '#e74c3c' : prod.saldoEstoque < prod.quantidadeTotal ? '#f39c12' : '#2ecc71')+';font-weight:600">'+prod.saldoEstoque.toFixed(0)+' un</span>'
-          : '<span style="color:var(--tm)">—</span>')+
-      '</td>'+
-      '<td style="padding:10px 6px;text-align:right;font-size:.78rem;color:var(--tm)">'+
-        prioVal+
-      '</td>'+
+          : '<span style="color:var(--tm)">—</span>') +
+      '</td>' +
+      '<td style="padding:10px 6px;text-align:right;font-size:.78rem;color:var(--tm)">'+prioVal+'</td>' +
     '</tr>';
   });
 
   html += '</tbody></table>';
-  grid.innerHTML = html;
-  G('rcountPCP').textContent = fonte.length + ' produto' + (fonte.length !== 1 ? 's' : '');
+  return html;
 }
+
 
 function abrirPCPProduto(idx){
   var prod = pcpProdutos[idx];
@@ -3650,22 +3743,27 @@ function abrirPCPProduto(idx){
     var ol = ped.origem === 'ecommerce' ? '&#x1F6D2; E-commerce' : '&#x1F3ED; Distribuidor';
     var sitClass = getSitClass(ped.situacao);
     
-    html += '<div class="pcp-pedido-item" onclick="abrirModalPedFromPCP('+ped.id+')" style="'+
-      'border:1px solid var(--bdr);border-radius:var(--r);padding:12px;cursor:pointer;'+
-      'transition:all 0.2s;background:var(--bg)">'+
-      '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">'+
-        '<div>'+
-          '<div style="font-size:.7rem;color:var(--tm);margin-bottom:4px">'+ol+'</div>'+
-          '<div style="font-weight:600;font-size:.9rem">Pedido '+esc(ped.numero||'—')+'</div>'+
-        '</div>'+
-        '<span class="sit-badge sit-'+sitClass+'">'+esc(ped.situacao||'—')+'</span>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.8rem">'+
-        '<div><span style="color:var(--tm)">Cliente:</span> '+esc(ped.cliente||'—')+'</div>'+
-        '<div><span style="color:var(--tm)">Data:</span> '+fmtDate(ped.data)+'</div>'+
-        '<div><span style="color:var(--tm)">Quantidade:</span> <strong>'+p.quantidade+' un</strong></div>'+
-        '<div><span style="color:var(--tm)">Valor:</span> '+brl(p.valor)+'</div>'+
-      '</div>'+
+        var isEco    = ped.origem === 'ecommerce';
+    var uniColor = isEco ? 'var(--eco)' : 'var(--dist)';
+    var uniBg    = isEco ? 'rgba(66,165,245,.08)' : 'rgba(171,71,188,.08)';
+    var uniBdr   = isEco ? 'rgba(66,165,245,.35)' : 'rgba(171,71,188,.35)';
+
+    html += '<div class="pcp-pedido-item" onclick="abrirModalPedFromPCP('+ped.id+')" style="' +
+      'border:1px solid '+uniBdr+';border-radius:var(--r);padding:12px;cursor:pointer;' +
+      'transition:all 0.2s;background:'+uniBg+'">' +
+      '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">' +
+        '<div>' +
+          '<div style="font-size:.7rem;color:'+uniColor+';font-weight:600;margin-bottom:4px">'+ol+'</div>' +
+          '<div style="font-weight:600;font-size:.9rem">Pedido '+esc(ped.numero||'—')+'</div>' +
+        '</div>' +
+        '<span class="sit-badge sit-'+sitClass+'">'+esc(ped.situacao||'—')+'</span>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.8rem">' +
+        '<div><span style="color:var(--tm)">Cliente:</span> '+esc(ped.cliente||'—')+'</div>' +
+        '<div><span style="color:var(--tm)">Data:</span> '+fmtDate(ped.data)+'</div>' +
+        '<div><span style="color:var(--tm)">Quantidade:</span> <strong>'+p.quantidade+' un</strong></div>' +
+        '<div><span style="color:var(--tm)">Valor:</span> '+brl(p.valor)+'</div>' +
+      '</div>' +
     '</div>';
   });
   
@@ -3700,13 +3798,8 @@ function setStatusPCP(m, t){
 // Busca no PCP
 G('searchPCP').oninput = function(){
   var q = this.value.toLowerCase().trim();
-  var base = (pcpOrigemFiltro.size === 0 || pcpOrigemFiltro.size === 2)
-    ? pcpProdutos
-    : pcpProdutos.filter(function(p){
-        return p.pedidos.some(function(x){ return pcpOrigemFiltro.has(x.pedido.origem); });
-      });
-  if(!q){ renderPCPGrid(base.length === pcpProdutos.length ? null : base); return; }
-  var filtered = base.filter(function(p){
+  if(!q){ renderPCPGrid(); return; }
+  var filtered = pcpProdutos.filter(function(p){
     return (p.nome && p.nome.toLowerCase().includes(q)) ||
            (p.sku && String(p.sku).toLowerCase().includes(q)) ||
            (p.codigo && p.codigo.toLowerCase().includes(q));
