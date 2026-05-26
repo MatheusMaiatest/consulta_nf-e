@@ -2,9 +2,10 @@
   <html lang="pt-BR" data-theme="dark">
   <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#0f1117"/>
   <title>NF-e Viewer</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f1117'/%3E%3Crect x='6' y='4' width='16' height='20' rx='2' fill='%235c6bc0'/%3E%3Crect x='6' y='4' width='16' height='20' rx='2' fill='none' stroke='%237986cb' stroke-width='1'/%3E%3Cline x1='9' y1='10' x2='19' y2='10' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='9' y1='14' x2='19' y2='14' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='9' y1='18' x2='15' y2='18' stroke='%23e8eaf6' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='24' r='7' fill='%234caf50'/%3E%3Cpath d='M21 24l2 2 4-4' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237986cb'/%3E%3Cstop offset='1' stop-color='%235c6bc0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230f1117'/%3E%3Crect x='12' y='8' width='34' height='44' rx='5' fill='url(%23g)'/%3E%3Crect x='12' y='8' width='34' height='44' rx='5' fill='none' stroke='%23e8eaf6' stroke-opacity='0.25'/%3E%3Cg stroke='%23e8eaf6' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='18' y1='20' x2='40' y2='20'/%3E%3Cline x1='18' y1='28' x2='40' y2='28'/%3E%3Cline x1='18' y1='36' x2='32' y2='36'/%3E%3C/g%3E%3Ccircle cx='48' cy='48' r='12' fill='%234caf50' stroke='%230f1117' stroke-width='2'/%3E%3Cpath d='M42 48l4 4 8-8' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"/>
   <style>
   :root{--bg:#0f1117;--bg2:#1a1d27;--bgc:#1e2130;--bgch:#252840;--bgp:#161922;--bdr:#2a2d3e;--bdrf:#5c6bc0;--tp:#e8eaf6;--ts:#9fa8da;--tm:#5c6270;--ac:#5c6bc0;--ach:#7986cb;--acg:rgba(92,107,192,.25);--ok:#4caf50;--warn:#ff9800;--err:#f44336;--eco:#42a5f5;--dist:#ab47bc;--sh:0 4px 24px rgba(0,0,0,.4);--shc:0 2px 12px rgba(0,0,0,.3);--r:12px;--rs:8px;--t:.2s ease}
   [data-theme=light]{--bg:#f0f2f8;--bg2:#fff;--bgc:#fff;--bgch:#f5f7ff;--bgp:#fff;--bdr:#dde1f0;--tp:#1a1d2e;--ts:#4a5080;--tm:#9098b8;--ach:#3f51b5;--acg:rgba(92,107,192,.15);--sh:0 4px 24px rgba(0,0,0,.08);--shc:0 2px 12px rgba(0,0,0,.06)}
@@ -249,7 +250,7 @@
   .drill-modal-title{font-size:1rem;font-weight:700;color:var(--tp)}
   .drill-modal-sub{font-size:.75rem;color:var(--tm);margin-top:2px}
   .drill-loading{text-align:center;color:var(--tm);font-size:.82rem;padding:40px}
-  /* Rodap— com lista de cidades */
+  /* Rodapé com lista de cidades */
   .drill-city-footer{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)}
   .drill-footer-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin-bottom:10px}
   .drill-city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:200px;overflow-y:auto}
@@ -262,13 +263,52 @@
   .drill-city-bar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;margin-top:2px}
   .drill-city-bar-fill{height:100%;background:var(--ac);border-radius:2px;transition:width .3s ease}
   @media(max-width:700px){.drill-modal-body{grid-template-columns:1fr}.drill-side{max-height:300px;border-top:1px solid var(--bdr)}}
+  
+/* === Refinamentos visuais (incrementais) === */
+html,body{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), transparent 60%),radial-gradient(900px 500px at -10% 110%, rgba(171,71,188,.07), transparent 60%),var(--bg)}
+@media (prefers-reduced-motion: no-preference){
+  .btn-icon,.tab-btn,.rcard,.tchip,.btn-primary,.dash-kpi,.dash-card,.card,.btn-filtro-extra,.btn-filtrar-prod,.mclose,.pmod-close,.pedido-modal-close,.btn-aplicar,.btn-copy,.legend-item,.pmod-item,.pitem,.drill-back-btn,.drill-city-item{will-change:transform}
+  .btn-icon:active,.tab-btn:active,.btn-primary:active,.btn-aplicar:active,.btn-filtro-extra:active,.btn-filtrar-prod:active,.btn-ver-pedido:active,.mclose:active,.pmod-close:active,.pedido-modal-close:active,.drill-back-btn:active{transform:scale(.94)!important;transition:transform .08s ease}
+  .tchip:active,.rcard:active{transform:scale(.97);transition:transform .08s ease}
+  .card{transition:transform .22s cubic-bezier(.2,.7,.2,1),box-shadow .22s,background .22s,border-color .22s}
+  .dash-card,.dash-kpi{transition:transform .22s cubic-bezier(.2,.7,.2,1),box-shadow .22s,border-color .22s}
+  .tab-btn{position:relative;overflow:hidden}
+  .tab-btn.active::after{content:'';position:absolute;left:12px;right:12px;bottom:2px;height:2px;border-radius:2px;background:#fff;opacity:.85;animation:tabIn .25s ease both}
+  @keyframes tabIn{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:.85}}
+  .btn-icon{transition:transform .18s cubic-bezier(.2,.7,.2,1),background .18s,border-color .18s,box-shadow .18s,color .18s}
+  .btn-icon:hover{transform:translateY(-1px) rotate(-3deg)}
+  .btn-primary{position:relative;overflow:hidden}
+  .btn-primary::after{content:'';position:absolute;inset:0;background:radial-gradient(120px 120px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.25), transparent 60%);opacity:0;transition:opacity .25s}
+  .btn-primary:hover::after{opacity:1}
+  .moverlay,.pmod-overlay,.pedido-overlay,.drill-overlay,.loverlay{transition:opacity .22s ease}
+  .modal,.pmod,.pedido-modal,.drill-modal{transition:transform .26s cubic-bezier(.2,.8,.2,1),opacity .22s}
+  .spin{box-shadow:0 0 24px rgba(92,107,192,.35)}
+  .grp-hdr{position:relative}
+  .grp-hdr::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:14px;background:var(--ac);border-radius:2px;margin-left:-8px;opacity:.7}
+  .card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.05),transparent 40%);opacity:0;transition:opacity .25s}
+  .card:hover::after{opacity:1}
+  .sit-badge,.card-sit-badge,.badge-cupom,.badge-reversa,.cbadge{transition:transform .15s ease,filter .15s ease}
+  .sit-badge:hover,.card-sit-badge:hover,.badge-cupom:hover{filter:brightness(1.1)}
+  .filtro-chip{animation:chipIn .2s ease both}
+  @keyframes chipIn{from{opacity:0;transform:translateY(-3px) scale(.96)}to{opacity:1;transform:none}}
+  .pmod-item,.pitem,.drill-city-item{transition:background .15s,transform .12s ease,border-color .15s}
+  .pmod-item:active,.pitem:active,.drill-city-item:active{transform:scale(.985)}
+  input[type=date],input[type=text]{transition:border-color .18s,box-shadow .18s,background .18s}
+  .topbar{backdrop-filter:saturate(140%) blur(8px);background:color-mix(in srgb, var(--bg2) 88%, transparent)}
+  .logo{background:linear-gradient(90deg,var(--tp),var(--ach));-webkit-background-clip:text;background-clip:text;color:transparent}
+  ::selection{background:var(--acg);color:var(--tp)}
+  /* foco acessível */
+  :focus-visible{outline:2px solid var(--ach);outline-offset:2px;border-radius:6px}
+}
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
   </head>
   <body>
   <header class="topbar">
-    <span class="logo">&#x1F4CB; NF-e Viewer</span>
+    <span class="logo">🧾 NF-e Viewer</span>
     <nav class="tab-nav">
       <button class="tab-btn active" onclick="switchView('nfe',this)">&#x1F9FE; NF-e <span id="count-nf" style="opacity:0.6;font-size:.8em"></span></button>
       <button class="tab-btn" onclick="switchView('pedidos',this)">&#x1F6D2; Pedidos <span id="count-pedidos" style="opacity:0.6;font-size:.8em"></span></button>
@@ -277,8 +317,8 @@
       <button class="tab-btn" onclick="switchView('vendas',this)">&#x1F4C8; Vendas</button>
     </nav>
     <div class="topbar-right">
-      <button class="btn-icon" id="btnTheme" title="Tema">&#x1F4CB;</button>
-      <button class="btn-icon" id="btnPanel" title="Painel">&#x1F4CB;</button>
+      <button class="btn-icon" id="btnTheme" title="Tema">🌙</button>
+      <button class="btn-icon" id="btnPanel" title="Painel">☰</button>
     </div>
   </header>
   <div id="view-nfe" class="view-section active">
@@ -286,14 +326,14 @@
     <aside class="panel" id="panel">
       <div class="panel-title">Painel de Controle</div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Período</span>
+        <span class="plabel">📅 Período</span>
         <div class="date-row">
           <div class="fg"><label>De</label><input type="date" id="dtFrom"/></div>
-          <div class="fg"><label>At—</label><input type="date" id="dtTo"/></div>
+          <div class="fg"><label>Até</label><input type="date" id="dtTo"/></div>
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB;? Agrupar por</span>
+        <span class="plabel">🗂️ Agrupar por</span>
         <div class="group-opts">
           <label class="rcard"><input type="radio" name="grp" value="nf" checked/><span>Por NF-e</span></label>
           <label class="rcard"><input type="radio" name="grp" value="cliente"/><span>Por Cliente</span></label>
@@ -302,15 +342,15 @@
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Origem</span>
+        <span class="plabel">🏷️ Origem</span>
         <div class="tog-grp">
-          <label class="tchip" id="chipTodasOrigens" data-o="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>? Todas</label>
+          <label class="tchip" id="chipTodasOrigens" data-o="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>✨ Todas</label>
           <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
           <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Filtrar:</span>
+        <span class="plabel">👁️ Colunas</span>
         <div class="col-togs" id="colTogs">
           <label class="ctog"><input type="checkbox" data-c="cliente" checked/>Cliente</label>
           <label class="ctog"><input type="checkbox" data-c="valor" checked/>Valor NF</label>
@@ -323,56 +363,56 @@
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB;? Cupom</span>
+        <span class="plabel">🎟️ Cupom</span>
         <div class="tog-grp">
-          <label class="tchip" id="chipTodosCupons" data-cupom="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>? Todas</label>
+          <label class="tchip" id="chipTodosCupons" data-cupom="todas" style="background:rgba(76,175,80,.15);border-color:#4caf50;color:#4caf50;font-weight:600"><input type="checkbox"/>✨ Todas</label>
           <label class="tchip on" id="chipComCupom" data-cupom="com"><input type="checkbox" checked/>Com cupom</label>
           <label class="tchip on" id="chipSemCupom" data-cupom="sem"><input type="checkbox" checked/>Sem cupom</label>
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Forma de Pagamento</span>
+        <span class="plabel">💳 Forma de Pagamento</span>
         <button class="btn-filtro-extra" id="btnFiltroPag" style="justify-content:space-between">
           <span>Selecionar formas...</span><span class="fex-count" id="cntPag">0</span>
         </button>
         <div id="pagFiltroChip"></div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Filtrar por Produto</span>
-        <button class="btn-filtrar-prod" id="btnFiltrarProd">&#x1F4CB; Selecionar produtos... <span id="prodFiltroCount"></span></button>
+        <span class="plabel">📦 Filtrar por Produto</span>
+        <button class="btn-filtrar-prod" id="btnFiltrarProd">📦 Selecionar produtos... <span id="prodFiltroCount"></span></button>
         <div id="prodFiltroChip"></div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Filtros AvaNºados</span>
+        <span class="plabel">🎛️ Filtros Avançados</span>
         <div class="filtros-extra">
           <button class="btn-filtro-extra" data-filtro="numero" id="btnFiltroNumero">
-            <span>&#x1F4CB; Nºmero NF</span><span class="fex-count" id="cntNumero">0</span>
+            <span>🔢 Número NF</span><span class="fex-count" id="cntNumero">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="cliente" id="btnFiltroCliente">
-            <span>&#x1F4CB; Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
+            <span>👤 Nome do Cliente</span><span class="fex-count" id="cntCliente">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="cpf" id="btnFiltroCpf">
-            <span>&#x1F4CB; CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
+            <span>🪪 CPF/CNPJ</span><span class="fex-count" id="cntCpf">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="telefone" id="btnFiltroTelefone">
-            <span>&#x1F4CB; Telefone</span><span class="fex-count" id="cntTelefone">0</span>
+            <span>📞 Telefone</span><span class="fex-count" id="cntTelefone">0</span>
           </button>
           <button class="btn-filtro-extra" data-filtro="email" id="btnFiltroEmail">
-            <span>&#x1F4CB; E-mail</span><span class="fex-count" id="cntEmail">0</span>
+            <span>✉️ E-mail</span><span class="fex-count" id="cntEmail">0</span>
           </button>
         </div>
         <div id="filtrosChips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
       </div>
-      <button class="btn-primary" id="btnBuscar">&#x1F4CB; Buscar Notas</button>
+      <button class="btn-primary" id="btnBuscar">🔎 Buscar Notas</button>
       <div class="statusbar" id="status">Aguardando busca...</div>
     </aside>
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="search" placeholder="&#x1F4CB; Buscar por cliente, NF, CPF..."/>
+        <input type="text" class="sinput" id="search" placeholder="🔍 Buscar por cliente, NF, CPF..."/>
         <span class="rcount" id="rcount"></span>
       </div>
       <div class="grid" id="grid">
-        <div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Selecione um Período e clique em <strong>Buscar Notas</strong></p></div>
+        <div class="empty"><div class="empty-icon">🧾</div><p>Selecione um Período e clique em <strong>Buscar Notas</strong></p></div>
       </div>
     </main>
   </div>
@@ -384,29 +424,29 @@
     <aside class="panel" id="panel-pedidos">
       <div class="panel-title">Painel de Controle</div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Período</span>
+        <span class="plabel">📅 Período</span>
         <div class="date-row">
           <div class="fg"><label>De</label><input type="date" id="dtFromPed"/></div>
-          <div class="fg"><label>At—</label><input type="date" id="dtToPed"/></div>
+          <div class="fg"><label>Até</label><input type="date" id="dtToPed"/></div>
         </div>
       </div>
       <div class="psec">
-        <span class="plabel">&#x1F4CB; Origem</span>
+        <span class="plabel">🏷️ Origem</span>
         <div class="tog-grp">
           <label class="tchip on" data-o="ecommerce"><input type="checkbox" value="ecommerce" checked/>E-commerce</label>
           <label class="tchip on" data-o="distribuidor"><input type="checkbox" value="distribuidor" checked/>Distribuidor</label>
         </div>
       </div>
-      <button class="btn-primary" id="btnBuscarPed">&#x1F4CB; Buscar Pedidos</button>
+      <button class="btn-primary" id="btnBuscarPed">🔎 Buscar Pedidos</button>
       <div class="statusbar" id="statusPed">Aguardando busca...</div>
     </aside>
     <main class="main">
       <div class="fbar">
-        <input type="text" class="sinput" id="searchPed" placeholder="&#x1F4CB; Buscar por cliente, pedido, CPF..."/>
+        <input type="text" class="sinput" id="searchPed" placeholder="🔍 Buscar por cliente, pedido, CPF..."/>
         <span class="rcount" id="rcountPed"></span>
       </div>
       <div class="grid" id="gridPed">
-        <div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Selecione um Período e clique em <strong>Buscar Pedidos</strong></p></div>
+        <div class="empty"><div class="empty-icon">🛒</div><p>Selecione um Período e clique em <strong>Buscar Pedidos</strong></p></div>
       </div>
     </main>
   </div>
@@ -531,42 +571,42 @@
     <div class="dash-kpi-row" id="kpi-transp"></div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Fatia de Mercado por Transportadora</div>
+        <div class="dash-card-title"><span>🥧</span> Fatia de Mercado por Transportadora</div>
         <div class="dash-chart-wrap"><canvas id="chart-market"></canvas></div>
         <div class="legend-row" id="legend-market"></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Peso Bruto por Transportadora (kg)</div>
+        <div class="dash-card-title"><span>⚖️</span> Peso Bruto por Transportadora (kg)</div>
         <div class="dash-chart-wrap"><canvas id="chart-peso-transp"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Top NFs por Peso Bruto</div>
+        <div class="dash-card-title"><span>🏆</span> Top NFs por Peso Bruto</div>
         <div class="dash-chart-wrap"><canvas id="chart-peso-nf"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> NFs por Origem</div>
+        <div class="dash-card-title"><span>🍩</span> NFs por Origem</div>
         <div class="dash-chart-wrap"><canvas id="chart-nf-source"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-3">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Peso Bruto vs L—quido M—dio / Transportadora</div>
+        <div class="dash-card-title"><span>📊</span> Peso Bruto vs Líquido Médio / Transportadora</div>
         <div class="dash-chart-wrap"><canvas id="chart-pb-pl"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Distribui&#x1F4CB;o de Peso Bruto (faixas)</div>
+        <div class="dash-card-title"><span>📈</span> Distribuição de Peso Bruto (faixas)</div>
         <div class="dash-chart-wrap"><canvas id="chart-hist"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;?</span> Fator PL—PB por Transportadora</div>
+        <div class="dash-card-title"><span>🎯</span> Fator PL/PB por Transportadora</div>
         <div class="dash-chart-wrap"><canvas id="chart-fator"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="map-card">
-        <div class="dash-card-title"><span>&#x1F4CB;?</span> NFs por Estado</div>
+        <div class="dash-card-title"><span>🗺️</span> NFs por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-nf" viewBox="0 0 460 400"></svg></div>
         <div id="map-nf-loading" class="dash-empty">Carregando mapa...</div>
         <div id="detail-nf" class="drill-panel">
@@ -580,7 +620,7 @@
         </div>
       </div>
       <div class="map-card">
-        <div class="dash-card-title"><span>&#x1F4CB;?</span> Transportadora Dominante por Estado</div>
+        <div class="dash-card-title"><span>🗺️</span> Transportadora Dominante por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-transp" viewBox="0 0 460 400"></svg></div>
         <div id="map-transp-loading" class="dash-empty">Carregando mapa...</div>
         <div class="legend-row" id="transp-map-legend-items"></div>
@@ -604,31 +644,31 @@
     <div class="dash-kpi-row" id="kpi-vendas"></div>
     <div class="dash-row cols-3">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Faturamento por Dia</div>
+        <div class="dash-card-title"><span>📈</span> Faturamento por Dia</div>
         <div class="dash-chart-wrap"><canvas id="chart-fat-dia"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Faturamento por Unidade (Eco vs Dist)</div>
+        <div class="dash-card-title"><span>🍩</span> Faturamento por Unidade (Eco vs Dist)</div>
         <div class="dash-chart-wrap"><canvas id="chart-fat-unidade"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Ticket M—dio por Unidade</div>
+        <div class="dash-card-title"><span>🎫</span> Ticket Médio por Unidade</div>
         <div class="dash-chart-wrap"><canvas id="chart-ticket-unidade"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Top Clientes por Valor</div>
+        <div class="dash-card-title"><span>👑</span> Top Clientes por Valor</div>
         <div class="dash-chart-wrap"><canvas id="chart-top-clientes"></canvas></div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Formas de Pagamento</div>
+        <div class="dash-card-title"><span>💳</span> Formas de Pagamento</div>
         <div class="dash-chart-wrap"><canvas id="chart-pagamento"></canvas></div>
       </div>
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;?</span> Uso de Cupons</div>
+        <div class="dash-card-title"><span>🎟️</span> Uso de Cupons</div>
         <div class="dash-chart-wrap"><canvas id="chart-cupons"></canvas></div>
       </div>
       <div class="dash-card">
@@ -638,19 +678,19 @@
     </div>
     <div class="dash-row cols-2">
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;?</span> Faturamento por Estado</div>
+        <div class="dash-card-title"><span>🗺️</span> Faturamento por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-vendas" viewBox="0 0 460 400"></svg></div>
         <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-title"><span>&#x1F4CB;</span> Situa&#x1F4CB;o dos Pedidos</div>
+        <div class="dash-card-title"><span>📋</span> Situação dos Pedidos</div>
         <div class="dash-chart-wrap"><canvas id="chart-situacao"></canvas></div>
       </div>
     </div>
   </div>
   </div><!-- /view-vendas -->
 
-  <!-- MODAL GENºRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
+  <!-- MODAL GENÉRICO DE FILTRO (reutilizado para todos os 5 filtros) -->
   <div class="pmod-overlay" id="fexOverlay">
     <div class="pmod">
       <div class="pmod-head">
@@ -662,7 +702,7 @@
         <button id="fexSelAll">Selecionar todos</button>
         <button id="fexClear">Limpar</button>
       </div>
-      <div class="pmod-list" id="fexList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Fa—a uma busca primeiro.</div></div>
+      <div class="pmod-list" id="fexList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Faça uma busca primeiro.</div></div>
       <div class="pmod-foot">
         <span class="pmod-sel-count" id="fexSelCount">0 selecionados</span>
         <button class="btn-aplicar" id="fexAplicar">Aplicar</button>
@@ -674,7 +714,7 @@
   <div class="pmod-overlay" id="pmodOverlay">
     <div class="pmod">
       <div class="pmod-head">
-        <h3>&#x1F4CB; Filtrar por Produto</h3>
+        <h3>📦 Filtrar por Produto</h3>
         <input type="text" class="pmod-search" id="pmodSearch" placeholder="Buscar produto..."/>
         <button class="pmod-close" id="pmodClose">&#x2715;</button>
       </div>
@@ -682,7 +722,7 @@
         <button id="pmodSelAll">Selecionar todos</button>
         <button id="pmodClear">Limpar</button>
       </div>
-      <div class="pmod-list" id="pmodList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Fa—a uma busca primeiro para carregar os produtos.</div></div>
+      <div class="pmod-list" id="pmodList"><div class="pload" style="padding:24px;text-align:center;color:var(--tm)">Faça uma busca primeiro para carregar os produtos.</div></div>
       <div class="pmod-foot">
         <span class="pmod-sel-count" id="pmodSelCount">0 selecionados</span>
         <button class="btn-aplicar" id="pmodAplicar">Aplicar filtro</button>
@@ -756,15 +796,15 @@
   G('btnTheme').onclick=function(){
     var h=document.documentElement, dark=h.getAttribute('data-theme')==='dark';
     h.setAttribute('data-theme',dark?'light':'dark');
-    G('btnTheme').textContent=dark?'&#x1F4CB;':'&#x1F4CB;';
+    G('btnTheme').textContent=dark?'📋':'📋';
   };
 
   // -- Painel -------------------------------------------------
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
-  // -- Fun&#x1F4CB;o de filtro (definida ANTES dos event listeners) --
+  // -- Função de filtro (definida ANTES dos event listeners) --
   function applyFilters(){
-    console.log('&#x1F4CB; applyFilters BASE chamada (ser— sobrescrita)');
+    console.log('applyFilters BASE chamada (será sobrescrita)');
     G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
     renderCards();
   }
@@ -780,22 +820,22 @@
     
     c.onclick=function(e){
       e.preventDefault(); // Previne comportamento padrão do label
-      e.stopPropagation(); // Para propaga&#x1F4CB;o do evento
+      e.stopPropagation(); // Para propagação do evento
       
       var o=c.dataset.o;
-      if(!o) return; // Ignora chips que Nºo s—o de origem
+      if(!o) return; // Ignora chips que Não são de origem
       
-      // Bot—o "TODAS" para origem
+      // Botão "TODAS" para origem
       if(o === 'todas'){
         console.log('---------------------------------------------------');
-        console.log('? CLICOU EM TODAS (ORIGEM)');
+        console.log('• CLICOU EM TODAS (ORIGEM)');
         // Limpa todos os filtros de origem
         activeOrigens.clear();
-        // Remove classe "on" de todos os bot—es de origem
+        // Remove classe "on" de todos os botões de origem
         document.querySelectorAll('[data-o="ecommerce"], [data-o="distribuidor"]').forEach(function(chip){
           chip.classList.remove('on');
         });
-        // Adiciona classe "on" no bot—o TODAS
+        // Adiciona classe "on" no botão TODAS
         c.classList.add('on');
         console.log('Todas as origens limpas, mostrando TODAS as notas');
         applyFilters();
@@ -803,22 +843,22 @@
       }
       
       console.log('---------------------------------------------------');
-      console.log('&#x1F4CB; CLICOU EM ORIGEM:', o);
+      console.log('CLICOU EM ORIGEM:', o);
       console.log('Estado antes:', Array.from(activeOrigens));
       console.log('Classes antes:', c.className);
       
-      // Remove classe "on" do bot—o TODAS
+      // Remove classe "on" do botão TODAS
       var btnTodas = document.getElementById('chipTodasOrigens');
       if(btnTodas) btnTodas.classList.remove('on');
       
       if(activeOrigens.has(o)){
         activeOrigens.delete(o);
         c.classList.remove('on');
-        console.log('? Removido:', o);
+        console.log('• Removido:', o);
       } else {
         activeOrigens.add(o);
         c.classList.add('on');
-        console.log('? Adicionado:', o);
+        console.log('• Adicionado:', o);
       }
       
       console.log('Estado depois:', Array.from(activeOrigens));
@@ -830,7 +870,7 @@
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
-        console.error('? applyFilters NºO — UMA FUN&#x1F4CB;O!');
+        console.error('✖ applyFilters NÃO — UMA FUNÇÃO!');
       }
     };
   });
@@ -845,17 +885,17 @@
     .then(r => r.json())
     .then(d => {
       produtosCD = d;
-      console.log('? Produtos CD carregados:', Object.keys(produtosCD).length);
+      console.log('• Produtos CD carregados:', Object.keys(produtosCD).length);
     })
-    .catch(e => console.error('? Erro ao carregar produtos CD:', e));
+    .catch(e => console.error('✖ Erro ao carregar produtos CD:', e));
   
   function buscarProdutoCD(codigoBling, nomeProduto) {
-    // Tenta buscar pelo c—digo do Bling (SKU)
+    // Tenta buscar pelo código do Bling (SKU)
     if (codigoBling && produtosCD[codigoBling]) {
       return produtosCD[codigoBling];
     }
     
-    // Tenta buscar por c—digo de barras (se o c—digo do Bling for um EAN)
+    // Tenta buscar por código de barras (se o código do Bling for um EAN)
     if (codigoBling) {
       for (const sku in produtosCD) {
         const prod = produtosCD[sku];
@@ -865,7 +905,7 @@
       }
     }
     
-    // Se Nºo encontrar, tenta buscar por similaridade no nome
+    // Se Não encontrar, tenta buscar por similaridade no nome
     if (nomeProduto) {
       const nomeLimpo = nomeProduto.toLowerCase().trim();
       
@@ -878,12 +918,12 @@
         }
       }
       
-      // Segundo: busca por inclus—o (uma string cont—m a outra)
+      // Segundo: busca por inclusão (uma string contém a outra)
       for (const sku in produtosCD) {
         const prod = produtosCD[sku];
         const descLimpa = (prod.descricao || '').toLowerCase().trim();
         
-        // Verifica se o nome do produto cont—m a descri&#x1F4CB;o do JSON ou vice-versa
+        // Verifica se o nome do produto contém a descrição do JSON ou vice-versa
         if (descLimpa.length > 10 && (nomeLimpo.includes(descLimpa) || descLimpa.includes(nomeLimpo))) {
           return prod;
         }
@@ -923,14 +963,14 @@
 
   function buscar(){
     var f=G('dtFrom').value, t=G('dtTo').value;
-    if(!f||!t){setStatus('&#x1F4CB; Selecione o Período.','warn');return;}
-    if(f>t){setStatus('&#x1F4CB; Data inicial maior que final.','warn');return;}
+    if(!f||!t){setStatus('⚠ Selecione o Período.','warn');return;}
+    if(f>t){setStatus('⚠ Data inicial maior que final.','warn');return;}
     allNotas=[];
     _buscarFrom=f; _buscarTo=t; _buscarOffset=0; _buscarTotal=0; _buscarAtivo=true;
     loading(true); setStatus('Buscando...');
     buscarPagina();
     
-    // SINCRONIZA&#x1F4CB;O: Buscar pedidos automaticamente com as mesmas datas
+    // SINCRONIZAÇÃO: Buscar pedidos automaticamente com as mesmas datas
     G('dtFromPed').value = f;
     G('dtToPed').value = t;
     setTimeout(function(){ buscarPedidos(); }, 200);
@@ -942,12 +982,12 @@
       var url=API_BASE+'/api/notas?from='+_buscarFrom+'&to='+_buscarTo+'&offset='+_buscarOffset;
       var resp=await fetch(url);
       var d=await resp.json();
-      if(d.error){setStatus('? '+d.error,'err');loading(false);_buscarAtivo=false;return;}
+      if(d.error){setStatus('⏳ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
       var novas=d.notas||[];
       allNotas=allNotas.concat(novas);
       if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
       var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
-      setStatus('? Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
+      setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
       applyFilters();
       if(d.hasMore){
         _buscarOffset+=novas.length;
@@ -955,21 +995,21 @@
       } else {
         loading(false);
         _buscarAtivo=false;
-        setStatus('? '+allNotas.length+' notas carregadas.');
-        // Atualizar contador no bot—o
+        setStatus('⏳ '+allNotas.length+' notas carregadas.');
+        // Atualizar contador no botão
         G('count-nf').textContent = '(' + allNotas.length + ')';
       }
     }catch(e){
-      setStatus('? '+e.message,'err');
+      setStatus('⏳ '+e.message,'err');
       loading(false); _buscarAtivo=false;
     }
   }
 
-  // -- Busca r—pida -------------------------------------------
+  // -- Busca rápida -------------------------------------------
   G('search').oninput=function(e){
     activeSearch=e.target.value.toLowerCase().trim();
     applyFilters();
-    // SINCRONIZA&#x1F4CB;O: Aplicar mesma busca nos pedidos
+    // SINCRONIZAÇÃO: Aplicar mesma busca nos pedidos
     G('searchPed').value = e.target.value;
     activeSearchPed = activeSearch;
     applyFiltersPed();
@@ -979,21 +1019,21 @@
   var _renderList=[], _renderIdx=0, _renderBatch=40, _renderObs=null;
 
   function renderCards(){
-    console.log('&#x1F4CB; renderCards() chamada');
-    console.log('&#x1F4CB; filteredNotas.length:', filteredNotas.length);
+    console.log('renderCards() chamada');
+    console.log('filteredNotas.length:', filteredNotas.length);
     
     var grp=document.querySelector('input[name=grp]:checked').value||'nf';
     var cols=getCols();
     var grid=G('grid');
     
-    console.log('&#x1F4CB;? Agrupamento:', grp);
-    console.log('&#x1F4CB; Colunas vis—veis:', Array.from(cols));
-    console.log('&#x1F4CB; Grid element:', grid);
-    console.log('&#x1F4CB; Grid parent:', grid.parentElement);
-    console.log('&#x1F4CB; Grid display:', window.getComputedStyle(grid).display);
-    console.log('&#x1F4CB; Grid visibility:', window.getComputedStyle(grid).visibility);
+    console.log('📍 Agrupamento:', grp);
+    console.log('Colunas visíveis:', Array.from(cols));
+    console.log('Grid element:', grid);
+    console.log('Grid parent:', grid.parentElement);
+    console.log('Grid display:', window.getComputedStyle(grid).display);
+    console.log('Grid visibility:', window.getComputedStyle(grid).visibility);
     
-    // FOR—A limpeza do grid
+    // FORÇA limpeza do grid
     while(grid.firstChild) {
       grid.removeChild(grid.firstChild);
     }
@@ -1004,8 +1044,8 @@
     if(_renderObs){_renderObs.disconnect();_renderObs=null;}
 
     if(!filteredNotas.length){
-      grid.innerHTML='<div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Nenhuma nota encontrada.</p></div>';
-      console.log('&#x1F4CB; Nenhuma nota para renderizar');
+      grid.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma nota encontrada.</p></div>';
+      console.log('Nenhuma nota para renderizar');
       return;
     }
 
@@ -1017,20 +1057,20 @@
       g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
     });
     
-    console.log('&#x1F4CB; Total de itens a renderizar:', _renderList.length);
+    console.log('Total de itens a renderizar:', _renderList.length);
 
     // Sentinel para carregar mais ao rolar
     var sentinel=document.createElement('div');
     sentinel.style.height='1px';
-    sentinel.id='sentinel-' + Date.now(); // ID —nico
+    sentinel.id='sentinel-' + Date.now(); // ID único
     grid.appendChild(sentinel);
     
-    console.log('? Sentinel adicionado ao grid');
-    console.log('? Grid children ap—s sentinel:', grid.children.length);
+    console.log('• Sentinel adicionado ao grid');
+    console.log('• Grid children após sentinel:', grid.children.length);
     
     // Renderiza primeiro lote DEPOIS de adicionar o sentinel
     requestAnimationFrame(function(){
-      console.log('&#x1F4CB; requestAnimationFrame executando...');
+      console.log('requestAnimationFrame executando...');
       renderLote(cols, grid);
       
       // Observer para lazy loading
@@ -1038,18 +1078,18 @@
         if(entries[0].isIntersecting) renderLote(cols, grid);
       },{rootMargin:'200px'});
       _renderObs.observe(sentinel);
-      console.log('&#x1F4CB;? Observer configurado');
+      console.log('📍 Observer configurado');
     });
     
-    console.log('? renderCards() conclu—da');
+    console.log('• renderCards() concluída');
   }
 
   function renderLote(cols, grid){
-    console.log('&#x1F4CB; renderLote() chamada');
+    console.log('renderLote() chamada');
     console.log('_renderIdx:', _renderIdx, '_renderBatch:', _renderBatch, '_renderList.length:', _renderList.length);
     
     var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
-    console.log('Renderizando de', _renderIdx, 'at—', fim);
+    console.log('Renderizando de', _renderIdx, 'até', fim);
     
     var frag=document.createDocumentFragment();
     for(var i=_renderIdx;i<fim;i++){
@@ -1074,7 +1114,7 @@
     
     grid.insertBefore(frag, sentinel);
     
-    // FOR—A reflow do navegador
+    // FORÇA reflow do navegador
     void grid.offsetHeight;
     
     console.log('Grid depois:', grid.children.length, 'elementos');
@@ -1088,7 +1128,7 @@
     _renderIdx=fim;
     if(_renderIdx>=_renderList.length && _renderObs){
       _renderObs.disconnect(); _renderObs=null;
-      console.log('? Todos os itens renderizados, observer desconectado');
+      console.log('• Todos os itens renderizados, observer desconectado');
     }
   }
 
@@ -1096,15 +1136,15 @@
     var d=document.createElement('div');
     d.className='card '+n.origem;
     
-    var ol=n.origem==='ecommerce'?'&#x1F4CB; E-commerce':'&#x1F4CB; Distribuidor';
+    var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     d.innerHTML=
       (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
       (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' — Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">? Reversa</span>':'')+' </div>':'')+
+      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' — Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+
       (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">&#x1F4CB; Pedido '+esc(n.numeropedido)+'</span>'+
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido '+esc(n.numeropedido)+'</span>'+
         sitBadgeCard(n.pedido_situacao)+
-        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">&#x1F4CB;?</span>':'')+
+        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">📍</span>':'')+
       '</div>':'')+
       (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
       '<div class="cmeta">'+
@@ -1113,7 +1153,7 @@
       '</div>';
     d.onclick=function(e){
       e.stopPropagation();
-      console.log('&#x1F4CB;? Card clicado:', n.numero, n.cliente);
+      console.log('📍 Card clicado:', n.numero, n.cliente);
       abrirModal(n);
     };
     
@@ -1127,7 +1167,7 @@
       var k='';
       if(grp==='cliente')k=n.cliente||'Sem cliente';
       if(grp==='transportadora')k=n.transportadora||'Sem transportadora';
-      if(grp==='unidade')k=n.origem==='ecommerce'?'&#x1F4CB; E-commerce':'&#x1F4CB; Distribuidor';
+      if(grp==='unidade')k=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
       if(!m[k])m[k]=[];
       m[k].push(n);
     });
@@ -1136,10 +1176,10 @@
 
   // -- Modal --------------------------------------------------
   function abrirModal(n){
-    console.log('&#x1F4CB; abrirModal chamada:', n);
-    var ol=n.origem==='ecommerce'?'&#x1F4CB; E-commerce':'&#x1F4CB; Distribuidor';
+    console.log('abrirModal chamada:', n);
+    var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
     
-    // Badge de situa&#x1F4CB;o da NF
+    // Badge de situação da NF
     var nfSituacao = n.situacao ? String(n.situacao) : 'Autorizada';
     var nfSitClass = 'ok'; // Verde por padrão (autorizada)
     if(nfSituacao.toLowerCase().includes('cancelad')) nfSitClass = 'err';
@@ -1149,19 +1189,19 @@
     G('mhead').innerHTML=
       '<div class="cbadge '+n.origem+'" style="margin-bottom:10px">'+ol+'</div>'+
       '<h2>'+esc(n.cliente||'—')+'</h2>'+
-      '<div class="msub">NF '+esc(n.numero||'—')+' — '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">? Nota Reversa</span>':'')+' </div>';
+      '<div class="msub">NF '+esc(n.numero||'—')+' — '+fmtDate(n.dataemissao)+(n.finnfe==='2'?' <span class="badge-reversa" style="margin-left:8px">↩ Nota Reversa</span>':'')+' </div>';
     
     G('mbody').innerHTML=
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: NOTA FISCAL
+      // SEÇÃO: NOTA FISCAL
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(92,107,192,.05);border:2px solid var(--ac);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
-        '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">&#x1F4CB; NOTA FISCAL</h3>'+
+        '<h3 style="color:var(--ac);font-size:.85rem;margin-bottom:14px">📋 NOTA FISCAL</h3>'+
         '<div class="dgrid">'+
-          di('Nºmero',n.numero)+
+          di('Número',n.numero)+
           di('Série',n.serie)+
           di('Data Emissão',fmtDate(n.dataemissao))+
-          '<div class="di"><label>Situa&#x1F4CB;o NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
+          '<div class="di"><label>Situação NF</label><span><span class="sit-badge sit-'+nfSitClass+'">'+esc(nfSituacao)+'</span></span></div>'+
           diV('Valor Total',brl(n.valor))+
           di('Valor Produtos',brl(n.valorProdutos))+
           di('Desconto',brl(n.desconto))+
@@ -1171,37 +1211,37 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: PEDIDO DE VENDA
+      // SEÇÃO: PEDIDO DE VENDA
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
-        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">&#x1F4CB; PEDIDO DE VENDA</h3>'+
+        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>'+
         (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? 
           '<div class="dgrid">'+
             diCopy('Nº Pedido Bling', n.numeropedido||'—')+
             di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
-            (n.pedido_situacao ? '<div class="di"><label>Situa&#x1F4CB;o Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
+            (n.pedido_situacao ? '<div class="di"><label>Situação Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
           '</div>'+
-          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
-          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
+          (n.pedido_observacoes ? '<div style="margin-top:12px"><div class="obs-label">📋 Observações do Pedido</div><div class="obs-box">'+esc(n.pedido_observacoes)+'</div></div>' : '')+
+          (n.pedido_observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">📋 Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">'+esc(n.pedido_observacoesinternas)+'</div></div>' : '')+
           '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+
-            '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">&#x1F4CB; Ver Detalhes Bling</button>'+
-            (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">&#x1F4CB; Obs. Cliente (Tray)</button>' : '')+
+            '<button class="btn-ver-pedido" style="flex:1" onclick="abrirModalPedido(event,currentNota)">📋 Ver Detalhes Bling</button>'+
+            (n.origem==='ecommerce' ? '<button class="btn-ver-pedido" style="flex:1;background:rgba(66,165,245,.12);border-color:var(--eco);color:var(--eco)" onclick="abrirModalTray(event,currentNota)">📋 Obs. Cliente (Tray)</button>' : '')+
           '</div>'
-        : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">&#x1F4CB; Nenhum pedido vinculado a esta nota.</div>')+
+        : '<div style="color:var(--tm);font-size:.82rem;padding:4px 0">📋 Nenhum pedido vinculado a esta nota.</div>')+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: DESTINAT—RIO
+      // SEÇÃO: DESTINATÉRIO
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>&#x1F4CB; Destinat—rio</h3>'+
+        '<h3>📋 Destinatério</h3>'+
         '<div class="dgrid">'+
           di('Nome',n.cliente)+
           di('CPF/CNPJ',n.cpf)+
           di('E-mail',n.email)+
           di('Telefone',n.telefone)+
-          di('Endere—o',n.endereco)+
-          di('Nºmero',n.endNumero)+
+          di('Endereço',n.endereco)+
+          di('Número',n.endNumero)+
           di('Bairro',n.bairro)+
           di('Cidade/UF',n.cidade)+
           di('CEP',n.cep)+
@@ -1210,49 +1250,49 @@
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: TRANSPORTE
+      // SEÇÃO: TRANSPORTE
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>&#x1F4CB; Transporte</h3>'+
+        '<h3>📋 Transporte</h3>'+
         '<div class="dgrid">'+
           di('Transportadora',n.transportadora)+
           di('CNPJ Transp.',n.transportadoraCnpj)+
           di('Frete por conta',fpc(n.fretePorConta))+
           di('Peso Bruto',n.pesoBruto?n.pesoBruto+' kg':'—')+
-          di('Peso L—quido',n.pesoLiquido?n.pesoLiquido+' kg':'—')+
+          di('Peso Líquido',n.pesoLiquido?n.pesoLiquido+' kg':'—')+
           di('Qtd Volumes',n.qtdVolumes||'—')+
         '</div>'+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: PAGAMENTO
+      // SEÇÃO: PAGAMENTO
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>&#x1F4CB; Pagamento</h3>'+
+        '<h3>📋 Pagamento</h3>'+
         (n.formas_pagamento && n.formas_pagamento.length ?
           n.formas_pagamento.map(function(fp){ return '<div class="dgrid" style="margin-bottom:6px">'+di('Forma',fp.tipo)+diV('Valor',brl(fp.valor))+'</div>'; }).join('') :
           '<div style="color:var(--tm);font-size:.82rem">Sem dados de pagamento na NF.</div>')+
         (n.tray_payment_form ? '<div class="dgrid" style="margin-top:8px">'+di('Pagamento Tray',n.tray_payment_form)+(n.tray_parcelas>1?di('Parcelas',n.tray_parcelas+'x'+(n.tray_juros?(' (juros: '+brl(n.tray_juros)+')'):'')):'')+'</div>' : '')+
         (n.dist_qtd_parcelas>1 ? '<div class="dgrid" style="margin-top:8px">'+di('Parcelas (Dist.)',n.dist_qtd_parcelas+'x')+(n.dist_obs_parcelas?di('Obs. Parcela',n.dist_obs_parcelas):'')+'</div>' : '')+
         '<div class="dgrid" style="margin-top:8px">'+diV('Frete',brl(n.frete))+'</div>'+
-        (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">&#x1F4CB;? Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
+        (n.tray_cupom_nome ? '<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span class="obs-label" style="margin:0">📍 Cupom:</span><span class="badge-cupom">'+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — '+brl(n.tray_cupom_valor):'')+'</span></div>' : '')+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: PRODUTOS
+      // SEÇÃO: PRODUTOS
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>&#x1F4CB; Produtos</h3>'+
+        '<h3>📋 Produtos</h3>'+
         '<div class="plist" id="modal-produtos-list">'+
-          '<div class="pload">? Carregando produtos...</div>'+
+          '<div class="pload">⏳ Carregando produtos...</div>'+
         '</div>'+
       '</div>'+
       
       // -----------------------------------------------------------
-      // SE&#x1F4CB;O: LINKS
+      // SEÇÃO: LINKS
       // -----------------------------------------------------------
       '<div class="dsec">'+
-        '<h3>&#x1F4CB; Links</h3>'+
+        '<h3>📋 Links</h3>'+
         '<div class="dgrid">'+
           (n.linkdanfe?'<div class="di"><label>DANFE</label><span><a href="'+esc(n.linkdanfe)+'" target="_blank" style="color:var(--ac)">Abrir DANFE</a></span></div>':'')+
           (n.linkpdf?'<div class="di"><label>PDF</label><span><a href="'+esc(n.linkpdf)+'" target="_blank" style="color:var(--ac)">Abrir PDF</a></span></div>':'')+
@@ -1260,14 +1300,14 @@
         '</div>'+
       '</div>';
     
-    console.log('? Modal HTML montado, abrindo overlay...');
+    console.log('• Modal HTML montado, abrindo overlay...');
     G('moverlay').classList.add('open');
     
     // Carregar produtos assincronamente
     carregarProdutosNF(n);
   }
   
-  // Helper para determinar classe de cor da situa&#x1F4CB;o
+  // Helper para determinar classe de cor da situação
   function getSitClass(sit){
     if(!sit) return 'info';
     var s = sit.toLowerCase();
@@ -1283,7 +1323,7 @@
     if(!lista) return;
     
     if(!n.xmlUrl){
-      lista.innerHTML='<div class="pload">XML Nºo dispoNºvel.</div>';
+      lista.innerHTML='<div class="pload">XML Não dispoNºvel.</div>';
       return;
     }
     
@@ -1292,7 +1332,7 @@
       var d = await resp.json();
       
       if(d.error){
-        lista.innerHTML='<div class="pload" style="color:var(--err)">? Erro ao carregar: '+esc(d.error)+'</div>';
+        lista.innerHTML='<div class="pload" style="color:var(--err)">❌ Erro ao carregar: '+esc(d.error)+'</div>';
         return;
       }
       
@@ -1316,18 +1356,18 @@
         '</div>';
       }).join('');
       
-      // Salvar produtos na nota para Nºo precisar carregar novamente
+      // Salvar produtos na nota para Não precisar carregar novamente
       n.produtos = produtos;
       
     } catch(err){
       console.error('Erro ao carregar produtos:', err);
-      lista.innerHTML='<div class="pload" style="color:var(--err)">? Erro ao carregar produtos</div>';
+      lista.innerHTML='<div class="pload" style="color:var(--err)">❌ Erro ao carregar produtos</div>';
     }
   }
 
   async function carregarProdutos(n){
     var lista=G('plist');
-    if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML Nºo dispoNºvel.</div>';return;}
+    if(!n.xmlUrl){lista.innerHTML='<div class="pload">XML Não dispoNºvel.</div>';return;}
     try{
       var resp=await fetch(API_BASE+'/api/produtos?xmlUrl='+encodeURIComponent(n.xmlUrl));
       var d=await resp.json();
@@ -1365,21 +1405,21 @@
   // -- Helpers ------------------------------------------------
   function brl(v){var n=parseFloat(v);return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
   function fmtDate(v){if(!v)return'—';var d=new Date(v);return isNaN(d.getTime())?v:d.toLocaleDateString('pt-BR');}
-  function fpc(v){return({0:'Emitente',1:'Destinat—rio',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'—';}
+  function fpc(v){return({0:'Emitente',1:'Destinatério',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'—';}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function di(l,v){return'<div class="di"><label>'+l+'</label><span>'+esc(String(v||'—'))+'</span></div>';}
   function diV(l,v){return'<div class="di"><label>'+l+'</label><span class="vd">'+v+'</span></div>';}
   function diCopy(l,v){
     var val=String(v||'—');
     var hasVal=(val!=='—'&&val!=='');
-    var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">&#x1F4CB;</button>':'';
+    var copyBtn=hasVal?'<button class="btn-copy" title="Copiar" onclick="copiarTexto(this,\''+esc(val)+'\')">📋</button>':'';
     return'<div class="di"><label>'+l+'</label><div class="copy-row"><span>'+esc(val)+'</span>'+copyBtn+'</div></div>';
   }
   function copiarTexto(btn,texto){
     navigator.clipboard.writeText(texto).then(function(){
       btn.textContent='?';
       btn.classList.add('copiado');
-      setTimeout(function(){btn.textContent='&#x1F4CB;';btn.classList.remove('copiado');},1500);
+      setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
     }).catch(function(){
       // fallback para navegadores sem clipboard API
       var el=document.createElement('textarea');
@@ -1388,21 +1428,21 @@
       document.execCommand('copy');
       document.body.removeChild(el);
       btn.textContent='?'; btn.classList.add('copiado');
-      setTimeout(function(){btn.textContent='&#x1F4CB;';btn.classList.remove('copiado');},1500);
+      setTimeout(function(){btn.textContent='📋';btn.classList.remove('copiado');},1500);
     });
   }
   function setStatus(m,t){var s=G('status');s.textContent=m;s.style.color=t==='err'?'var(--err)':t==='warn'?'var(--warn)':'var(--tm)';}
   function loading(on){G('loverlay').classList.toggle('on',on);}
-  // -- FILTROS AVANºADOS (numero, cliente, cpf, telefone, email) --
+  // -- FILTROS AVANÇADOS (numero, cliente, cpf, telefone, email) --
   var _fexConfig = {
-    numero:   { titulo:'&#x1F4CB; Nºmero NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
-    cliente:  { titulo:'&#x1F4CB; Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
-    cpf:      { titulo:'&#x1F4CB; CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
-    telefone: { titulo:'&#x1F4CB; Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
-    email:    { titulo:'&#x1F4CB; E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
+    numero:   { titulo:'📋 Número NF',     campo:'numero',     btnId:'btnFiltroNumero',  cntId:'cntNumero'  },
+    cliente:  { titulo:'📋 Nome do Cliente',campo:'cliente',    btnId:'btnFiltroCliente', cntId:'cntCliente' },
+    cpf:      { titulo:'🪪 CPF/CNPJ',       campo:'cpf',        btnId:'btnFiltroCpf',     cntId:'cntCpf'     },
+    telefone: { titulo:'📞 Telefone',       campo:'telefone',   btnId:'btnFiltroTelefone',cntId:'cntTelefone'},
+    email:    { titulo:'✉️ E-mail',         campo:'email',      btnId:'btnFiltroEmail',   cntId:'cntEmail'   }
   };
 
-  // Mapa de sele&#x1F4CB;es: { numero: Set, cliente: Set, ... }
+  // Mapa de seleções: { numero: Set, cliente: Set, ... }
   var _fexSel = { numero:new Set(), cliente:new Set(), cpf:new Set(), telefone:new Set(), email:new Set() };
   var _fexAtual = null; // qual filtro est— aberto agora
 
@@ -1441,7 +1481,7 @@
     G('fexTitulo').textContent = cfg.titulo;
     G('fexSearch').value = '';
     if(allNotas.length === 0){
-      G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">&#x1F4CB; Fa—a uma busca primeiro.</div>';
+      G('fexList').innerHTML = '<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">📋 Faça uma busca primeiro.</div>';
       G('fexOverlay').classList.add('open');
       return;
     }
@@ -1529,10 +1569,10 @@
     applyFilters();
   }
 
-  // Sobrescreve applyFilters para incluir filtros avaNºados
+  // Sobrescreve applyFilters para incluir filtros avançados
   var _applyFiltersBase = applyFilters;
   applyFilters = function(){
-    console.log('&#x1F4CB; applyFilters INTERMEDI—RIA chamada (ser— sobrescrita novamente)');
+    console.log('applyFilters INTERMEDIÁRIA chamada (será sobrescrita novamente)');
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
 
     filteredNotas = allNotas.filter(function(n){
@@ -1543,10 +1583,10 @@
         var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
         if(h.indexOf(activeSearch) < 0) return false;
       }
-      // Filtros avaNºados — AND entre filtros, OR dentro de cada filtro
+      // Filtros avançados — AND entre filtros, OR dentro de cada filtro
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
-          if(_fexSel[key].size === 0) return true; // filtro Nºo aplicado = passa
+          if(_fexSel[key].size === 0) return true; // filtro Não aplicado = passa
           var campo = _fexConfig[key].campo;
           var val = (n[campo]||'').toString().trim();
           return _fexSel[key].has(val);
@@ -1598,18 +1638,18 @@
     if(_todosProdutos.length>0){renderProdList('');return;}
     var f=G('dtFrom').value, t=G('dtTo').value;
     if(!f||!t){
-      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">&#x1F4CB; Fa—a uma busca primeiro.</div>';
+      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--warn)">📋 Faça uma busca primeiro.</div>';
       return;
     }
-    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">? Carregando produtos...</div>';
+    G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--tm)">⏳ Carregando produtos...</div>';
     try{
       var resp=await fetch(API_BASE+'/api/produtos-lista?from='+f+'&to='+t);
       var d=await resp.json();
-      if(d.error){G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">? '+d.error+'</div>';return;}
+      if(d.error){G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">❌ '+d.error+'</div>';return;}
       _todosProdutos=d.produtos||[];
       renderProdList('');
     }catch(e){
-      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">? '+e.message+'</div>';
+      G('pmodList').innerHTML='<div class="pload" style="padding:24px;text-align:center;color:var(--err)">❌ '+e.message+'</div>';
     }
   }
 
@@ -1669,13 +1709,13 @@
   }
 
   // Filtra notas que contenham pelo menos um produto selecionado
-  // Usa os XMLs j— carregados nas notas (campo xmlUrl) — faz fetch dos XMLs necess—rios
+  // Usa os XMLs já carregados nas notas (campo xmlUrl) — faz fetch dos XMLs necessários
   var _notasProdCache={};
   async function filtrarNotasPorProdutos(){
     if(!_prodFiltroAtivo||_prodSelecionados.size===0){applyFilters();return;}
     
-    console.log('&#x1F4CB; Filtrando por produtos...');
-    setStatus('&#x1F4CB; Filtrando por produtos...');
+    console.log('⏳ Filtrando por produtos...');
+    setStatus('⏳ Filtrando por produtos...');
     
     // Primeiro aplica todos os outros filtros (origem, busca, cupom, pagamento, etc)
     // Isso popula filteredNotas com as notas que passaram nos outros filtros
@@ -1691,7 +1731,7 @@
         if(h.indexOf(activeSearch) < 0) return false;
       }
       
-      // Filtros avaNºados
+      // Filtros avançados
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
           if(_fexSel[key].size === 0) return true;
@@ -1721,13 +1761,13 @@
       return true;
     });
     
-    console.log('&#x1F4CB; Notas ap—s outros filtros:', notasBase.length);
+    console.log('Notas após outros filtros:', notasBase.length);
     
     // Para cada nota, verifica se tem produto selecionado
     var resultado=[];
     var pendentes=notasBase.filter(function(n){return n.xmlUrl && !_notasProdCache[n.id];});
     
-    console.log('&#x1F4CB; Notas pendentes de buscar produtos:', pendentes.length);
+    console.log('Notas pendentes de buscar produtos:', pendentes.length);
     
     // Busca XMLs em lotes de 10
     for(var i=0;i<pendentes.length;i+=10){
@@ -1747,15 +1787,15 @@
       if(tem)resultado.push(n);
     });
     
-    console.log('&#x1F4CB; Notas com produtos selecionados:', resultado.length);
+    console.log('Notas com produtos selecionados:', resultado.length);
     
     filteredNotas=resultado;
     G('rcount').textContent=filteredNotas.length+' nota'+(filteredNotas.length!==1?'s':'');
     renderCards();
-    setStatus('? '+filteredNotas.length+' notas com os produtos selecionados.');
+    setStatus('⏳ '+filteredNotas.length+' notas com os produtos selecionados.');
   }
 
-  // -- Helper badge situa&#x1F4CB;o no card --------------------------
+  // -- Helper badge situação no card --------------------------
   function sitBadgeCard(sit){
     if(!sit) return '';
     var cls='info';
@@ -1784,7 +1824,7 @@
     else if(sit==='Aberto'||sit==='Em andamento'||sit==='Em Andamento') cls='warn';
 
     G('pedidoHead').innerHTML =
-      '<h3>&#x1F4CB; Pedido de Venda</h3>'+
+      '<h3>📋 Pedido de Venda</h3>'+
       '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
         (n.numeropedido ? '<span style="font-size:.95rem;font-weight:700;color:var(--ac)">#'+esc(n.numeropedido)+'</span>' : '')+
         (sit ? '<span class="card-sit-badge '+cls+'" style="font-size:.75rem;padding:3px 12px">'+esc(sit)+'</span>' : '')+
@@ -1793,21 +1833,21 @@
     var body = '<div class="dgrid">';
     if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
     if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
-    if(sit)                 body += '<div class="di"><label>Situa&#x1F4CB;o</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
+    if(sit)                 body += '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
     body += '</div>';
 
-    body += '<div><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es</div>';
+    body += '<div><div class="obs-label">📋 Observações</div>';
     if(n.pedido_observacoes){
       body += '<div class="obs-box">'+esc(n.pedido_observacoes)+'</div>';
     } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observa&#x1F4CB;es.</div>';
+      body += '<div class="obs-box" style="color:var(--tm);font-style:italic">Sem observações.</div>';
     }
     body += '</div>';
-    body += '<div><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es Internas</div>';
+    body += '<div><div class="obs-label">📋 Observações Internas</div>';
     if(n.pedido_observacoesinternas){
       body += '<div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.05)">'+esc(n.pedido_observacoesinternas)+'</div>';
     } else {
-      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observa&#x1F4CB;es internas.</div>';
+      body += '<div class="obs-box" style="color:var(--tm);font-style:italic;border-color:var(--warn);background:rgba(255,152,0,.03)">Sem observações internas.</div>';
     }
     body += '</div>';
 
@@ -1821,14 +1861,14 @@
   function abrirModalTray(e, n){
     e.stopPropagation();
     if(!n) return;
-    G('trayHead').innerHTML = '<h3>&#x1F4CB; Observa&#x1F4CB;o do Cliente (Tray)</h3>'+
+    G('trayHead').innerHTML = '<h3>📋 Observa📋o do Cliente (Tray)</h3>'+
       (n.numeropedido ? '<div style="font-size:.8rem;color:var(--tm);margin-top:4px">Pedido #'+esc(n.numeropedido)+'</div>' : '')+
       (n.pedido_numeroloja ? '<div style="font-size:.8rem;color:var(--tm)">Loja: '+esc(n.pedido_numeroloja)+'</div>' : '');
     var body = '';
     if(n.tray_customer_note){
-      body += '<div><div class="obs-label">&#x1F4CB; Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
+      body += '<div><div class="obs-label">📋 Nota do Cliente</div><div class="obs-box" style="max-height:300px">'+esc(n.tray_customer_note)+'</div></div>';
     } else {
-      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa&#x1F4CB;o do cliente neste pedido.</div>';
+      body += '<div style="color:var(--tm);font-size:.85rem;padding:8px 0;text-align:center">Sem observa📋o do cliente neste pedido.</div>';
     }
     G('trayBody').innerHTML = body;
     G('trayOverlay').classList.add('open');
@@ -1840,10 +1880,10 @@
   ['todas','com','sem'].forEach(function(tipo){
     var chip = document.querySelector('[data-cupom="'+tipo+'"]');
     if(!chip) {
-      if(tipo !== 'todas') console.error('? Chip Nºo encontrado para cupom:', tipo);
+      if(tipo !== 'todas') console.error('✖ Chip Não encontrado para cupom:', tipo);
       return;
     }
-    console.log('? Chip encontrado para cupom:', tipo, 'classes:', chip.className);
+    console.log('• Chip encontrado para cupom:', tipo, 'classes:', chip.className);
     
     // Remove o checkbox interno para evitar conflitos
     var checkbox = chip.querySelector('input[type="checkbox"]');
@@ -1854,20 +1894,20 @@
     
     chip.onclick = function(e){
       e.preventDefault(); // Previne comportamento padrão do label
-      e.stopPropagation(); // Para propaga&#x1F4CB;o do evento
+      e.stopPropagation(); // Para propagação do evento
       
-      // Bot—o "TODAS" para cupom
+      // Botão "TODAS" para cupom
       if(tipo === 'todas'){
         console.log('---------------------------------------------------');
-        console.log('? CLICOU EM TODAS (CUPOM)');
+        console.log('• CLICOU EM TODAS (CUPOM)');
         // Ativa ambos os filtros (mostra todas as notas)
         _filtroCupom.com = true;
         _filtroCupom.sem = true;
-        // Adiciona classe "on" em ambos os bot—es
+        // Adiciona classe "on" em ambos os botões
         document.querySelectorAll('[data-cupom="com"], [data-cupom="sem"]').forEach(function(c){
           c.classList.add('on');
         });
-        // Adiciona classe "on" no bot—o TODAS
+        // Adiciona classe "on" no botão TODAS
         chip.classList.add('on');
         console.log('Todos os cupons ativos, mostrando TODAS as notas');
         applyFilters();
@@ -1875,17 +1915,17 @@
       }
       
       console.log('---------------------------------------------------');
-      console.log('&#x1F4CB;? CLICOU EM CUPOM:', tipo);
+      console.log('📍 CLICOU EM CUPOM:', tipo);
       console.log('Estado antes:', JSON.stringify(_filtroCupom));
       console.log('Classes antes:', chip.className);
       
-      // Remove classe "on" do bot—o TODAS
+      // Remove classe "on" do botão TODAS
       var btnTodas = document.getElementById('chipTodosCupons');
       if(btnTodas) btnTodas.classList.remove('on');
       
       _filtroCupom[tipo] = !_filtroCupom[tipo];
       
-      // FOR—A atualiza&#x1F4CB;o visual
+      // FORÇA atualiza📋o visual
       if(_filtroCupom[tipo]) {
         chip.classList.add('on');
       } else {
@@ -1900,7 +1940,7 @@
       if(typeof applyFilters === 'function') {
         applyFilters();
       } else {
-        console.error('? applyFilters NºO — UMA FUN&#x1F4CB;O!');
+        console.error('✖ applyFilters NÃO — UMA FUNÇÃO!');
       }
     };
   });
@@ -1912,17 +1952,17 @@
   G('btnFiltroPag').onclick = function(){ abrirFiltroFormasPag(); };
 
   function abrirFiltroFormasPag(){
-    // Coleta todas as formas —nicas das notas carregadas
+    // Coleta todas as formas únicas das notas carregadas
     var formas = {};
     allNotas.forEach(function(n){
       (n.formas_pagamento||[]).forEach(function(fp){ if(fp.tipo) formas[fp.tipo]=true; });
       if(n.tray_payment_form) formas[n.tray_payment_form]=true;
     });
     var lista = Object.keys(formas).sort();
-    if(!lista.length){ alert('Fa—a uma busca primeiro.'); return; }
+    if(!lista.length){ alert('Faça uma busca primeiro.'); return; }
     // Reutiliza o modal geNºrico fexOverlay
     _fexAtual = '__pag__';
-    G('fexTitulo').textContent = '&#x1F4CB; Forma de Pagamento';
+    G('fexTitulo').textContent = '📋 Forma de Pagamento';
     G('fexSearch').value = '';
     var frag = document.createDocumentFragment();
     lista.forEach(function(v){
@@ -1972,7 +2012,7 @@
   var _applyFiltersAnterior = applyFilters;
   applyFilters = function(){
     console.log('---------------------------------------------------');
-    console.log('&#x1F4CB; APLICANDO FILTROS (vers—o final)');
+    console.log('APLICANDO FILTROS (versão final)');
     console.log('Total de notas:', allNotas.length);
     console.log('Origens ativas:', Array.from(activeOrigens), '(tamanho:', activeOrigens.size + ')');
     console.log('Filtro cupom:', _filtroCupom);
@@ -1997,7 +2037,7 @@
         }
       }
       
-      // Filtros avaNºados
+      // Filtros avançados
       if(temFex){
         var ok = Object.keys(_fexSel).every(function(key){
           if(_fexSel[key].size === 0) return true;
@@ -2040,8 +2080,8 @@
       return true;
     });
     
-    console.log('&#x1F4CB; Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
-    console.log('? Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
+    console.log('Bloqueios: origem=' + contadorBloqueios.origem + ', busca=' + contadorBloqueios.busca + ', fex=' + contadorBloqueios.fex + ', cupom=' + contadorBloqueios.cupom + ', pagamento=' + contadorBloqueios.pagamento);
+    console.log('• Notas filtradas:', filteredNotas.length, 'de', allNotas.length);
     console.log('---------------------------------------------------');
     
     G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
@@ -2050,7 +2090,7 @@
     var grid = G('grid');
     if(grid && grid.parentElement) {
       grid.parentElement.scrollTop = 0;
-      console.log('&#x1F4CB; Scroll para o topo do grid');
+      console.log('Scroll para o topo do grid');
     }
     
     renderCards();
@@ -2123,7 +2163,7 @@
   // ---------------------------------------------------------------
   function buildDashTransporte() {
     var notas = getDashData();
-    if(!notas.length){ document.getElementById('kpi-transp').innerHTML='<div class="dash-empty">Fa—a uma busca primeiro.</div>'; return; }
+    if(!notas.length){ document.getElementById('kpi-transp').innerHTML='<div class="dash-empty">Faça uma busca primeiro.</div>'; return; }
 
     // KPIs
     var totalPB=0, totalPL=0, totalVol=0, nfComPeso=0;
@@ -2141,7 +2181,7 @@
       {label:'NFs no Período', value:notas.length.toLocaleString('pt-BR'), sub:'Total carregado', cls:'accent'},
       {label:'Transportadoras', value:nTransp, sub:'Transportadoras ativas', cls:''},
       {label:'Peso Bruto Total', value:fmtNum(totalPB)+' kg', sub:nfComPeso+' NFs com peso', cls:''},
-      {label:'Peso M—dio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto m—dio', cls:'ok'},
+      {label:'Peso Médio / NF', value:fmtNum(avgPB)+' kg', sub:'Peso bruto médio', cls:'ok'},
       {label:'Volumes Total', value:fmtNum(totalVol), sub:'Qtd volumes', cls:''}
     ];
     document.getElementById('kpi-transp').innerHTML = kpis.map(function(k){
@@ -2271,7 +2311,7 @@
       type:'bar',
       data:{ labels:tL, datasets:[
         { label:'Peso Bruto (kg)', data:pbAv, backgroundColor:'#5c6bc0bb', borderRadius:5, borderSkipped:false },
-        { label:'Peso L—quido (kg)', data:plAv, backgroundColor:'#26a69abb', borderRadius:5, borderSkipped:false }
+        { label:'Peso Líquido (kg)', data:plAv, backgroundColor:'#26a69abb', borderRadius:5, borderSkipped:false }
       ]},
       options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
         plugins:{ legend:{ labels:{ color:cd.tick, font:{ size:10, weight:'600' }, padding:10 } }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText } },
@@ -2302,7 +2342,7 @@
     var ctx3=document.getElementById('chart-fator'); if(!ctx3) return;
     DASH_CHARTS['fator']=new Chart(ctx3.getContext('2d'),{
       type:'radar',
-      data:{ labels:fL, datasets:[{ label:'Fator PL—PB', data:fatores, backgroundColor:'rgba(92,107,192,.18)', borderColor:'#5c6bc0', pointBackgroundColor:'#5c6bc0', pointBorderColor:'#fff', pointHoverRadius:7, borderWidth:2 }] },
+      data:{ labels:fL, datasets:[{ label:'Fator PL/PB', data:fatores, backgroundColor:'rgba(92,107,192,.18)', borderColor:'#5c6bc0', pointBackgroundColor:'#5c6bc0', pointBorderColor:'#fff', pointHoverRadius:7, borderWidth:2 }] },
       options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:1000, easing:'easeOutQuart' },
         plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' Fator: '+(c.parsed.r*100).toFixed(1)+'%'; } } } },
         scales:{ r:{ min:0, max:Math.min(fatMax*1.1,1), grid:{ color:cd.grid }, angleLines:{ color:cd.grid }, pointLabels:{ color:cd.tick, font:{ size:10, weight:'700' } }, ticks:{ color:cd.tick, backdropColor:'transparent', font:{ size:9 }, stepSize:.2, callback:function(v){ return (v*100).toFixed(0)+'%'; } } } }
@@ -2316,7 +2356,7 @@
   // ---------------------------------------------------------------
   function buildDashVendas() {
     var notas = getDashData();
-    if(!notas.length){ document.getElementById('kpi-vendas').innerHTML='<div class="dash-empty">Fa—a uma busca primeiro.</div>'; return; }
+    if(!notas.length){ document.getElementById('kpi-vendas').innerHTML='<div class="dash-empty">Faça uma busca primeiro.</div>'; return; }
 
     var totalFat=0, totalDesc=0, totalFrete=0, nComValor=0;
     notas.forEach(function(n){
@@ -2337,13 +2377,13 @@
 
     var kpis = [
       {label:'Faturamento Total',  value:fmtBRL(totalFat),        sub:nComValor+' NFs com valor',   cls:'accent'},
-      {label:'Ticket M—dio Geral', value:fmtBRL(ticketMedio),     sub:'Valor m—dio por NF',          cls:'ok'},
-      {label:'Ticket M—dio Eco',   value:fmtBRL(ticketEco),       sub:ecoNotas.length+' NFs E-com',  cls:''},
-      {label:'Ticket M—dio Dist',  value:fmtBRL(ticketDist),      sub:distNotas.length+' NFs Dist',  cls:''},
+      {label:'Ticket Médio Geral', value:fmtBRL(ticketMedio),     sub:'Valor médio por NF',          cls:'ok'},
+      {label:'Ticket Médio Eco',   value:fmtBRL(ticketEco),       sub:ecoNotas.length+' NFs E-com',  cls:''},
+      {label:'Ticket Médio Dist',  value:fmtBRL(ticketDist),      sub:distNotas.length+' NFs Dist',  cls:''},
       {label:'Total Descontos',    value:fmtBRL(totalDesc),        sub:'Descontos aplicados',         cls:'warn'},
       {label:'Total Frete',        value:fmtBRL(totalFrete),       sub:'Frete nas NFs',               cls:''},
       {label:'Com Cupom',          value:comCupom,                 sub:'NFs com cupom Tray',          cls:''},
-      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolu&#x1F4CB;o',          cls:'warn'}
+      {label:'NFs Reversas',       value:reversas,                 sub:'Notas de devolução',          cls:'warn'}
     ];
     document.getElementById('kpi-vendas').innerHTML = kpis.map(function(k){
       return '<div class="dash-kpi '+k.cls+'"><div class="dash-kpi-label">'+k.label+'</div><div class="dash-kpi-value">'+k.value+'</div><div class="dash-kpi-sub">'+k.sub+'</div></div>';
@@ -2399,7 +2439,7 @@
     var ctx2=document.getElementById('chart-ticket-unidade'); if(!ctx2) return;
     DASH_CHARTS['ticketunid']=new Chart(ctx2.getContext('2d'),{
       type:'bar',
-      data:{ labels:['E-commerce','Distribuidor'], datasets:[{ label:'Ticket M—dio', data:[Math.round(ticketEco),Math.round(ticketDist)], backgroundColor:['#42a5f5bb','#ab47bcbb'], borderRadius:8, borderSkipped:false }] },
+      data:{ labels:['E-commerce','Distribuidor'], datasets:[{ label:'Ticket Médio', data:[Math.round(ticketEco),Math.round(ticketDist)], backgroundColor:['#42a5f5bb','#ab47bcbb'], borderRadius:8, borderSkipped:false }] },
       options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:900, easing:'easeOutQuart' },
         plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:cd.tipBg, bodyColor:cd.tipText, titleColor:cd.tipText, callbacks:{ label:function(c){ return ' '+fmtBRL(c.parsed.y); } } } },
         scales:{ x:{ grid:{ display:false }, ticks:{ color:cd.tick, font:{ size:12, weight:'700' } } }, y:{ grid:{ color:cd.grid }, ticks:{ color:cd.tick, font:{ size:10 }, callback:function(v){ return 'R$'+fmtNum(v/1000)+'k'; } } } }
@@ -2695,7 +2735,7 @@
   // Detalhes estado NF
   // Detalhes estado NF - AGORA SUBSTITUI O MAPA
   function showDetailNF(sigla, name, total, notas) {
-    // Ao inv—s de abrir painel, carrega mapa municipal
+    // Ao invés de abrir painel, carrega mapa municipal
     openDrillModal(sigla, name, 'nf');
   }
 
@@ -2718,20 +2758,20 @@
 
   // -- Filtrar e ir para aba NF-e ---------------------------------
   function filterAndGoNFe(campo, valor) {
-    // Aplica filtro de busca r—pida e vai para aba NF-e
+    // Aplica filtro de busca rápida e vai para aba NF-e
     var searchEl = document.getElementById('search');
     if(searchEl){ searchEl.value=valor; activeSearch=valor.toLowerCase().trim(); }
     applyFilters();
     switchView('nfe', document.querySelector('.tab-btn'));
   }
 
-  // -- Utilit—rio escape para dash --------------------------------
+  // -- Utilitário escape para dash --------------------------------
   function escDash(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
 
-  // -- Atualiza dashboards quando notas s—o carregadas ------------
+  // -- Atualiza dashboards quando notas são carregadas ------------
   var _dashAutoUpdate = (function(){
     var orig = buscarPagina;
-    // Hook: quando busca terminar, atualiza dash se estiver vis—vel
+    // Hook: quando busca terminar, atualiza dash se estiver visível
     return function(){};
   })();
 
@@ -2774,14 +2814,14 @@
     var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
     if(!mapCard) return;
     
-    // ID —nico para cada drill baseado no mode
+    // ID único para cada drill baseado no mode
     var drillId = 'drill-' + mode;
     var svgDrillId = 'svg-map-drill-' + mode;
     var loadingId = 'drillLoading-' + mode;
     var titleId = 'drillTitle-' + mode;
     var subId = 'drillSub-' + mode;
     
-    // Criar container de drill se Nºo existir
+    // Criar container de drill se Não existir
     var drillContainer = mapCard.querySelector('.drill-container');
     if(!drillContainer){
       drillContainer = document.createElement('div');
@@ -2790,10 +2830,10 @@
       drillContainer.style.display = 'none';
       drillContainer.innerHTML = 
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">' +
-        '<button class="drill-back-btn" onclick="closeDrillModalByMode(\''+mode+'\')">? Voltar ao Brasil</button>' +
+        '<button class="drill-back-btn" onclick="closeDrillModalByMode(\''+mode+'\')">← Voltar ao Brasil</button>' +
         '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="'+titleId+'">Estado</div>' +
         '<div class="drill-modal-sub" id="'+subId+'"></div></div></div>' +
-        '<div class="drill-loading" id="'+loadingId+'">? Carregando mapa municipal...</div>' +
+        '<div class="drill-loading" id="'+loadingId+'">⏳ Carregando mapa municipal...</div>' +
         '<div class="map-svg-wrap"><svg id="'+svgDrillId+'" viewBox="0 0 500 450"></svg></div>';
       mapCard.appendChild(drillContainer);
     }
@@ -2804,14 +2844,14 @@
     if(loadingEl) loadingEl.style.display = 'none';
     drillContainer.style.display = 'block';
     
-    document.getElementById(titleId).textContent   = stateName + ' — Munic—pios';
+    document.getElementById(titleId).textContent   = stateName + ' — Municípios';
     document.getElementById(subId).textContent     = 'Carregando...';
     document.getElementById(loadingId).style.display = 'block';
     document.getElementById(svgDrillId).style.display = 'none';
 
     var code = UF_IBGE_CODES[uf];
     if(!code){
-      document.getElementById(loadingId).textContent = 'Estado Nºo dispoNºvel para drill-down.';
+      document.getElementById(loadingId).textContent = 'Estado Não dispoNºvel para drill-down.';
       return;
     }
     if(_drillGeoCache[uf]){
@@ -2823,7 +2863,7 @@
       .then(function(r){ return r.json(); })
       .then(function(geo){ _drillGeoCache[uf] = geo; renderDrillMap(geo, uf, stateName, mode); })
       .catch(function(){
-        document.getElementById(loadingId).textContent = 'Nºo foi poss—vel carregar o mapa municipal.';
+        document.getElementById(loadingId).textContent = 'Não foi possível carregar o mapa municipal.';
       });
   }
 
@@ -2831,7 +2871,7 @@
     var notas = getDashData();
     var dark  = document.documentElement.getAttribute('data-theme') === 'dark';
 
-    // IDs —nicos para cada mode
+    // IDs únicos para cada mode
     var svgDrillId = 'svg-map-drill-' + mode;
     var loadingId = 'drillLoading-' + mode;
     var subId = 'drillSub-' + mode;
@@ -2869,7 +2909,7 @@
     });
     var sortedCities = Object.keys(origCities).sort(function(a,b){ return origCities[b]-origCities[a]; });
 
-    // Sub-t—tulo
+    // Sub-título
     document.getElementById(subId).textContent =
       ufNotas.length + ' NFs — ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
       ' — ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
@@ -2920,11 +2960,11 @@
         .on('mousemove',moveMapTip)
         .on('mouseleave',hideMapTip);
 
-      // REMOVIDO: Nºo renderiza mais os nomes das cidades no mapa
-      // REMOVIDO: Clique Nºo filtra mais as NFs
+      // REMOVIDO: Não renderiza mais os nomes das cidades no mapa
+      // REMOVIDO: Clique Não filtra mais as NFs
     });
 
-    // Criar lista de cidades no rodap—
+    // Criar lista de cidades no rodapé
     var drillContainer = svgEl.closest('.drill-container');
     var cityListEl = drillContainer.querySelector('.drill-city-footer');
     if(!cityListEl){
@@ -2934,7 +2974,7 @@
     }
     
     var maxCity = sortedCities.length ? origCities[sortedCities[0]] : 1;
-    cityListEl.innerHTML = '<div class="drill-footer-title">&#x1F4CB;? Cidades (' + sortedCities.length + ')</div>' +
+    cityListEl.innerHTML = '<div class="drill-footer-title">📍 Cidades (' + sortedCities.length + ')</div>' +
       '<div class="drill-city-grid">' +
       sortedCities.map(function(city){
         var n = origCities[city];
@@ -2967,7 +3007,7 @@
   }
 
   function closeDrillModalByMode(mode){
-    // Voltar ao mapa do Brasil para um mode espec—fico
+    // Voltar ao mapa do Brasil para um mode específico
     var mapId = mode === 'transp' ? 'svg-map-transp' : mode === 'vendas' ? 'svg-map-vendas' : 'svg-map-nf';
     var brazilSvg = document.getElementById(mapId);
     if(!brazilSvg) return;
@@ -2975,7 +3015,7 @@
     var mapCard = brazilSvg.closest('.map-card') || brazilSvg.closest('.dash-card');
     if(!mapCard) return;
     
-    // Esconder drill container espec—fico deste mode
+    // Esconder drill container específico deste mode
     var drillId = 'drill-' + mode;
     var drillContainer = document.getElementById(drillId);
     if(drillContainer) drillContainer.style.display = 'none';
@@ -2989,7 +3029,7 @@
   }
 
   // -- Patch: mapas chamam openDrillModal ao clicar no estado -----
-  // Sobrescreve showDetailNF e showDetailTransp para tamb—m abrir drill
+  // Sobrescreve showDetailNF e showDetailTransp para também abrir drill
   var _showDetailNFOrig = showDetailNF;
   showDetailNF = function(sigla, name, total, notas){
     _showDetailNFOrig(sigla, name, total, notas);
@@ -3002,7 +3042,7 @@
     openDrillModal(sigla, name, 'transp');
   };
 
-  // Mapa vendas tamb—m abre drill ao clicar
+  // Mapa vendas também abre drill ao clicar
   var _renderMapVendasOrig = renderMapVendas;
   renderMapVendas = function(notas){
     _renderMapVendasOrig(notas);
@@ -3018,7 +3058,7 @@
 
   // Inicializar evento de fechar drill ao clicar fora (aguarda DOM)
   document.addEventListener('DOMContentLoaded', function(){
-    // Nºo precisa mais do overlay, drill agora substitui o mapa
+    // Não precisa mais do overlay, drill agora substitui o mapa
   });
 
   // -----------------------------------------------------------
@@ -3041,8 +3081,8 @@
   
   function buscarPedidos(){
     var f = G('dtFromPed').value, t = G('dtToPed').value;
-    if(!f || !t){ setStatusPed('&#x1F4CB; Selecione o Período.', 'warn'); return; }
-    if(f > t){ setStatusPed('&#x1F4CB; Data inicial maior que final.', 'warn'); return; }
+    if(!f || !t){ setStatusPed('⚠ Selecione o Período.', 'warn'); return; }
+    if(f > t){ setStatusPed('⚠ Data inicial maior que final.', 'warn'); return; }
     
     allPedidos = [];
     _buscarPedFrom = f; _buscarPedTo = t; _buscarPedOffset = 0; _buscarPedTotal = 0; _buscarPedAtivo = true;
@@ -3050,7 +3090,7 @@
     setStatusPed('Buscando pedidos...');
     buscarPedidosPagina();
     
-    // SINCRONIZA&#x1F4CB;O REVERSA: Buscar NFs automaticamente se as datas forem diferentes
+    // SINCRONIZAÇÃO REVERSA: Buscar NFs automaticamente se as datas forem diferentes
     if(G('dtFrom').value !== f || G('dtTo').value !== t){
       G('dtFrom').value = f;
       G('dtTo').value = t;
@@ -3064,12 +3104,12 @@
       var url = API_BASE + '/api/pedidos?from=' + _buscarPedFrom + '&to=' + _buscarPedTo + '&offset=' + _buscarPedOffset;
       var resp = await fetch(url);
       var d = await resp.json();
-      if(d.error){ setStatusPed('? ' + d.error, 'err'); loadingPed(false); _buscarPedAtivo = false; return; }
+      if(d.error){ setStatusPed('⏳ ' + d.error, 'err'); loadingPed(false); _buscarPedAtivo = false; return; }
       var novos = d.pedidos || [];
       allPedidos = allPedidos.concat(novos);
       if(_buscarPedOffset === 0 && d.total > 0) _buscarPedTotal = d.total;
       var pct = _buscarPedTotal > 0 ? Math.round(allPedidos.length / _buscarPedTotal * 100) : 0;
-      setStatusPed('? Carregando... ' + allPedidos.length + (_buscarPedTotal > 0 ? ' / ' + _buscarPedTotal : '') + ' pedidos (' + pct + '%)');
+      setStatusPed('⏳ Carregando... ' + allPedidos.length + (_buscarPedTotal > 0 ? ' / ' + _buscarPedTotal : '') + ' pedidos (' + pct + '%)');
       applyFiltersPed();
       if(d.hasMore){
         _buscarPedOffset += novos.length;
@@ -3077,12 +3117,12 @@
       } else {
         loadingPed(false);
         _buscarPedAtivo = false;
-        setStatusPed('? ' + allPedidos.length + ' pedidos carregados.');
-        // Atualizar contador no bot—o
+        setStatusPed('⏳ ' + allPedidos.length + ' pedidos carregados.');
+        // Atualizar contador no botão
         G('count-pedidos').textContent = '(' + allPedidos.length + ')';
       }
     }catch(e){
-      setStatusPed('? ' + e.message, 'err');
+      setStatusPed('⏳ ' + e.message, 'err');
       loadingPed(false); _buscarPedAtivo = false;
     }
   }
@@ -3106,11 +3146,11 @@
     renderCardsPed();
   }
   
-  // Busca r—pida
+  // Busca rápida
   G('searchPed').oninput = function(e){
     activeSearchPed = e.target.value.toLowerCase().trim();
     applyFiltersPed();
-    // SINCRONIZA&#x1F4CB;O REVERSA: Aplicar mesma busca nas NFs
+    // SINCRONIZAÇÃO REVERSA: Aplicar mesma busca nas NFs
     G('search').value = e.target.value;
     activeSearch = activeSearchPed;
     applyFilters();
@@ -3122,7 +3162,7 @@
     grid.innerHTML = '';
     
     if(!filteredPedidos.length){
-      grid.innerHTML = '<div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Nenhum pedido encontrado.</p></div>';
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhum pedido encontrado.</p></div>';
       return;
     }
     
@@ -3135,16 +3175,16 @@
   function buildCardPed(p){
     var d = document.createElement('div');
     d.className = 'card ' + p.origem;
-    var ol = p.origem === 'ecommerce' ? '&#x1F4CB; E-commerce' : '&#x1F4CB; Distribuidor';
+    var ol = p.origem === 'ecommerce' ? '🛒 E-commerce' : '🏭 Distribuidor';
     var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
     
     d.innerHTML =
       '<div class="cbadge ' + p.origem + '">' + ol + '</div>' +
       '<div class="ccliente">' + esc(p.cliente || '—') + '</div>' +
       '<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">' +
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">&#x1F4CB; Pedido ' + esc(p.numero) + '</span>' +
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido ' + esc(p.numero) + '</span>' +
         sitBadgeCard(p.situacao) +
-        (temNF ? ' <span class="card-sit-badge ok" style="margin-left:4px">? NF</span>' : '') +
+        (temNF ? ' <span class="card-sit-badge ok" style="margin-left:4px">✓ NF</span>' : '') +
       '</div>' +
       '<div class="cvalor">' + brl(p.valor) + '</div>' +
       '<div class="cmeta">' +
@@ -3158,7 +3198,7 @@
   
   // Abrir modal de pedido
   function abrirModalPed(p){
-    var ol = p.origem === 'ecommerce' ? '&#x1F4CB; E-commerce' : '&#x1F4CB; Distribuidor';
+    var ol = p.origem === 'ecommerce' ? '🛒 E-commerce' : '🏭 Distribuidor';
     var temNF = p.notafiscal_id && p.notafiscal_id !== '' && p.notafiscal_id !== '0';
     
     G('mheadPed').innerHTML =
@@ -3167,37 +3207,37 @@
       '<div class="msub">Pedido ' + esc(p.numero || '—') + ' — ' + fmtDate(p.data) + '</div>';
     
     G('mbodyPed').innerHTML =
-      // SE&#x1F4CB;O: PEDIDO
+      // SEÇÃO: PEDIDO
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">' +
-        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">&#x1F4CB; PEDIDO DE VENDA</h3>' +
+        '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>' +
         '<div class="dgrid">' +
-          di('Nºmero', p.numero) +
+          di('Número', p.numero) +
           di('Data Pedido', fmtDate(p.data)) +
           di('Data Saída', fmtDate(p.datasaida)) +
-          '<div class="di"><label>Situa&#x1F4CB;o</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
+          '<div class="di"><label>Situação</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
           diV('Valor Total', brl(p.valor)) +
           di('Valor Produtos', brl(p.valorProdutos)) +
           di('Desconto', brl(p.desconto)) +
           di('Nº Loja', p.numeroloja || '—') +
-          (temNF ? '<div class="di"><label>Nota Fiscal</label><span><span class="card-sit-badge ok">? NF Vinculada (ID: ' + p.notafiscal_id + ')</span></span></div>' : '<div class="di"><label>Nota Fiscal</label><span style="color:var(--warn)">? Sem NF vinculada</span></div>') +
+          (temNF ? '<div class="di"><label>Nota Fiscal</label><span><span class="card-sit-badge ok">✓ NF Vinculada (ID: ' + p.notafiscal_id + ')</span></span></div>' : '<div class="di"><label>Nota Fiscal</label><span style="color:var(--warn)">⚠ Sem NF vinculada</span></div>') +
         '</div>' +
-        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
-        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">&#x1F4CB; Observa&#x1F4CB;es Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
+        (p.observacoes ? '<div style="margin-top:12px"><div class="obs-label">📋 Observações</div><div class="obs-box">' + esc(p.observacoes) + '</div></div>' : '') +
+        (p.observacoesinternas ? '<div style="margin-top:10px"><div class="obs-label">📋 Observações Internas</div><div class="obs-box" style="border-color:var(--warn);background:rgba(255,152,0,.08)">' + esc(p.observacoesinternas) + '</div></div>' : '') +
       '</div>' +
       
-      // SE&#x1F4CB;O: CLIENTE
+      // SEÇÃO: CLIENTE
       '<div class="dsec">' +
-        '<h3>&#x1F4CB; Cliente</h3>' +
+        '<h3>📋 Cliente</h3>' +
         '<div class="dgrid">' +
           di('Nome', p.cliente) +
           di('CPF/CNPJ', p.cpf) +
-          di('Tipo Pessoa', p.tipoPessoa === 'F' ? 'F—sica' : p.tipoPessoa === 'J' ? 'Jur—dica' : p.tipoPessoa) +
+          di('Tipo Pessoa', p.tipoPessoa === 'F' ? 'Física' : p.tipoPessoa === 'J' ? 'Jurídica' : p.tipoPessoa) +
         '</div>' +
       '</div>' +
       
-      // SE&#x1F4CB;O: TRANSPORTE
+      // SEÇÃO: TRANSPORTE
       '<div class="dsec">' +
-        '<h3>&#x1F4CB; Transporte</h3>' +
+        '<h3>📋 Transporte</h3>' +
         '<div class="dgrid">' +
           di('Transportadora', p.transportadora) +
           diV('Frete', brl(p.frete)) +
@@ -3205,9 +3245,9 @@
         '</div>' +
       '</div>' +
       
-      // SE&#x1F4CB;O: PRODUTOS
+      // SEÇÃO: PRODUTOS
       '<div class="dsec">' +
-        '<h3>&#x1F4CB; Produtos</h3>' +
+        '<h3>📋 Produtos</h3>' +
         (p.itens && p.itens.length ? 
           '<div class="plist">' +
             p.itens.map(function(item){
@@ -3254,7 +3294,7 @@
 
   
 // ═══════════════════════════════════════════════════════════
-// PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÁO
+// PCP - PLANEJAMENTO E CONTROLE DE PRODUÇÃO
 // ═══════════════════════════════════════════════════════════
 async function carregarStatusPCP(){
   try{
@@ -3727,5 +3767,15 @@ carregarStatusPCP();
 carregarMetaEstoque();
 
 </script>
-  </body>
+  
+<script>
+document.addEventListener('pointermove',function(e){
+  var t=e.target.closest&&e.target.closest('.btn-primary');
+  if(!t) return;
+  var r=t.getBoundingClientRect();
+  t.style.setProperty('--mx',(e.clientX-r.left)+'px');
+  t.style.setProperty('--my',(e.clientY-r.top)+'px');
+},{passive:true});
+</script>
+</body>
   </html>
