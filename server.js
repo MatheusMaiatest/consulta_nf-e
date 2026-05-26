@@ -149,25 +149,17 @@ app.get('/api/estoque-dados', (req, res) => {
 app.get('/api/pedidos-status', async (req, res) => {
   try {
     const conn = await pool.getConnection();
-    
-    // Buscar todos os status únicos de pedidos
     const [statusEco] = await conn.execute(
       'SELECT DISTINCT situacao_nome FROM `bling_pedidos_venda_detalhes_ecommerce` WHERE situacao_nome IS NOT NULL AND situacao_nome != "" ORDER BY situacao_nome'
     );
     const [statusDist] = await conn.execute(
       'SELECT DISTINCT situacao_nome FROM `bling_pedidos_venda_detalhes_distribuicao` WHERE situacao_nome IS NOT NULL AND situacao_nome != "" ORDER BY situacao_nome'
     );
-    
     conn.release();
-    
-    // Combinar e remover duplicatas
-    const statusSet = new Set();
-    statusEco.forEach(r => statusSet.add(r.situacao_nome));
-    statusDist.forEach(r => statusSet.add(r.situacao_nome));
-    
-    const status = Array.from(statusSet).sort();
-    
-    res.json({ status, total: status.length });
+    res.json({
+      ecommerce:    statusEco.map(r => r.situacao_nome),
+      distribuidor: statusDist.map(r => r.situacao_nome)
+    });
   } catch (err) {
     console.error(err);
     res.json({ error: err.message });
