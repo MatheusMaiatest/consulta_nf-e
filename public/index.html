@@ -3810,51 +3810,101 @@ function buildTable(fonte, unidade){
 function abrirPCPProduto(idx){
   var prod = pcpProdutos[idx];
   if(!prod) return;
-  
-  var prodCD = buscarProdutoCD(prod.codigo, prod.nome);
-  var skuDisplay = prodCD ? prodCD.sku : (prod.sku || prod.codigo || '—');
-  
-  G('mheadPCPProduto').innerHTML = 
+
+  var skuDisplay = prod.skuCD || prod.sku || prod.codigo || '—';
+
+  G('mheadPCPProduto').innerHTML =
     '<div style="background:var(--ac);color:white;padding:4px 12px;border-radius:var(--r);display:inline-block;margin-bottom:10px">SKU '+esc(skuDisplay)+'</div>'+
     '<h2>'+esc(prod.nome || '—')+'</h2>'+
-    '<div class="msub">'+prod.quantidadeTotal.toFixed(2)+' un total · '+prod.pedidos.length+' pedido'+(prod.pedidos.length > 1 ? 's' : '')+'</div>';
-  
-  var html = '<div style="display:flex;flex-direction:column;gap:8px">';
-  
+    '<div class="msub">'+prod.quantidadeTotal.toFixed(0)+' un total · '+prod.pedidos.length+' pedido'+(prod.pedidos.length > 1 ? 's' : '')+'</div>';
+
+  var html = '<div style="display:flex;flex-direction:column;gap:10px">';
+
   prod.pedidos.forEach(function(p){
     var ped = p.pedido;
-    var ol = ped.origem === 'ecommerce' ? '&#x1F6D2; E-commerce' : '&#x1F3ED; Distribuidor';
+    var ol       = ped.origem === 'ecommerce' ? '&#x1F6D2; E-commerce' : '&#x1F3ED; Distribuidor';
     var sitClass = getSitClass(ped.situacao);
-    
-        var isEco    = ped.origem === 'ecommerce';
+    var isEco    = ped.origem === 'ecommerce';
     var uniColor = isEco ? 'var(--eco)' : 'var(--dist)';
-    var uniBg    = isEco ? 'rgba(66,165,245,.08)' : 'rgba(171,71,188,.08)';
+    var uniBg    = isEco ? 'rgba(66,165,245,.06)' : 'rgba(171,71,188,.06)';
     var uniBdr   = isEco ? 'rgba(66,165,245,.35)' : 'rgba(171,71,188,.35)';
 
-    html += '<div class="pcp-pedido-item" onclick="abrirModalPedFromPCP('+ped.id+')" style="' +
-      'border:1px solid '+uniBdr+';border-radius:var(--r);padding:12px;cursor:pointer;' +
-      'transition:all 0.2s;background:'+uniBg+'">' +
-      '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">' +
+    // Cabeçalho do card — clicável para abrir detalhes do pedido
+    html += '<div style="border:1px solid '+uniBdr+';border-radius:var(--r);overflow:hidden">';
+
+    // Header clicável
+    html += '<div onclick="abrirModalPedFromPCP(\''+ped.id+'\')" style="' +
+      'padding:12px;cursor:pointer;background:'+uniBg+';transition:background .15s" ' +
+      'onmouseover="this.style.background=\''+(isEco?'rgba(66,165,245,.14)':'rgba(171,71,188,.14)')+'\'" ' +
+      'onmouseout="this.style.background=\''+uniBg+'\'">' +
+      '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">' +
         '<div>' +
-          '<div style="font-size:.7rem;color:'+uniColor+';font-weight:600;margin-bottom:4px">'+ol+'</div>' +
-          '<div style="font-weight:600;font-size:.9rem">Pedido '+esc(ped.numero||'—')+'</div>' +
+          '<div style="font-size:.7rem;color:'+uniColor+';font-weight:600;margin-bottom:3px">'+ol+'</div>' +
+          '<div style="font-weight:700;font-size:.92rem">Pedido '+esc(ped.numero||'—')+
+            ' <span style="font-size:.7rem;color:var(--tm);font-weight:400">&#x1F4C4; ver detalhes</span>' +
+          '</div>' +
         '</div>' +
         '<span class="sit-badge sit-'+sitClass+'">'+esc(ped.situacao||'—')+'</span>' +
       '</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.8rem">' +
-        '<div><span style="color:var(--tm)">Cliente:</span> '+esc(ped.cliente||'—')+'</div>' +
-        '<div><span style="color:var(--tm)">Data:</span> '+fmtDate(ped.data)+'</div>' +
-        '<div><span style="color:var(--tm)">Quantidade:</span> <strong>'+p.quantidade+' un</strong></div>' +
-        '<div><span style="color:var(--tm)">Valor:</span> '+brl(p.valor)+'</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.78rem;color:var(--ts)">' +
+        '<div>&#x1F464; '+esc(ped.cliente||'—')+'</div>' +
+        '<div>&#x1F4C5; '+fmtDate(ped.data)+'</div>' +
       '</div>' +
     '</div>';
+
+    // Tabela de itens do pedido com SKU, produto, qtd pedida, saldo estoque
+    if(ped.itens && ped.itens.length > 0){
+      html += '<div style="border-top:1px solid '+uniBdr+';padding:8px 12px;background:var(--bg)">';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:.76rem">';
+      html += '<thead><tr style="border-bottom:1px solid var(--bdr)">' +
+        '<th style="padding:4px 6px;text-align:left;color:var(--tm);font-weight:600">SKU</th>' +
+        '<th style="padding:4px 6px;text-align:left;color:var(--tm);font-weight:600">Produto</th>' +
+        '<th style="padding:4px 6px;text-align:right;color:var(--tm);font-weight:600">Pedido</th>' +
+        '<th style="padding:4px 6px;text-align:right;color:var(--tm);font-weight:600">Estoque</th>' +
+      '</tr></thead><tbody>';
+
+      ped.itens.forEach(function(item){
+        var prodCD2   = buscarProdutoCD(item.codigo, item.nome);
+        var itemSku   = prodCD2 ? String(prodCD2.sku) : (item.codigo || '—');
+        var itemNome  = prodCD2 ? (prodCD2.descricao || item.nome || item.codigo)
+                                : (item.nome && item.nome !== item.codigo ? item.nome : item.codigo);
+        var itemQtd   = parseFloat(item.quantidade) || 0;
+
+        // Buscar saldo no estoque
+        var mergeKey  = prodCD2 ? String(prodCD2.sku) : item.codigo;
+        var sE = estoqueEco[item.codigo]  ? parseFloat(estoqueEco[item.codigo].saldo  || estoqueEco[item.codigo].quantidade  || 0) : null;
+        var sD = estoqueDist[item.codigo] ? parseFloat(estoqueDist[item.codigo].saldo || estoqueDist[item.codigo].quantidade || 0) : null;
+        var saldo = null;
+        if(sE !== null && sD !== null) saldo = sE + sD;
+        else if(sE !== null)           saldo = sE;
+        else if(sD !== null)           saldo = sD;
+
+        var saldoOk    = saldo !== null && saldo >= itemQtd;
+        var saldoColor = saldo === null ? 'var(--tm)' : saldo <= 0 ? '#e74c3c' : saldo < itemQtd ? '#f39c12' : '#2ecc71';
+        var saldoTxt   = saldo !== null ? saldo.toFixed(0)+' un' : '—';
+
+        html += '<tr style="border-bottom:1px solid var(--bdr)">' +
+          '<td style="padding:4px 6px">' +
+            '<span style="background:var(--ac);color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:600">'+esc(itemSku)+'</span>' +
+          '</td>' +
+          '<td style="padding:4px 6px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(itemNome)+'</td>' +
+          '<td style="padding:4px 6px;text-align:right;font-weight:600">'+itemQtd.toFixed(0)+' un</td>' +
+          '<td style="padding:4px 6px;text-align:right;font-weight:600;color:'+saldoColor+'">'+saldoTxt+'</td>' +
+        '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+    }
+
+    html += '</div>';
   });
-  
+
   html += '</div>';
-  
+
   G('mbodyPCPProduto').innerHTML = html;
   G('moverlayPCPProduto').classList.add('open');
 }
+
 
 function abrirModalPedFromPCP(pedidoId){
   // Encontrar o pedido completo
