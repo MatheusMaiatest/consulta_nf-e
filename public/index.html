@@ -792,6 +792,15 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       <div class="mbody" id="mbodyPCPProduto"></div>
     </div>
   </div>
+
+  <!-- MODAL PCP - DETALHES DO PEDIDO (abre em cima do primeiro) -->
+  <div class="moverlay" id="moverlayPCPDetalhe" style="z-index:1100">
+    <div class="modal">
+      <button class="mclose" id="mclosePCPDetalhe">&#x2715;</button>
+      <div class="mhead" id="mheadPCPDetalhe"></div>
+      <div class="mbody" id="mbodyPCPDetalhe"></div>
+    </div>
+  </div>
   
   <script>// -- Estado global ------------------------------------------
   var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
@@ -3905,23 +3914,86 @@ function abrirPCPProduto(idx){
   G('moverlayPCPProduto').classList.add('open');
 }
 
-
 function abrirModalPedFromPCP(pedidoId){
-  // Encontrar o pedido completo
   var ped = pcpTodosPedidos.find(function(p){ return p.id === pedidoId; });
   if(!ped) return;
-  
-  // Fechar modal de produto
-  G('moverlayPCPProduto').classList.remove('open');
-  
-  // Abrir modal de pedido (reutilizar função existente)
-  abrirModalPed(ped);
+
+  var isEco    = ped.origem === 'ecommerce';
+  var uniColor = isEco ? 'var(--eco)' : 'var(--dist)';
+  var ol       = isEco ? '&#x1F6D2; E-commerce' : '&#x1F3ED; Distribuidor';
+  var sitClass = getSitClass(ped.situacao);
+
+  G('mheadPCPDetalhe').innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+      '<span style="font-size:.75rem;color:'+uniColor+';font-weight:700">'+ol+'</span>' +
+      '<span class="sit-badge sit-'+sitClass+'">'+esc(ped.situacao||'—')+'</span>' +
+    '</div>' +
+    '<h2 style="margin-bottom:4px">Pedido '+esc(ped.numero||'—')+'</h2>' +
+    '<div class="msub">&#x1F464; '+esc(ped.cliente||'—')+' &nbsp;·&nbsp; &#x1F4C5; '+fmtDate(ped.data)+'</div>';
+
+  var html = '';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;margin-bottom:14px;padding:10px;background:var(--bgc);border-radius:var(--rs)">';
+  if(ped.valor)          html += '<div><span style="color:var(--tm)">Total:</span> <strong>'+brl(ped.valor)+'</strong></div>';
+  if(ped.cpf)            html += '<div><span style="color:var(--tm)">CPF/CNPJ:</span> '+esc(ped.cpf)+'</div>';
+  if(ped.transportadora) html += '<div><span style="color:var(--tm)">Transportadora:</span> '+esc(ped.transportadora)+'</div>';
+  if(ped.frete)          html += '<div><span style="color:var(--tm)">Frete:</span> '+brl(ped.frete)+'</div>';
+  html += '</div>';
+
+  if(ped.itens && ped.itens.length > 0){
+    html += '<table style="width:100%;border-collapse:collapse;font-size:.82rem">';
+    html += '<thead><tr style="border-bottom:2px solid var(--bdr)">' +
+      '<th style="padding:6px 8px;text-align:left;color:var(--tm);font-weight:600">SKU</th>' +
+      '<th style="padding:6px 8px;text-align:left;color:var(--tm);font-weight:600">Produto</th>' +
+      '<th style="padding:6px 8px;text-align:right;color:var(--tm);font-weight:600">Qtd Pedida</th>' +
+      '<th style="padding:6px 8px;text-align:right;color:var(--tm);font-weight:600">Estoque</th>' +
+      '<th style="padding:6px 8px;text-align:right;color:var(--tm);font-weight:600">Preco Unit.</th>' +
+    '</tr></thead><tbody>';
+
+    ped.itens.forEach(function(item){
+      var prodCD2  = buscarProdutoCD(item.codigo, item.nome);
+      var itemSku  = prodCD2 ? String(prodCD2.sku) : (item.codigo || '—');
+      var itemNome = prodCD2 ? (prodCD2.descricao || item.nome || item.codigo)
+                             : (item.nome && item.nome !== item.codigo ? item.nome : item.codigo);
+      var itemQtd  = parseFloat(item.quantidade) || 0;
+      var itemVal  = item.valor ? brl(item.valor) : '—';
+      var sE = estoqueEco[item.codigo]  ? parseFloat(estoqueEco[item.codigo].saldo  || estoqueEco[item.codigo].quantidade  || 0) : null;
+      var sD = estoqueDist[item.codigo] ? parseFloat(estoqueDist[item.codigo].saldo || estoqueDist[item.codigo].quantidade || 0) : null;
+      var saldo = sE !== null && sD !== null ? sE+sD : sE !== null ? sE : sD;
+      var saldoColor = saldo === null ? 'var(--tm)' : saldo <= 0 ? '#e74c3c' : saldo < itemQtd ? '#f39c12' : '#2ecc71';
+      var saldoTxt   = saldo !== null ? saldo.toFixed(0)+' un' : '—';
+      var rowBg      = saldo !== null && saldo < itemQtd ? 'rgba(243,156,18,.06)' : '';
+      html += '<tr style="border-bottom:1px solid var(--bdr);background:'+rowBg+'">' +
+        '<td style="padding:7px 8px"><span style="background:'+uniColor+';color:#fff;padding:2px 7px;border-radius:4px;font-size:.72rem;font-weight:600">'+esc(itemSku)+'</span></td>' +
+        '<td style="padding:7px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(itemNome)+'</td>' +
+        '<td style="padding:7px 8px;text-align:right;font-weight:700">'+itemQtd.toFixed(0)+' un</td>' +
+        '<td style="padding:7px 8px;text-align:right;font-weight:700;color:'+saldoColor+'">'+saldoTxt+'</td>' +
+        '<td style="padding:7px 8px;text-align:right;color:var(--ts)">'+itemVal+'</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table>';
+  } else {
+    html += '<div style="color:var(--tm);font-size:.82rem;padding:12px 0">Itens nao disponiveis.</div>';
+  }
+
+  G('mbodyPCPDetalhe').innerHTML = html;
+  G('moverlayPCPDetalhe').classList.add('open');
 }
 
 // Fechar modais PCP
 G('mclosePCPProduto').onclick = function(){ G('moverlayPCPProduto').classList.remove('open'); };
-G('moverlayPCPProduto').onclick = function(e){ 
-  if(e.target === G('moverlayPCPProduto')) G('moverlayPCPProduto').classList.remove('open'); 
+G('moverlayPCPProduto').onclick = function(e){
+  if(e.target === G('moverlayPCPProduto')) G('moverlayPCPProduto').classList.remove('open');
+};
+G('mclosePCPDetalhe').onclick = function(){ G('moverlayPCPDetalhe').classList.remove('open'); };
+G('moverlayPCPDetalhe').onclick = function(e){
+  if(e.target === G('moverlayPCPDetalhe')) G('moverlayPCPDetalhe').classList.remove('open');
+};
+G('moverlayPCPProduto').onclick = function(e){
+  if(e.target === G('moverlayPCPProduto')) G('moverlayPCPProduto').classList.remove('open');
+};
+G('mclosePCPDetalhe').onclick = function(){ G('moverlayPCPDetalhe').classList.remove('open'); };
+G('moverlayPCPDetalhe').onclick = function(e){
+  if(e.target === G('moverlayPCPDetalhe')) G('moverlayPCPDetalhe').classList.remove('open');
 };
 function setStatusPCP(m, t){
   var s = G('statusPCP');
