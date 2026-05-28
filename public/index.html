@@ -900,6 +900,19 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   // -- Buscar notas paginado (fetch direto na API) ------------
   var _buscarFrom='', _buscarTo='', _buscarOffset=0, _buscarTotal=0, _buscarAtivo=false;
   var API_BASE = '';  // vazio = mesmo dominio (Railway serve tudo junto)
+  var API_KEY  = 'nfe-viewer-dev-key-2026'; // deve coincidir com .env API_KEY
+
+  // Wrapper de fetch que injeta automaticamente o header x-api-key
+  var _origFetch = window.fetch.bind(window);
+  window.fetch = function(url, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    // Só injeta em chamadas à própria API
+    if (typeof url === 'string' && (url.startsWith(API_BASE + '/api') || url.startsWith('/api'))) {
+      opts.headers['x-api-key'] = API_KEY;
+    }
+    return _origFetch(url, opts);
+  };
   
   // -- Carregar produtos do JSON ------------------------------
   var produtosCD = {};
@@ -4119,6 +4132,11 @@ function abrirPCPProduto(idx){
         var saldoRestItem = (cascataOn && pcpSaldoCascata[itemMk]  !== undefined) ? pcpSaldoCascata[itemMk]  : null;
         var consumoItemVal = (saldoOrigItem !== null && saldoRestItem !== null) ? Math.max(0, saldoOrigItem - saldoRestItem) : null;
 
+                var itemMk = prodCD2 ? String(prodCD2.sku) : item.codigo;
+        var saldoOrigItem = (cascataOn && pcpSaldoOriginal && pcpSaldoOriginal[itemMk] !== undefined) ? pcpSaldoOriginal[itemMk] : null;
+        var saldoRestItem = (cascataOn && pcpSaldoCascata  && pcpSaldoCascata[itemMk]  !== undefined) ? pcpSaldoCascata[itemMk]  : null;
+        var consumoItemVal = (saldoOrigItem !== null && saldoRestItem !== null) ? Math.max(0, saldoOrigItem - saldoRestItem) : null;
+
         html += '<tr style="border-bottom:1px solid var(--bdr)">' +
           '<td style="padding:4px 6px">' +
             '<span style="background:var(--ac);color:#fff;padding:1px 6px;border-radius:3px;font-size:.7rem;font-weight:600">'+esc(itemSku)+'</span>' +
@@ -4127,7 +4145,7 @@ function abrirPCPProduto(idx){
           '<td style="padding:4px 6px;text-align:right;font-weight:600">'+itemQtd.toFixed(0)+' un</td>' +
           '<td style="padding:4px 6px;text-align:right;font-weight:600;color:'+saldoColor+'">'+saldoTxt+'</td>' +
           (cascataOn ? '<td style="padding:4px 6px;text-align:right;font-size:.75rem;color:#f39c12;font-weight:600">'+(consumoItemVal !== null && consumoItemVal > 0 ? '-'+consumoItemVal.toFixed(0)+' un' : '—')+'</td>' : '') +
-          (cascataOn ? '<td style="padding:4px 6px;text-align:right;font-size:.75rem;font-weight:600;color:'+(saldoRestItem !== null ? (saldoRestItem <= 0 ? '#e74c3c' : '#2ecc71') : 'var(--tm)')+'">'+(saldoRestItem !== null ? saldoRestItem.toFixed(0)+' un' : '—')+'</td>' : '') +
+          (cascataOn ? '<td style="padding:4px 6px;text-align:right;font-size:.75rem;font-weight:600;color:'+(saldoRestItem !== null ? (saldoRestItem <= 0 ? '#e74c3c' : '#2ecc71') : 'var(--tm)')+'">'+( saldoRestItem !== null ? saldoRestItem.toFixed(0)+' un' : '—')+'</td>' : '') +
         '</tr>';
       });
 
