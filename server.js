@@ -1,7 +1,20 @@
-const express = require('express');
-const mysql   = require('mysql2/promise');
-const path    = require('path');
-const fs      = require('fs');
+require('dotenv').config();
+const express      = require('express');
+const mysql        = require('mysql2/promise');
+const path         = require('path');
+const fs           = require('fs');
+const helmet       = require('helmet');
+const cors         = require('cors');
+const rateLimit    = require('express-rate-limit');
+const crypto       = require('crypto');
+
+// ── Validação de variáveis de ambiente obrigatórias ──────────
+const REQUIRED_ENV = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASS', 'DB_NAME', 'API_KEY'];
+const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missingEnv.length > 0) {
+  console.error('[STARTUP] Variáveis de ambiente obrigatórias não definidas:', missingEnv.join(', '));
+  process.exit(1);
+}
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -12,11 +25,11 @@ const ESTOQUE_DIR = path.join(__dirname, 'estoque-cache');
 if (!fs.existsSync(ESTOQUE_DIR)) fs.mkdirSync(ESTOQUE_DIR);
 
 const pool = mysql.createPool({
-  host:            '162.240.228.36',
-  port:            3306,
-  user:            'hawktec_alpha_log',
-  password:        'Alpha@3030',
-  database:        'hawktec_alpha-ecommerce',
+  host:            process.env.DB_HOST,
+  port:            parseInt(process.env.DB_PORT) || 3306,
+  user:            process.env.DB_USER,
+  password:        process.env.DB_PASS,
+  database:        process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit:    10,
   connectTimeout:     10000
@@ -34,16 +47,55 @@ function nomeTpag(cod) {
   return TPAG[String(cod).padStart(2,'0')] || TPAG[String(cod)] || 'Outro ('+cod+')';
 }
 
-app.use(express.json());
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
+// ── Segurança: Helmet + CORS + Rate Limiting ─────────────────
+app.use(helmet());
+
+const allowedOrigin = process.env.ALLOWED_ORIGIN || 'http://localhost:3001';
+app.use(cors({ origin: allowedOrigin, methods: ['GET', 'POST'] }));
+
+// Rate limit global: 200 req / 15 min por IP
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' }
 });
+app.use(globalLimiter);
+
+// Rate limit restrito para importação de estoque
+const importLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' }
+});
+
+
+// ── Middleware: API Key ───────────────────────────────────────
+function requireApiKey(req, res, next) {
+  const key = req.headers['x-api-key'];
+  const expected = process.env.API_KEY;
+  if (!key || key.length !== expected.length) {
+    return res.status(401).json({ error: 'Não autorizado.' });
+  }
+  try {
+    const match = crypto.timingSafeEqual(Buffer.from(key), Buffer.from(expected));
+    if (!match) return res.status(401).json({ error: 'Não autorizado.' });
+  } catch {
+    return res.status(401).json({ error: 'Não autorizado.' });
+  }
+  next();
+}
+
+app.use(express.json({ limit: '10mb' }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
+// Aplicar API Key em todas as rotas /api/*
+app.use('/api', requireApiKey);
 
 // ── /api/produtos-cd ──────────────────────────────────────
 app.get('/api/produtos-cd', (req, res) => {
@@ -72,7 +124,7 @@ app.get('/api/produtos-cd', (req, res) => {
 
 // ── /api/estoque-import ──────────────────────────────────
 // Recebe: { origem: 'ecommerce'|'distribuidor', nomeArquivo: string, dados: [{codigo,ean,produto,unidade,quantidade}] }
-app.post('/api/estoque-import', (req, res) => {
+app.post('/api/estoque-import', importLimiter, (req, res) => {
   try {
     const { origem, nomeArquivo, dados } = req.body;
     if (!origem || !nomeArquivo || !Array.isArray(dados)) {
@@ -80,6 +132,9 @@ app.post('/api/estoque-import', (req, res) => {
     }
     if (origem !== 'ecommerce' && origem !== 'distribuidor') {
       return res.json({ error: 'origem deve ser ecommerce ou distribuidor.' });
+    }
+    if (dados.length > 100000) {
+      return res.status(400).json({ error: 'Limite máximo de 100.000 itens por importação.' });
     }
 
     // Monta mapa codigo → saldo
@@ -105,8 +160,8 @@ app.post('/api/estoque-import', (req, res) => {
     console.log(`Estoque ${origem} importado: ${payload.totalItens} itens de "${nomeArquivo}"`);
     res.json({ ok: true, origem, nomeArquivo, totalItens: payload.totalItens });
   } catch (err) {
-    console.error('Erro estoque-import:', err);
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -126,7 +181,8 @@ app.get('/api/estoque-cache', (req, res) => {
     });
     res.json(result);
   } catch (err) {
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -136,12 +192,15 @@ app.get('/api/estoque-dados', (req, res) => {
   try {
     const { origem } = req.query;
     if (!origem) return res.json({ error: 'origem obrigatorio.' });
+    const ORIGENS_VALIDAS = ['ecommerce', 'distribuidor'];
+    if (!ORIGENS_VALIDAS.includes(origem)) return res.status(400).json({ error: 'origem inválida.' });
     const filePath = path.join(ESTOQUE_DIR, `${origem}.json`);
     if (!fs.existsSync(filePath)) return res.json({ estoque: {}, nomeArquivo: null });
     const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     res.json({ estoque: raw.estoque, nomeArquivo: raw.nomeArquivo, importadoEm: raw.importadoEm });
   } catch (err) {
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -161,8 +220,8 @@ app.get('/api/pedidos-status', async (req, res) => {
       distribuidor: statusDist.map(r => r.situacao_nome)
     });
   } catch (err) {
-    console.error(err);
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -398,8 +457,8 @@ app.get('/api/stats', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -446,8 +505,8 @@ app.get('/api/data-range', async (req, res) => {
     });
     
   } catch (err) {
-    console.error(err);
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -589,8 +648,8 @@ app.get('/api/pedidos', async (req, res) => {
     res.json({ pedidos, offset: off, pageSize: PAGE, total, hasMore: pedidos.length === PAGE });
 
   } catch (err) {
-    console.error(err);
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -843,8 +902,8 @@ app.get('/api/notas', async (req, res) => {
     res.json({ notas, offset: off, pageSize: PAGE, total, hasMore: notas.length === PAGE });
 
   } catch (err) {
-    console.error(err);
-    res.json({ error: err.message });
+    console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
 
@@ -877,20 +936,39 @@ app.get('/api/produtos-lista', async (req, res) => {
     }));
     const produtos = Object.values(prodMap).sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
     res.json({ produtos, total: produtos.length });
-  } catch(err) { res.json({ error: err.message }); }
+  } catch(err) { console.error('[server]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' }); }
 });
 
 // ── /api/produtos ─────────────────────────────────────────
+// Domínios permitidos para fetch de XML (whitelist SSRF)
+const ALLOWED_XML_DOMAINS = ['cdn.bling.com.br', 's3.amazonaws.com', 'bling.com.br', 'storage.googleapis.com'];
+
+function validateXmlUrl(xmlUrl) {
+  let parsed;
+  try { parsed = new URL(xmlUrl); } catch { return { error: 'URL inválida.', status: 400 }; }
+  if (parsed.protocol !== 'https:') return { error: 'Apenas HTTPS permitido.', status: 400 };
+  const host = parsed.hostname;
+  const allowed = ALLOWED_XML_DOMAINS.some(d => host === d || host.endsWith('.' + d));
+  if (!allowed) return { error: 'Domínio não permitido.', status: 403 };
+  return null;
+}
+
 app.get('/api/produtos', async (req, res) => {
   const { xmlUrl } = req.query;
   if (!xmlUrl) return res.json({ error: 'xmlUrl obrigatorio.' });
+  const urlErr = validateXmlUrl(xmlUrl);
+  if (urlErr) return res.status(urlErr.status).json({ error: urlErr.error });
   try {
     const fetch = (await import('node-fetch')).default;
     const resp  = await fetch(xmlUrl, { timeout: 15000 });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const produtos = parseXmlProdutos(await resp.text());
     res.json({ produtos, total: produtos.length });
-  } catch (err) { res.json({ error: err.message }); }
+  } catch (err) {
+    console.error('[api/produtos]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
 });
 
 // ── Helpers ───────────────────────────────────────────────
