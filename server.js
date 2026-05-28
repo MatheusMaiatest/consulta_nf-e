@@ -48,7 +48,20 @@ function nomeTpag(cod) {
 }
 
 // ── Segurança: Helmet + CORS + Rate Limiting ─────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      styleSrc:    ["'self'", "'unsafe-inline'"],
+      imgSrc:      ["'self'", "data:", "https:"],
+      connectSrc:  ["'self'"],
+      fontSrc:     ["'self'", "https:"],
+      objectSrc:   ["'none'"],
+      frameSrc:    ["'none'"],
+    }
+  }
+}));
 
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'http://localhost:3001';
 app.use(cors({ origin: allowedOrigin, methods: ['GET', 'POST'] }));
