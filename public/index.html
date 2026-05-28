@@ -847,19 +847,12 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
   // -- Função de filtro (definida ANTES dos event listeners) --
+  // Será sobrescrita mais abaixo com a lógica completa de filtros
   var _lastFilterKey = '';
   function applyFilters(){
-    var key = activeSearch + '|' + Array.from(activeOrigens).sort().join(',') + '|' + (typeof _activeCupom !== 'undefined' ? _activeCupom : '') + '|' + (typeof _activePag !== 'undefined' ? Array.from(_activePag||[]).sort().join(',') : '');
-    if(key === _lastFilterKey && filteredNotas.length > 0){
-      console.log('[Filter] Cache hit — sem re-render');
-      return;
-    }
-    _lastFilterKey = key;
-    console.log('[Filter] Aplicando filtros em '+allNotas.length+' notas...');
-    var t0 = Date.now();
-    G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
+    // Versão base — será sobrescrita. Apenas renderiza.
+    console.log('[Filter] applyFilters base chamada (sera sobrescrita)');
     renderCards();
-    console.log('[Filter] Render concluido em '+(Date.now()-t0)+'ms | '+filteredNotas.length+' notas filtradas');
   }
 
   // -- Origem toggle ------------------------------------------
@@ -1606,6 +1599,8 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   var _applyFiltersBase = applyFilters;
   applyFilters = function(){
     var temFex = Object.keys(_fexSel).some(function(k){ return _fexSel[k].size > 0; });
+    var t0 = Date.now();
+    console.log('[Filter] Aplicando filtros em '+allNotas.length+' notas...');
 
     filteredNotas = allNotas.filter(function(n){
       // Filtro origem - se NENHUM ativo (size=0), mostra TODOS
@@ -1630,6 +1625,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
 
     G('rcount').textContent = filteredNotas.length + ' nota' + (filteredNotas.length !== 1 ? 's' : '');
     renderCards();
+    console.log('[Filter] Concluido em '+(Date.now()-t0)+'ms | '+filteredNotas.length+' notas filtradas de '+allNotas.length);
   };
 
   // -- FILTRO POR PRODUTOS ------------------------------------
