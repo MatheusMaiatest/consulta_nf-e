@@ -9,7 +9,7 @@ const rateLimit    = require('express-rate-limit');
 const crypto       = require('crypto');
 
 // ── Validação de variáveis de ambiente obrigatórias ──────────
-const REQUIRED_ENV = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASS', 'DB_NAME', 'API_KEY'];
+const REQUIRED_ENV = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASS', 'DB_NAME', 'API_KEY', 'ALLOWED_ORIGIN'];
 const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
 if (missingEnv.length > 0) {
   console.error('[STARTUP] Variáveis de ambiente obrigatórias não definidas:', missingEnv.join(', '));
@@ -244,6 +244,9 @@ app.post('/api/pcp-pedidos', async (req, res) => {
   const { status, from, to } = req.body;
   if (!status || !Array.isArray(status) || status.length === 0) {
     return res.json({ error: 'Status obrigatório (array).' });
+  }
+  if (status.length > 50) {
+    return res.status(400).json({ error: 'Máximo de 50 status por consulta.' });
   }
   if (!from || !to) {
     return res.json({ error: 'Período obrigatório (from e to).' });
@@ -935,7 +938,10 @@ app.get('/api/produtos-lista', async (req, res) => {
       'SELECT xml FROM `bling_nfe_saida_detalhes_distribuicao` WHERE dataemissao BETWEEN ? AND ? AND xml IS NOT NULL AND xml != ""', [d1, d2]
     );
     conn.release();
-    const urls = [...rowsE, ...rowsD].map(r => r.xml).filter(Boolean).slice(0, 20);
+    const urls = [...rowsE, ...rowsD]
+      .map(r => r.xml)
+      .filter(url => url && !validateXmlUrl(url))  // só passa se URL for válida e domínio permitido
+      .slice(0, 20);
     const fetch = (await import('node-fetch')).default;
     const prodMap = {};
     await Promise.all(urls.map(async url => {
