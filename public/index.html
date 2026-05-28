@@ -805,6 +805,17 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   <script>// -- Estado global ------------------------------------------
   var allNotas=[], filteredNotas=[], activeSearch='', activeOrigens=new Set(['ecommerce','distribuidor']);
   var _filtroCupom = { com: true, sem: true };  // Filtro de cupom
+
+  // Verifica se uma nota passa pelos filtros ativos (usado no append incremental)
+  function passaFiltro(n){
+    if(activeOrigens.size > 0 && !activeOrigens.has(n.origem)) return false;
+    if(activeSearch){
+      var h = [n.cliente,n.numero,n.cpf,n.transportadora,n.cidade].join(' ').toLowerCase();
+      if(h.indexOf(activeSearch) < 0) return false;
+    }
+    return true;
+  }
+
   
   // Estado global PEDIDOS
   var allPedidos=[], filteredPedidos=[], activeSearchPed='', activeOrigensPed=new Set(['ecommerce','distribuidor']);
@@ -1014,7 +1025,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     G('dtToPed').value = t;
     setTimeout(function(){ buscarPedidos(); }, 200);
   }
-
   async function buscarPagina(){
     if(!_buscarAtivo) return;
     try{
@@ -1028,29 +1038,59 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
       var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
       setStatus('Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
-      console.log('[NF] Pagina recebida: '+novas.length+' notas | total acumulado: '+allNotas.length);
+      console.log('[NF] Pagina recebida: '+novas.length+' | acumulado: '+allNotas.length);
+
+      // Renderizar SEMPRE na primeira pagina para mostrar dados imediatamente
+      // Nas demais, apenas adicionar ao _renderList sem reconstruir tudo
+      if(_buscarOffset === 0){
+        console.log('[NF] Primeira pagina — render imediato');
+        _lastFilterKey = ''; // forcar render
+        applyFilters();
+      } else {
+        // Adicionar novas notas ao _renderList sem re-renderizar do zero
+        appendNotasAoRender(novas);
+      }
+
       if(d.hasMore){
         _buscarOffset+=novas.length;
-        // Renderizar a cada 2 páginas para não travar o browser
-        if(_buscarOffset % (600*2) === 0){
-          console.log('[NF] Render intermediario em '+allNotas.length+' notas');
-          applyFilters();
-        }
         buscarPagina();
       } else {
-        console.log('[NF] Carregamento completo: '+allNotas.length+' notas. Renderizando...');
+        console.log('[NF] Carregamento completo: '+allNotas.length+' notas');
         loading(false);
         _buscarAtivo=false;
-        applyFilters();
         setStatus(allNotas.length+' notas carregadas.');
         G('count-nf').textContent = '(' + allNotas.length + ')';
-        console.log('[NF] Render concluido');
       }
     }catch(e){
       console.error('[NF] Erro na busca:', e);
       setStatus(e.message,'err');
       loading(false); _buscarAtivo=false;
     }
+  }
+
+  // Adiciona novas notas ao render sem reconstruir o grid inteiro
+  function appendNotasAoRender(novas){
+    var cols = getCols();
+    var grp  = document.querySelector('input[name=grp]:checked').value||'nf';
+    // Filtrar as novas notas com os filtros ativos
+    var novasFiltradas = novas.filter(function(n){
+      return passaFiltro(n);
+    });
+    if(novasFiltradas.length === 0) return;
+    // Adicionar ao array filtrado
+    filteredNotas = filteredNotas.concat(novasFiltradas);
+    G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
+    // Adicionar ao _renderList e ao grid diretamente
+    var grid = G('grid');
+    var sentinel = grid.lastElementChild;
+    var frag = document.createDocumentFragment();
+    novasFiltradas.forEach(function(n){
+      _renderList.push({type:'card',nota:n});
+      frag.appendChild(buildCard(n, cols));
+    });
+    if(sentinel) grid.insertBefore(frag, sentinel);
+    else grid.appendChild(frag);
+    console.log('[NF] Append: '+novasFiltradas.length+' cards adicionados | total grid: '+_renderList.length);
   }
 
   var _searchTimer=null;
