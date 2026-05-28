@@ -838,12 +838,17 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   // -- Função de filtro (definida ANTES dos event listeners) --
   var _lastFilterKey = '';
   function applyFilters(){
-    // Cache: evita re-render se filtros não mudaram
     var key = activeSearch + '|' + Array.from(activeOrigens).sort().join(',') + '|' + (typeof _activeCupom !== 'undefined' ? _activeCupom : '') + '|' + (typeof _activePag !== 'undefined' ? Array.from(_activePag||[]).sort().join(',') : '');
-    if(key === _lastFilterKey && filteredNotas.length > 0) return;
+    if(key === _lastFilterKey && filteredNotas.length > 0){
+      console.log('[Filter] Cache hit — sem re-render');
+      return;
+    }
     _lastFilterKey = key;
+    console.log('[Filter] Aplicando filtros em '+allNotas.length+' notas...');
+    var t0 = Date.now();
     G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
     renderCards();
+    console.log('[Filter] Render concluido em '+(Date.now()-t0)+'ms | '+filteredNotas.length+' notas filtradas');
   }
 
   // -- Origem toggle ------------------------------------------
@@ -1014,27 +1019,36 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     if(!_buscarAtivo) return;
     try{
       var url=API_BASE+'/api/notas?from='+_buscarFrom+'&to='+_buscarTo+'&offset='+_buscarOffset;
+      console.log('[NF] Buscando pagina offset='+_buscarOffset);
       var resp=await fetch(url);
       var d=await resp.json();
-      if(d.error){setStatus('⏳ '+d.error,'err');loading(false);_buscarAtivo=false;return;}
+      if(d.error){setStatus('Erro: '+d.error,'err');loading(false);_buscarAtivo=false;return;}
       var novas=d.notas||[];
       allNotas=allNotas.concat(novas);
       if(_buscarOffset===0 && d.total>0) _buscarTotal=d.total;
       var pct=_buscarTotal>0?Math.round(allNotas.length/_buscarTotal*100):0;
-      setStatus('⏳ Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
-      applyFilters();
+      setStatus('Carregando... '+allNotas.length+(_buscarTotal>0?' / '+_buscarTotal:'')+' notas ('+pct+'%)');
+      console.log('[NF] Pagina recebida: '+novas.length+' notas | total acumulado: '+allNotas.length);
       if(d.hasMore){
         _buscarOffset+=novas.length;
+        // Renderizar a cada 2 páginas para não travar o browser
+        if(_buscarOffset % (600*2) === 0){
+          console.log('[NF] Render intermediario em '+allNotas.length+' notas');
+          applyFilters();
+        }
         buscarPagina();
       } else {
+        console.log('[NF] Carregamento completo: '+allNotas.length+' notas. Renderizando...');
         loading(false);
         _buscarAtivo=false;
-        setStatus('⏳ '+allNotas.length+' notas carregadas.');
-        // Atualizar contador no botão
+        applyFilters();
+        setStatus(allNotas.length+' notas carregadas.');
         G('count-nf').textContent = '(' + allNotas.length + ')';
+        console.log('[NF] Render concluido');
       }
     }catch(e){
-      setStatus('⏳ '+e.message,'err');
+      console.error('[NF] Erro na busca:', e);
+      setStatus(e.message,'err');
       loading(false); _buscarAtivo=false;
     }
   }
@@ -1056,6 +1070,8 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   var _renderList=[], _renderIdx=0, _renderBatch=120, _renderObs=null;
 
   function renderCards(){
+    console.log('[Render] renderCards() iniciado | filteredNotas:', filteredNotas.length);
+    var t0 = Date.now();
     var grp=document.querySelector('input[name=grp]:checked').value||'nf';
     var cols=getCols();
     var grid=G('grid');
@@ -1087,11 +1103,13 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       if(entries[0].isIntersecting) renderLote(cols, grid);
     },{rootMargin:'600px'});
     _renderObs.observe(sentinel);
+    console.log('[Render] renderCards() setup concluido em '+(Date.now()-t0)+'ms | lista:', _renderList.length, 'itens');
   }
 
 
   function renderLote(cols, grid){
     var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
+    console.log('[Render] renderLote: '+_renderIdx+' -> '+fim+' / '+_renderList.length);
     var frag=document.createDocumentFragment();
     for(var i=_renderIdx;i<fim;i++){
       var item=_renderList[i];
