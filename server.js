@@ -51,14 +51,15 @@ function nomeTpag(cod) {
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-      styleSrc:    ["'self'", "'unsafe-inline'"],
-      imgSrc:      ["'self'", "data:", "https:"],
-      connectSrc:  ["'self'"],
-      fontSrc:     ["'self'", "https:"],
-      objectSrc:   ["'none'"],
-      frameSrc:    ["'none'"],
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc:      ["'self'", "'unsafe-inline'"],
+      imgSrc:        ["'self'", "data:", "https:"],
+      connectSrc:    ["'self'", "https://cdn.jsdelivr.net"],
+      fontSrc:       ["'self'", "https:"],
+      objectSrc:     ["'none'"],
+      frameSrc:      ["'none'"],
     }
   }
 }));
