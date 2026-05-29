@@ -1833,8 +1833,24 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   var currentNota = null;
 
   var _abrirModalOrig = abrirModal;
-  abrirModal = function(n){
+  abrirModal = async function(n){
     currentNota = n;
+    // Se os detalhes completos ainda não foram carregados, buscar agora
+    if(!n._detalhesCarregados){
+      try{
+        console.log('[Modal] Carregando detalhes da nota', n.id);
+        var r = await fetch(API_BASE+'/api/nota-detalhe/'+n.id+'?origem='+n.origem);
+        var d = await r.json();
+        if(d.nota){
+          // Mesclar dados completos no objeto da nota
+          Object.assign(n, d.nota);
+          n._detalhesCarregados = true;
+          console.log('[Modal] Detalhes carregados');
+        }
+      } catch(e){
+        console.warn('[Modal] Erro ao carregar detalhes:', e.message);
+      }
+    }
     _abrirModalOrig(n);
   };
 
