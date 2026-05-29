@@ -671,6 +671,8 @@ app.get('/api/pedidos', async (req, res) => {
 });
 
 // ── /api/notas ────────────────────────────────────────────
+// Modo FAST: retorna apenas campos essenciais para o card
+// Dados completos (Tray, pesos, pagamentos) são buscados em /api/nota-detalhe/:id
 app.get('/api/notas', async (req, res) => {
   const { from, to, offset = 0 } = req.query;
   if (!from || !to) return res.json({ error: 'Parametros from e to obrigatorios.' });
@@ -683,7 +685,7 @@ app.get('/api/notas', async (req, res) => {
     const conn = await pool.getConnection();
 
     // ── Contagens em paralelo ─────────────────────────────
-    const countPromises = [
+    const [total, countEco] = await Promise.all([
       off === 0
         ? conn.execute(
             `SELECT (SELECT COUNT(*) FROM \`bling_nfe_saida_detalhes_ecommerce\` WHERE dataemissao BETWEEN ? AND ?) +
@@ -695,9 +697,7 @@ app.get('/api/notas', async (req, res) => {
         `SELECT COUNT(*) AS countEco FROM \`bling_nfe_saida_detalhes_ecommerce\` WHERE dataemissao BETWEEN ? AND ?`,
         [d1, d2]
       ).then(([[r]]) => r.countEco).catch(() => 0)
-    ];
-
-    const [total, countEco] = await Promise.all(countPromises);
+    ]);
 
     let offE = 0, limE = 0, offD = 0, limD = 0;
     if (off < countEco) {
@@ -708,7 +708,107 @@ app.get('/api/notas', async (req, res) => {
       offD = off - countEco; limD = PAGE;
     }
 
-    const COLS = `n.id, n.numero, n.serie, n.chaveacesso, n.dataemissao, n.situacao,
+    // ── Apenas campos essenciais para o card ─────────────
+    // Dados completos são carregados sob demanda em /api/nota-detalhe/:id
+    const COLS_FAST = `n.id, n.numero, n.serie, n.dataemissao, n.situacao,
+      n.contato_nome, n.contato_numerodocumento,
+      n.contato_endereco_municipio, n.contato_endereco_uf,
+      n.transporte_transportador_nome,
+      n.x_total_icmstot_vnf,
+      n.x_ide_finnfe,
+      n.linkdanfe, n.linkpdf, n.xml`;
+
+    // ── Queries principais em paralelo ────────────────────
+    const [rowsE, rowsD] = await Promise.all([
+      limE > 0
+        ? conn.execute(
+            `SELECT ${COLS_FAST},
+                    COALESCE(p.numero, '')        AS numeropedido,
+                    COALESCE(p.situacao_nome, '') AS pedido_situacao,
+                    COALESCE(p.numeroloja, '')    AS pedido_numeroloja,
+                    'ecommerce'                   AS origem
+             FROM \`bling_nfe_saida_detalhes_ecommerce\` n
+             LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p
+               ON p.notafiscal_id = n.numero
+             WHERE n.dataemissao BETWEEN ? AND ?
+             ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
+            [d1, d2]
+          ).then(([r]) => r).catch(() => [])
+        : Promise.resolve([]),
+      limD > 0
+        ? conn.execute(
+            `SELECT ${COLS_FAST},
+                    COALESCE(p.numero, '')               AS numeropedido,
+                    COALESCE(p.situacao_nome, '')        AS pedido_situacao,
+                    COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
+                    'distribuidor'                       AS origem
+             FROM \`bling_nfe_saida_detalhes_distribuicao\` n
+             LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p
+               ON p.notafiscal_id = n.numero
+             WHERE n.dataemissao BETWEEN ? AND ?
+             ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
+            [d1, d2]
+          ).then(([r]) => r).catch(() => [])
+        : Promise.resolve([])
+    ]);
+
+    conn.release();
+
+    // Montar notas com apenas campos do card
+    const notas = [...rowsE, ...rowsD].map(r => ({
+      id:            r.id,
+      origem:        r.origem,
+      numero:        r.numero,
+      serie:         r.serie,
+      dataemissao:   r.dataemissao ? new Date(r.dataemissao).toISOString() : null,
+      situacao:      r.situacao,
+      finnfe:        r.x_ide_finnfe || null,
+      cliente:       r.contato_nome,
+      cpf:           r.contato_numerodocumento,
+      cidade:        r.contato_endereco_municipio && r.contato_endereco_uf
+                       ? r.contato_endereco_municipio + '/' + r.contato_endereco_uf
+                       : (r.contato_endereco_municipio || r.contato_endereco_uf || ''),
+      transportadora: r.transporte_transportador_nome,
+      valor:          r.x_total_icmstot_vnf || null,
+      linkdanfe:      r.linkdanfe,
+      linkpdf:        r.linkpdf,
+      xmlUrl:         r.xml,
+      numeropedido:   r.numeropedido || null,
+      pedido_situacao: r.pedido_situacao || null,
+      pedido_numeroloja: r.pedido_numeroloja || null,
+      // Campos completos carregados sob demanda
+      _detalhesCarregados: false
+    }));
+
+    notas.sort((a, b) => {
+      const da = a.dataemissao ? new Date(a.dataemissao).getTime() : 0;
+      const db = b.dataemissao ? new Date(b.dataemissao).getTime() : 0;
+      return db - da;
+    });
+
+    res.json({ notas, offset: off, pageSize: PAGE, total, hasMore: notas.length === PAGE });
+
+  } catch (err) {
+    console.error('[api/notas]', err);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
+// ── /api/nota-detalhe/:id ─────────────────────────────────
+// Carrega dados completos de uma nota específica (chamado ao abrir o modal)
+app.get('/api/nota-detalhe/:id', async (req, res) => {
+  const { id } = req.params;
+  const { origem } = req.query;
+  if (!id || !origem) return res.json({ error: 'id e origem obrigatorios.' });
+  if (!['ecommerce', 'distribuidor'].includes(origem)) return res.status(400).json({ error: 'origem invalida.' });
+
+  const tbl     = origem === 'ecommerce' ? 'ecommerce' : 'distribuicao';
+  const tblPed  = origem === 'ecommerce' ? 'ecommerce' : 'distribuicao';
+
+  try {
+    const conn = await pool.getConnection();
+
+    const COLS_FULL = `n.id, n.numero, n.serie, n.chaveacesso, n.dataemissao, n.situacao,
       n.contato_nome, n.contato_numerodocumento, n.contato_email, n.contato_telefone,
       n.contato_endereco_endereco, n.contato_endereco_numero, n.contato_endereco_bairro,
       n.contato_endereco_municipio, n.contato_endereco_uf, n.contato_endereco_cep,
@@ -720,206 +820,94 @@ app.get('/api/notas', async (req, res) => {
       n.linkdanfe, n.linkpdf, n.xml,
       n.x_ide_finnfe, n.x_infadic_infcpl`;
 
-    // ── Queries principais em paralelo ────────────────────
-    const [rowsE, rowsD] = await Promise.all([
-      limE > 0
-        ? conn.execute(
-            `SELECT ${COLS},
-                    COALESCE(p.numero, '')        AS numeropedido,
-                    COALESCE(p.situacao_nome, '') AS pedido_situacao,
-                    COALESCE(p.numeroloja, '')    AS pedido_numeroloja,
-                    ''                            AS pedido_observacoes,
-                    ''                            AS pedido_observacoesinternas,
-                    'ecommerce'                   AS origem
-             FROM \`bling_nfe_saida_detalhes_ecommerce\` n
-             LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p
-               ON p.notafiscal_id = n.numero OR p.notafiscal_id = n.id
-             WHERE n.dataemissao BETWEEN ? AND ?
-             ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
-            [d1, d2]
-          ).then(([r]) => r).catch(() => [])
-        : Promise.resolve([]),
-      limD > 0
-        ? conn.execute(
-            `SELECT ${COLS},
-                    COALESCE(p.numero, '')               AS numeropedido,
-                    COALESCE(p.situacao_nome, '')        AS pedido_situacao,
-                    COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
-                    COALESCE(p.observacoes, '')          AS pedido_observacoes,
-                    COALESCE(p.observacoesinternas, '')  AS pedido_observacoesinternas,
-                    'distribuidor'                       AS origem
-             FROM \`bling_nfe_saida_detalhes_distribuicao\` n
-             LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p
-               ON p.notafiscal_id = n.numero OR p.notafiscal_id = n.id
-             WHERE n.dataemissao BETWEEN ? AND ?
-             ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
-            [d1, d2]
-          ).then(([r]) => r).catch(() => [])
+    const [[row]] = await conn.execute(
+      `SELECT ${COLS_FULL},
+              COALESCE(p.numero, '')               AS numeropedido,
+              COALESCE(p.situacao_nome, '')        AS pedido_situacao,
+              COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
+              ${origem === 'distribuidor' ? "COALESCE(p.observacoes,'') AS pedido_observacoes, COALESCE(p.observacoesinternas,'') AS pedido_observacoesinternas," : "'' AS pedido_observacoes, '' AS pedido_observacoesinternas,"}
+              '${origem}'                          AS origem
+       FROM \`bling_nfe_saida_detalhes_${tbl}\` n
+       LEFT JOIN \`bling_pedidos_venda_detalhes_${tblPed}\` p
+         ON p.notafiscal_id = n.numero
+       WHERE n.id = ?`,
+      [id]
+    ).catch(() => [null]);
+
+    if (!row) { conn.release(); return res.json({ error: 'Nota nao encontrada.' }); }
+
+    const nota = montarNota(row);
+
+    // Buscar todos os dados complementares em paralelo
+    const ids = [nota.id];
+    const ph  = '?';
+
+    const numeros     = nota.numeropedido ? [nota.numeropedido] : [];
+    const numerosLoja = nota.pedido_numeroloja ? [nota.pedido_numeroloja] : [];
+
+    const [
+      detpagE, detpagD,
+      pesosE, pesosD,
+      trayObs, trayPag,
+      trayObsLoja, trayPagLoja,
+      parcs
+    ] = await Promise.all([
+      conn.execute(`SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag FROM \`bling_nfe_saida_detpag_ecommerce\` WHERE nfe_id = ?`, ids).then(([r]) => r).catch(() => []),
+      conn.execute(`SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag FROM \`bling_nfe_saida_detpag_distribuicao\` WHERE nfe_id = ?`, ids).then(([r]) => r).catch(() => []),
+      conn.execute(`SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol FROM \`bling_nfe_saida_x_transp_vol_ecommerce\` WHERE nfe_id = ?`, ids).then(([r]) => r).catch(() => []),
+      conn.execute(`SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol FROM \`bling_nfe_saida_x_transp_vol_distribuicao\` WHERE nfe_id = ?`, ids).then(([r]) => r).catch(() => []),
+      numeros.length > 0 ? conn.execute(`SELECT order_id, MAX(order_customer_note) AS customer_note FROM \`detalhes_pedidos_ecommerce_tray\` WHERE order_id = ? AND order_customer_note IS NOT NULL GROUP BY order_id`, numeros).then(([r]) => r).catch(() => []) : Promise.resolve([]),
+      numeros.length > 0 ? conn.execute(`SELECT d.order_id, MAX(d.order_installment) AS parcelas, MAX(d.order_interest) AS juros, p.payment_form, p.discount_coupon FROM \`detalhes_pedidos_ecommerce_tray\` d LEFT JOIN \`pedidos_ecommerce_tray\` p ON p.id = d.order_id WHERE d.order_id = ? GROUP BY d.order_id, p.payment_form, p.discount_coupon`, numeros).then(([r]) => r).catch(() => []) : Promise.resolve([]),
+      numerosLoja.length > 0 ? conn.execute(`SELECT order_id, MAX(order_customer_note) AS customer_note FROM \`detalhes_pedidos_ecommerce_tray\` WHERE order_id = ? AND order_customer_note IS NOT NULL GROUP BY order_id`, numerosLoja).then(([r]) => r).catch(() => []) : Promise.resolve([]),
+      numerosLoja.length > 0 ? conn.execute(`SELECT d.order_id, MAX(d.order_installment) AS parcelas, MAX(d.order_interest) AS juros, p.payment_form, p.discount_coupon FROM \`detalhes_pedidos_ecommerce_tray\` d LEFT JOIN \`pedidos_ecommerce_tray\` p ON p.id = d.order_id WHERE d.order_id = ? GROUP BY d.order_id, p.payment_form, p.discount_coupon`, numerosLoja).then(([r]) => r).catch(() => []) : Promise.resolve([]),
+      nota.numeropedido && origem === 'distribuidor'
+        ? conn.execute(`SELECT pv.numero AS pedido_numero, COUNT(pa.parcelas_id) AS qtd_parcelas, GROUP_CONCAT(pa.parcelas_observacoes SEPARATOR ' | ') AS obs_parcelas FROM \`bling_pedidos_venda_detalhes_distribuicao\` pv JOIN \`bling_pedidos_venda_detalhes_parcelas_distribuicao\` pa ON pa.pedido_venda_id = pv.id WHERE pv.numero = ? GROUP BY pv.numero`, [nota.numeropedido]).then(([r]) => r).catch(() => [])
         : Promise.resolve([])
     ]);
 
-    let notas = [...rowsE, ...rowsD].map(r => montarNota(r));
+    conn.release();
 
-    // ── Vínculo 2: notas sem pedido → busca pelo CPF (paralelo) ──
-    const semPedido = notas.filter(n => !n.numeropedido && n.cpf);
-    if (semPedido.length > 0) {
-      const cpfsEco  = [...new Set(semPedido.filter(n => n.origem === 'ecommerce').map(n => n.cpf))];
-      const cpfsDist = [...new Set(semPedido.filter(n => n.origem === 'distribuidor').map(n => n.cpf))];
-
-      const [rowsCpfE, rowsCpfD] = await Promise.all([
-        cpfsEco.length > 0
-          ? conn.execute(
-              `SELECT contato_numerodocumento, numero, situacao_nome, numeroloja, '' AS observacoes, '' AS observacoesinternas
-               FROM \`bling_pedidos_venda_detalhes_ecommerce\`
-               WHERE contato_numerodocumento IN (${cpfsEco.map(() => '?').join(',')})
-                 AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
-               ORDER BY id DESC`, cpfsEco
-            ).then(([r]) => r).catch(() => [])
-          : Promise.resolve([]),
-        cpfsDist.length > 0
-          ? conn.execute(
-              `SELECT contato_numerodocumento, numero, situacao_nome, numeroloja,
-                      COALESCE(observacoes,'') AS observacoes, COALESCE(observacoesinternas,'') AS observacoesinternas
-               FROM \`bling_pedidos_venda_detalhes_distribuicao\`
-               WHERE contato_numerodocumento IN (${cpfsDist.map(() => '?').join(',')})
-                 AND (notafiscal_id IS NULL OR notafiscal_id = '' OR notafiscal_id = '0')
-               ORDER BY id DESC`, cpfsDist
-            ).then(([r]) => r).catch(() => [])
-          : Promise.resolve([])
-      ]);
-
-      const cpfMap = {};
-      [...rowsCpfE, ...rowsCpfD].forEach(r => {
-        if (!cpfMap[r.contato_numerodocumento]) cpfMap[r.contato_numerodocumento] = r;
-      });
-      notas.forEach(n => {
-        if (!n.numeropedido && n.cpf && cpfMap[n.cpf]) {
-          const p = cpfMap[n.cpf];
-          n.numeropedido               = p.numero        || null;
-          n.pedido_situacao            = p.situacao_nome || null;
-          n.pedido_numeroloja          = p.numeroloja    || null;
-          n.pedido_observacoes         = p.observacoes?.trim() || null;
-          n.pedido_observacoesinternas = p.observacoesinternas?.trim() || null;
-        }
-      });
-    }
-
-    // ── Queries secundárias todas em paralelo ─────────────
-    if (notas.length > 0) {
-      const ids      = notas.map(n => n.id);
-      const ph       = ids.map(() => '?').join(',');
-      const notasEco  = notas.filter(n => n.origem === 'ecommerce');
-      const notasDist = notas.filter(n => n.origem === 'distribuidor' && n.numeropedido);
-
-      const numeros     = [...new Set(notasEco.map(n => n.numeropedido).filter(Boolean))];
-      const numerosLoja = [...new Set(notasEco.map(n => n.pedido_numeroloja).filter(Boolean))];
-      const numPedidos  = [...new Set(notasDist.map(n => n.numeropedido).filter(Boolean))];
-
-      // Todas as queries secundárias em paralelo
-      const [
-        detpagE, detpagD,
-        pesosE, pesosD,
-        trayObs, trayPag,
-        trayObsLoja, trayPagLoja,
-        parcs
-      ] = await Promise.all([
-        // Formas de pagamento
-        conn.execute(`SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag FROM \`bling_nfe_saida_detpag_ecommerce\` WHERE nfe_id IN (${ph})`, ids).then(([r]) => r).catch(() => []),
-        conn.execute(`SELECT nfe_id, x_pag_detpag_tpag, x_pag_detpag_vpag FROM \`bling_nfe_saida_detpag_distribuicao\` WHERE nfe_id IN (${ph})`, ids).then(([r]) => r).catch(() => []),
-        // Pesos
-        conn.execute(`SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol FROM \`bling_nfe_saida_x_transp_vol_ecommerce\` WHERE nfe_id IN (${ph})`, ids).then(([r]) => r).catch(() => []),
-        conn.execute(`SELECT nfe_id, x_transp_vol_pesob, x_transp_vol_pesol, x_transp_vol_qvol FROM \`bling_nfe_saida_x_transp_vol_distribuicao\` WHERE nfe_id IN (${ph})`, ids).then(([r]) => r).catch(() => []),
-        // Tray obs (por numero pedido)
-        numeros.length > 0
-          ? conn.execute(`SELECT order_id, MAX(order_customer_note) AS customer_note FROM \`detalhes_pedidos_ecommerce_tray\` WHERE order_id IN (${numeros.map(() => '?').join(',')}) AND order_customer_note IS NOT NULL AND order_customer_note != '' GROUP BY order_id`, numeros).then(([r]) => r).catch(() => [])
-          : Promise.resolve([]),
-        // Tray pag (por numero pedido)
-        numeros.length > 0
-          ? conn.execute(`SELECT d.order_id, MAX(d.order_installment) AS parcelas, MAX(d.order_interest) AS juros, p.payment_form, p.discount_coupon FROM \`detalhes_pedidos_ecommerce_tray\` d LEFT JOIN \`pedidos_ecommerce_tray\` p ON p.id = d.order_id WHERE d.order_id IN (${numeros.map(() => '?').join(',')}) GROUP BY d.order_id, p.payment_form, p.discount_coupon`, numeros).then(([r]) => r).catch(() => [])
-          : Promise.resolve([]),
-        // Tray obs (por numero loja)
-        numerosLoja.length > 0
-          ? conn.execute(`SELECT order_id, MAX(order_customer_note) AS customer_note FROM \`detalhes_pedidos_ecommerce_tray\` WHERE order_id IN (${numerosLoja.map(() => '?').join(',')}) AND order_customer_note IS NOT NULL AND order_customer_note != '' GROUP BY order_id`, numerosLoja).then(([r]) => r).catch(() => [])
-          : Promise.resolve([]),
-        // Tray pag (por numero loja)
-        numerosLoja.length > 0
-          ? conn.execute(`SELECT d.order_id, MAX(d.order_installment) AS parcelas, MAX(d.order_interest) AS juros, p.payment_form, p.discount_coupon FROM \`detalhes_pedidos_ecommerce_tray\` d LEFT JOIN \`pedidos_ecommerce_tray\` p ON p.id = d.order_id WHERE d.order_id IN (${numerosLoja.map(() => '?').join(',')}) GROUP BY d.order_id, p.payment_form, p.discount_coupon`, numerosLoja).then(([r]) => r).catch(() => [])
-          : Promise.resolve([]),
-        // Parcelas distribuidor
-        numPedidos.length > 0
-          ? conn.execute(`SELECT pv.numero AS pedido_numero, COUNT(pa.parcelas_id) AS qtd_parcelas, GROUP_CONCAT(pa.parcelas_observacoes SEPARATOR ' | ') AS obs_parcelas FROM \`bling_pedidos_venda_detalhes_distribuicao\` pv JOIN \`bling_pedidos_venda_detalhes_parcelas_distribuicao\` pa ON pa.pedido_venda_id = pv.id WHERE pv.numero IN (${numPedidos.map(() => '?').join(',')}) GROUP BY pv.numero`, numPedidos).then(([r]) => r).catch(() => [])
-          : Promise.resolve([])
-      ]);
-
-      conn.release();
-
-      // Montar mapas
-      const pagMap = {};
-      [...detpagE, ...detpagD].forEach(p => {
-        if (!pagMap[p.nfe_id]) pagMap[p.nfe_id] = [];
-        pagMap[p.nfe_id].push({ tipo: nomeTpag(p.x_pag_detpag_tpag), valor: p.x_pag_detpag_vpag });
-      });
-
-      const pesoMap = {};
-      [...pesosE, ...pesosD].forEach(p => {
-        pesoMap[p.nfe_id] = { pesoBruto: p.x_transp_vol_pesob, pesoLiquido: p.x_transp_vol_pesol, qtdVolumes: p.x_transp_vol_qvol };
-      });
-
-      const trayMap = {};
-      const mergeTray = (rows, isObs) => rows.forEach(r => {
-        const k = String(r.order_id);
-        if (!trayMap[k]) trayMap[k] = {};
-        if (isObs) { trayMap[k].customer_note = r.customer_note; }
-        else {
-          trayMap[k].parcelas = r.parcelas; trayMap[k].juros = r.juros;
-          trayMap[k].payment_form = r.payment_form; trayMap[k].discount_coupon = r.discount_coupon;
-        }
-      });
-      mergeTray(trayObs, true); mergeTray(trayPag, false);
-      mergeTray(trayObsLoja, true); mergeTray(trayPagLoja, false);
-
-      const parcMap = {};
-      parcs.forEach(p => { parcMap[p.pedido_numero] = p; });
-
-      // Aplicar nos objetos
-      notas.forEach(n => {
-        n.formas_pagamento = pagMap[n.id] || [];
-        const pm = pesoMap[n.id];
-        if (pm) { n.pesoBruto = pm.pesoBruto; n.pesoLiquido = pm.pesoLiquido; n.qtdVolumes = pm.qtdVolumes; }
-      });
-
-      notasEco.forEach(n => {
-        const t = trayMap[String(n.numeropedido)] || trayMap[String(n.pedido_numeroloja)] || {};
-        n.tray_customer_note = t.customer_note?.trim() || null;
-        n.tray_payment_form  = t.payment_form  || null;
-        n.tray_parcelas      = t.parcelas      || null;
-        n.tray_juros         = t.juros         || null;
-        if (t.discount_coupon?.trim()) {
-          const parts = t.discount_coupon.split('/');
-          n.tray_cupom_nome  = parts[0]?.trim() || t.discount_coupon.trim();
-          n.tray_cupom_valor = parts[1] ? parseFloat(parts[1]) : null;
-        } else { n.tray_cupom_nome = null; n.tray_cupom_valor = null; }
-      });
-
-      notasDist.forEach(n => {
-        const p = parcMap[n.numeropedido];
-        if (p) { n.dist_qtd_parcelas = p.qtd_parcelas || null; n.dist_obs_parcelas = p.obs_parcelas || null; }
-      });
-
-    } else {
-      conn.release();
-    }
-
-    notas.sort((a, b) => {
-      const da = a.dataemissao ? new Date(a.dataemissao).getTime() : 0;
-      const db = b.dataemissao ? new Date(b.dataemissao).getTime() : 0;
-      return db - da;
+    // Aplicar dados complementares
+    const pagMap = {};
+    [...detpagE, ...detpagD].forEach(p => {
+      if (!pagMap[p.nfe_id]) pagMap[p.nfe_id] = [];
+      pagMap[p.nfe_id].push({ tipo: nomeTpag(p.x_pag_detpag_tpag), valor: p.x_pag_detpag_vpag });
     });
+    nota.formas_pagamento = pagMap[nota.id] || [];
 
-    res.json({ notas, offset: off, pageSize: PAGE, total, hasMore: notas.length === PAGE });
+    const pm = [...pesosE, ...pesosD].find(p => p.nfe_id === nota.id);
+    if (pm) { nota.pesoBruto = pm.x_transp_vol_pesob; nota.pesoLiquido = pm.x_transp_vol_pesol; nota.qtdVolumes = pm.x_transp_vol_qvol; }
+
+    const trayMap = {};
+    const mergeTray = (rows, isObs) => rows.forEach(r => {
+      const k = String(r.order_id);
+      if (!trayMap[k]) trayMap[k] = {};
+      if (isObs) trayMap[k].customer_note = r.customer_note;
+      else { trayMap[k].parcelas = r.parcelas; trayMap[k].juros = r.juros; trayMap[k].payment_form = r.payment_form; trayMap[k].discount_coupon = r.discount_coupon; }
+    });
+    mergeTray(trayObs, true); mergeTray(trayPag, false);
+    mergeTray(trayObsLoja, true); mergeTray(trayPagLoja, false);
+
+    const t = trayMap[String(nota.numeropedido)] || trayMap[String(nota.pedido_numeroloja)] || {};
+    nota.tray_customer_note = t.customer_note?.trim() || null;
+    nota.tray_payment_form  = t.payment_form  || null;
+    nota.tray_parcelas      = t.parcelas      || null;
+    nota.tray_juros         = t.juros         || null;
+    if (t.discount_coupon?.trim()) {
+      const parts = t.discount_coupon.split('/');
+      nota.tray_cupom_nome  = parts[0]?.trim() || t.discount_coupon.trim();
+      nota.tray_cupom_valor = parts[1] ? parseFloat(parts[1]) : null;
+    } else { nota.tray_cupom_nome = null; nota.tray_cupom_valor = null; }
+
+    if (parcs.length > 0) {
+      nota.dist_qtd_parcelas = parcs[0].qtd_parcelas || null;
+      nota.dist_obs_parcelas = parcs[0].obs_parcelas || null;
+    }
+
+    res.json({ nota });
 
   } catch (err) {
-    console.error('[server]', err);
+    console.error('[api/nota-detalhe]', err);
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
