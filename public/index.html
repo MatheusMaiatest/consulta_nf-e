@@ -2638,13 +2638,23 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     var proj=brazilProjection(W,H);
     var path=d3.geoPath().projection(proj);
     var dark=document.documentElement.getAttribute('data-theme')==='dark';
-    var colorScale=d3.scaleSequential().domain([0,maxC]).interpolator(dark?d3.interpolate('#1e2130','#5c6bc0'):d3.interpolate('#dde3ff','#5c6bc0'));
+    
+    // Escala de potência para melhor contraste (expoente 0.5 = raiz quadrada)
+    var colorScale = d3.scalePow()
+      .exponent(0.5)
+      .domain([0, maxC])
+      .range(dark 
+        ? ['#0d1117', '#5c6bc0']  // Modo escuro: preto mais escuro até roxo
+        : ['#f0f2f8', '#3949ab']); // Modo claro: cinza claro até roxo escuro
+    
     var svg=d3.select('#svg-map-nf');
     svg.selectAll('*').remove();
     var g=svg.append('g');
     g.selectAll('path').data(GEO_DATA.features).enter().append('path')
       .attr('class','state-path').attr('d',path)
       .attr('fill',function(d){ return colorScale(ufCount[getSigla(d)]||0); })
+      .attr('stroke', dark ? '#2a2d3e' : '#cbd5e1')
+      .attr('stroke-width', '0.5')
       .on('mouseenter',function(event,d){ showMapTip(event,getSigla(d)+': '+(ufCount[getSigla(d)]||0)+' NFs'); })
       .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
       .on('click',function(event,d){
@@ -2656,7 +2666,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     g.selectAll('text').data(GEO_DATA.features).enter().append('text')
       .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
       .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
-      .attr('fill',function(d){ var s=getSigla(d),v=ufCount[s]||0; return (v/maxC)>.4?'#fff':(dark?'#c9d1d9':'#334155'); })
+      .attr('fill',function(d){ var s=getSigla(d),v=ufCount[s]||0; return (v/maxC)>.35?'#fff':(dark?'#9fa8da':'#334155'); })
       .text(function(d){ return getSigla(d); });
     var el=document.getElementById('map-nf-loading'); if(el) el.classList.add('hidden');
   }
@@ -2730,13 +2740,23 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     var proj=brazilProjection(W,H);
     var path=d3.geoPath().projection(proj);
     var dark=document.documentElement.getAttribute('data-theme')==='dark';
-    var colorScale=d3.scaleSequential().domain([0,maxF]).interpolator(dark?d3.interpolate('#1e2130','#42a5f5'):d3.interpolate('#dde3ff','#1565c0'));
+    
+    // Escala de potência para melhor contraste
+    var colorScale = d3.scalePow()
+      .exponent(0.5)
+      .domain([0, maxF])
+      .range(dark 
+        ? ['#0d1117', '#42a5f5']  // Modo escuro: preto mais escuro até azul
+        : ['#f0f2f8', '#1565c0']); // Modo claro: cinza claro até azul escuro
+    
     var svg=d3.select('#svg-map-vendas');
     svg.selectAll('*').remove();
     var g=svg.append('g');
     g.selectAll('path').data(GEO_DATA.features).enter().append('path')
       .attr('class','state-path').attr('d',path)
       .attr('fill',function(d){ return colorScale(ufFat[getSigla(d)]||0); })
+      .attr('stroke', dark ? '#2a2d3e' : '#cbd5e1')
+      .attr('stroke-width', '0.5')
       .on('mouseenter',function(event,d){ var s=getSigla(d); showMapTip(event,s+': '+fmtBRL(ufFat[s]||0)); })
       .on('mousemove',moveMapTip).on('mouseleave',hideMapTip)
       .on('click',function(event,d){
@@ -2939,11 +2959,14 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
     var maxFat   = Math.max.apply(null, Object.values(cityFat).concat([1]));
     var useVal   = mode === 'vendas';
-    var colorScale = d3.scaleSequential()
+    
+    // Escala de potência para melhor contraste entre cidades
+    var colorScale = d3.scalePow()
+      .exponent(0.5)
       .domain([0, useVal ? maxFat : maxCount])
-      .interpolator(dark
-        ? d3.interpolate('#1e2130', useVal ? '#42a5f5' : '#5c6bc0')
-        : d3.interpolate('#dde3ff', useVal ? '#1565c0' : '#3949ab'));
+      .range(dark
+        ? ['#0d1117', useVal ? '#42a5f5' : '#5c6bc0']  // Modo escuro
+        : ['#f0f2f8', useVal ? '#1565c0' : '#3949ab']); // Modo claro
 
     var svgEl = document.getElementById(svgDrillId);
     var W=500, H=450;
@@ -2966,8 +2989,10 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         .datum(feature)
         .attr('class','mun-path'+(hasData?' has-data':''))
         .attr('d',path)
-        .attr('fill', hasData ? colorScale(val) : (dark?'#1c2128':'#edf2f7'))
-        .attr('opacity', hasData ? 1 : 0.6)
+        .attr('fill', hasData ? colorScale(val) : (dark?'#161922':'#edf2f7'))
+        .attr('stroke', dark ? '#2a2d3e' : '#cbd5e1')
+        .attr('stroke-width', '0.4')
+        .attr('opacity', hasData ? 1 : 0.5)
         .on('mouseenter',function(event){
           var label = feature.properties.name||'';
           if(hasData){
