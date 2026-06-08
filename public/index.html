@@ -626,6 +626,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         <div class="dash-card-title"><span>🗺️</span> NFs por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-nf" viewBox="0 0 460 400"></svg></div>
         <div id="map-nf-loading" class="dash-empty">Carregando mapa...</div>
+        <div class="legend-row" id="map-nf-legend" style="margin-top:8px;justify-content:center"></div>
         <div id="detail-nf" class="drill-panel">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <strong id="detail-nf-flag" style="font-size:1.1rem"></strong>
@@ -698,6 +699,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         <div class="dash-card-title"><span>🗺️</span> Faturamento por Estado</div>
         <div class="map-svg-wrap"><svg id="svg-map-vendas" viewBox="0 0 460 400"></svg></div>
         <div id="map-vendas-loading" class="dash-empty">Carregando mapa...</div>
+        <div class="legend-row" id="map-vendas-legend" style="margin-top:8px;justify-content:center"></div>
       </div>
       <div class="dash-card">
         <div class="dash-card-title"><span>📋</span> Situação dos Pedidos</div>
@@ -2136,6 +2138,91 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   var UF_IBGE = {AC:'12',AL:'27',AM:'13',AP:'16',BA:'29',CE:'23',DF:'53',ES:'32',GO:'52',MA:'21',MG:'31',MS:'50',MT:'51',PA:'15',PB:'25',PE:'26',PI:'22',PR:'41',RJ:'33',RN:'24',RO:'11',RR:'14',RS:'43',SC:'42',SE:'28',SP:'35',TO:'17'};
   var STATE_GEO_CACHE = {};
   var _tipEl = null;
+  
+  // Função para calcular faixas sensíveis baseadas na distribuição de valores
+  function calcularFaixas(valores, numFaixas) {
+    if (valores.length === 0) return [];
+    var sorted = valores.slice().sort(function(a,b){ return a - b; });
+    var min = sorted[0] || 0;
+    var max = sorted[sorted.length - 1] || 1;
+    
+    // Se houver pouca variação, usar faixas lineares
+    if (max - min < numFaixas) {
+      var faixas = [];
+      var step = Math.max(1, Math.ceil((max - min) / numFaixas));
+      for (var i = 0; i < numFaixas; i++) {
+        var lo = min + i * step;
+        var hi = i === numFaixas - 1 ? max : min + (i + 1) * step - 1;
+        if (lo <= max) faixas.push({lo: lo, hi: hi});
+      }
+      return faixas;
+    }
+    
+    // Usar percentis para criar faixas sensíveis à distribuição
+    var faixas = [];
+    var percentis = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
+    for (var i = 0; i < percentis.length - 1; i++) {
+      var idxLo = Math.floor(percentis[i] * (sorted.length - 1));
+      var idxHi = Math.floor(percentis[i + 1] * (sorted.length - 1));
+      var lo = sorted[idxLo];
+      var hi = sorted[idxHi];
+      if (lo !== hi || i === 0) {
+        faixas.push({lo: lo, hi: i === percentis.length - 2 ? max : hi});
+      }
+    }
+    return faixas;
+  }
+  
+  // Função para obter cor na escala azul (frio) -> amarelo -> vermelho (quente)
+  function getHeatColor(value, min, max, dark) {
+    if (max === min) return dark ? '#5c6bc0' : '#3949ab';
+    var normalized = (value - min) / (max - min);
+    
+    // Escala de cores: azul -> ciano -> verde -> amarelo -> laranja -> vermelho
+    var colors = dark 
+      ? ['#1e3a8a', '#0ea5e9', '#10b981', '#fbbf24', '#f97316', '#dc2626'] // Modo escuro
+      : ['#3b82f6', '#06b6d4', '#22c55e', '#eab308', '#f97316', '#dc2626']; // Modo claro
+    
+    var idx = normalized * (colors.length - 1);
+    var i = Math.floor(idx);
+    var f = idx - i;
+    
+    if (i >= colors.length - 1) return colors[colors.length - 1];
+    
+    // Interpolar entre duas cores
+    var c1 = colors[i];
+    var c2 = colors[i + 1];
+    var r1 = parseInt(c1.substr(1,2), 16);
+    var g1 = parseInt(c1.substr(3,2), 16);
+    var b1 = parseInt(c1.substr(5,2), 16);
+    var r2 = parseInt(c2.substr(1,2), 16);
+    var g2 = parseInt(c2.substr(3,2), 16);
+    var b2 = parseInt(c2.substr(5,2), 16);
+    
+    var r = Math.round(r1 + (r2 - r1) * f);
+    var g = Math.round(g1 + (g2 - g1) * f);
+    var b = Math.round(b1 + (b2 - b1) * f);
+    
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+  
+  // Função para renderizar legenda
+  function renderLegenda(elementId, faixas, min, max, dark, formatFn) {
+    var el = document.getElementById(elementId);
+    if (!el || faixas.length === 0) return;
+    
+    var html = faixas.map(function(f, i) {
+      var midValue = (f.lo + f.hi) / 2;
+      var cor = getHeatColor(midValue, min, max, dark);
+      var label = formatFn ? formatFn(f.lo) + ' - ' + formatFn(f.hi) : f.lo + ' - ' + f.hi;
+      return '<div class="legend-item" style="pointer-events:none;padding:3px 8px">' +
+        '<span class="legend-dot" style="background:' + cor + '"></span>' +
+        '<span style="font-size:.68rem">' + label + '</span>' +
+        '</div>';
+    }).join('');
+    
+    el.innerHTML = html;
+  }
 
   // -- Troca de view ----------------------------------------------
   function switchView(view, btn) {
@@ -2633,26 +2720,32 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       uf=uf.trim().toUpperCase();
       if(uf.length===2) ufCount[uf]=(ufCount[uf]||0)+1;
     });
-    var maxC=Math.max.apply(null,Object.values(ufCount).concat([1]));
+    
+    var valores = Object.values(ufCount).filter(function(v){ return v > 0; });
+    var minC = valores.length > 0 ? Math.min.apply(null, valores) : 0;
+    var maxC = valores.length > 0 ? Math.max.apply(null, valores) : 1;
+    
     var W=460,H=400;
     var proj=brazilProjection(W,H);
     var path=d3.geoPath().projection(proj);
     var dark=document.documentElement.getAttribute('data-theme')==='dark';
     
-    // Escala de potência para melhor contraste (expoente 0.5 = raiz quadrada)
-    var colorScale = d3.scalePow()
-      .exponent(0.5)
-      .domain([0, maxC])
-      .range(dark 
-        ? ['#0d1117', '#5c6bc0']  // Modo escuro: preto mais escuro até roxo
-        : ['#f0f2f8', '#3949ab']); // Modo claro: cinza claro até roxo escuro
+    // Calcular faixas e renderizar legenda
+    var faixas = calcularFaixas(valores, 5);
+    renderLegenda('map-nf-legend', faixas, minC, maxC, dark, null);
+    
+    // Função de cor usando escala quente-fria
+    var getColor = function(value) {
+      if (!value || value === 0) return dark ? '#0d1117' : '#f0f2f8';
+      return getHeatColor(value, minC, maxC, dark);
+    };
     
     var svg=d3.select('#svg-map-nf');
     svg.selectAll('*').remove();
     var g=svg.append('g');
     g.selectAll('path').data(GEO_DATA.features).enter().append('path')
       .attr('class','state-path').attr('d',path)
-      .attr('fill',function(d){ return colorScale(ufCount[getSigla(d)]||0); })
+      .attr('fill',function(d){ return getColor(ufCount[getSigla(d)]||0); })
       .attr('stroke', dark ? '#2a2d3e' : '#cbd5e1')
       .attr('stroke-width', '0.5')
       .on('mouseenter',function(event,d){ showMapTip(event,getSigla(d)+': '+(ufCount[getSigla(d)]||0)+' NFs'); })
@@ -2666,7 +2759,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     g.selectAll('text').data(GEO_DATA.features).enter().append('text')
       .attr('transform',function(d){ var c=path.centroid(d); return 'translate('+c+')'; })
       .attr('text-anchor','middle').attr('dy','0.35em').attr('font-size','9').attr('font-weight','700').attr('pointer-events','none')
-      .attr('fill',function(d){ var s=getSigla(d),v=ufCount[s]||0; return (v/maxC)>.35?'#fff':(dark?'#9fa8da':'#334155'); })
+      .attr('fill',function(d){ var s=getSigla(d),v=ufCount[s]||0; return v > maxC * 0.5 ? '#fff' : (dark?'#9fa8da':'#334155'); })
       .text(function(d){ return getSigla(d); });
     var el=document.getElementById('map-nf-loading'); if(el) el.classList.add('hidden');
   }
@@ -2735,26 +2828,32 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       var uf=(n.cidade||'').split('/')[1]||''; uf=uf.trim().toUpperCase();
       if(uf.length===2&&n.valor) ufFat[uf]=(ufFat[uf]||0)+(parseFloat(n.valor)||0);
     });
-    var maxF=Math.max.apply(null,Object.values(ufFat).concat([1]));
+    
+    var valores = Object.values(ufFat).filter(function(v){ return v > 0; });
+    var minF = valores.length > 0 ? Math.min.apply(null, valores) : 0;
+    var maxF = valores.length > 0 ? Math.max.apply(null, valores) : 1;
+    
     var W=460,H=400;
     var proj=brazilProjection(W,H);
     var path=d3.geoPath().projection(proj);
     var dark=document.documentElement.getAttribute('data-theme')==='dark';
     
-    // Escala de potência para melhor contraste
-    var colorScale = d3.scalePow()
-      .exponent(0.5)
-      .domain([0, maxF])
-      .range(dark 
-        ? ['#0d1117', '#42a5f5']  // Modo escuro: preto mais escuro até azul
-        : ['#f0f2f8', '#1565c0']); // Modo claro: cinza claro até azul escuro
+    // Calcular faixas e renderizar legenda
+    var faixas = calcularFaixas(valores, 5);
+    renderLegenda('map-vendas-legend', faixas, minF, maxF, dark, function(v){ return 'R$ ' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v.toFixed(0)); });
+    
+    // Função de cor usando escala quente-fria
+    var getColor = function(value) {
+      if (!value || value === 0) return dark ? '#0d1117' : '#f0f2f8';
+      return getHeatColor(value, minF, maxF, dark);
+    };
     
     var svg=d3.select('#svg-map-vendas');
     svg.selectAll('*').remove();
     var g=svg.append('g');
     g.selectAll('path').data(GEO_DATA.features).enter().append('path')
       .attr('class','state-path').attr('d',path)
-      .attr('fill',function(d){ return colorScale(ufFat[getSigla(d)]||0); })
+      .attr('fill',function(d){ return getColor(ufFat[getSigla(d)]||0); })
       .attr('stroke', dark ? '#2a2d3e' : '#cbd5e1')
       .attr('stroke-width', '0.5')
       .on('mouseenter',function(event,d){ var s=getSigla(d); showMapTip(event,s+': '+fmtBRL(ufFat[s]||0)); })
@@ -2875,7 +2974,8 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         '<div style="flex:1;min-width:200px"><div class="drill-modal-title" id="'+titleId+'">Estado</div>' +
         '<div class="drill-modal-sub" id="'+subId+'"></div></div></div>' +
         '<div class="drill-loading" id="'+loadingId+'">⏳ Carregando mapa municipal...</div>' +
-        '<div class="map-svg-wrap"><svg id="'+svgDrillId+'" viewBox="0 0 500 450"></svg></div>';
+        '<div class="map-svg-wrap"><svg id="'+svgDrillId+'" viewBox="0 0 500 450"></svg></div>' +
+        '<div class="legend-row" id="drill-legend-'+mode+'" style="margin-top:8px;justify-content:center"></div>';
       mapCard.appendChild(drillContainer);
     }
     
@@ -2956,17 +3056,20 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       ' — ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
 
     // Mapa
-    var maxCount = Math.max.apply(null, Object.values(cityCount).concat([1]));
-    var maxFat   = Math.max.apply(null, Object.values(cityFat).concat([1]));
-    var useVal   = mode === 'vendas';
+    var valores = Object.values(useVal ? cityFat : cityCount).filter(function(v){ return v > 0; });
+    var minVal = valores.length > 0 ? Math.min.apply(null, valores) : 0;
+    var maxVal = valores.length > 0 ? Math.max.apply(null, valores) : 1;
     
-    // Escala de potência para melhor contraste entre cidades
-    var colorScale = d3.scalePow()
-      .exponent(0.5)
-      .domain([0, useVal ? maxFat : maxCount])
-      .range(dark
-        ? ['#0d1117', useVal ? '#42a5f5' : '#5c6bc0']  // Modo escuro
-        : ['#f0f2f8', useVal ? '#1565c0' : '#3949ab']); // Modo claro
+    // Calcular faixas e renderizar legenda
+    var faixas = calcularFaixas(valores, 5);
+    var formatFn = useVal ? function(v){ return 'R$ ' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v.toFixed(0)); } : null;
+    renderLegenda('drill-legend-' + mode, faixas, minVal, maxVal, dark, formatFn);
+    
+    // Função de cor usando escala quente-fria
+    var getColor = function(value) {
+      if (!value || value === 0) return dark ? '#161922' : '#edf2f7';
+      return getHeatColor(value, minVal, maxVal, dark);
+    };
 
     var svgEl = document.getElementById(svgDrillId);
     var W=500, H=450;
@@ -2989,7 +3092,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         .datum(feature)
         .attr('class','mun-path'+(hasData?' has-data':''))
         .attr('d',path)
-        .attr('fill', hasData ? colorScale(val) : (dark?'#161922':'#edf2f7'))
+        .attr('fill', hasData ? getColor(val) : (dark?'#161922':'#edf2f7'))
         .attr('stroke', dark ? '#2a2d3e' : '#cbd5e1')
         .attr('stroke-width', '0.4')
         .attr('opacity', hasData ? 1 : 0.5)
