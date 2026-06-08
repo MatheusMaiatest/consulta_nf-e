@@ -3055,6 +3055,9 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       ufNotas.length + ' NFs — ' + sortedCities.length + ' cidade' + (sortedCities.length!==1?'s':'') +
       ' — ' + transpList.length + ' transportadora' + (transpList.length!==1?'s':'');
 
+    // Determinar se usa valor ou contagem
+    var useVal = mode === 'vendas';
+    
     // Mapa
     var valores = Object.values(useVal ? cityFat : cityCount).filter(function(v){ return v > 0; });
     var minVal = valores.length > 0 ? Math.min.apply(null, valores) : 0;
