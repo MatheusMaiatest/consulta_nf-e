@@ -1174,6 +1174,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' — Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+
       (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
         '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido '+esc(n.numeropedido)+'</span>'+
+        (n.numeropedidocompra?'<span style="color:var(--ts);font-size:.7rem;font-weight:600">| PC: '+esc(n.numeropedidocompra)+'</span>':'')+
         sitBadgeCard(n.pedido_situacao)+
         (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">📍</span>':'')+
       '</div>':'')+
@@ -1244,9 +1245,10 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       // -----------------------------------------------------------
       '<div class="dsec" style="background:rgba(66,165,245,.05);border:2px solid var(--eco);border-radius:var(--r);padding:18px;margin-bottom:20px">'+
         '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>'+
-        (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja ? 
+        (n.numeropedido||n.pedido_situacao||n.pedido_numeroloja||n.numeropedidocompra ? 
           '<div class="dgrid">'+
             diCopy('Nº Pedido Bling', n.numeropedido||'—')+
+            (n.numeropedidocompra ? diCopy('Nº Pedido Compra (Cliente)', n.numeropedidocompra) : '')+
             di('Nº Loja/Marketplace', n.pedido_numeroloja||'—')+
             (n.pedido_situacao ? '<div class="di"><label>Situação Pedido</label><span><span class="sit-badge sit-'+(getSitClass(n.pedido_situacao))+'">'+esc(n.pedido_situacao)+'</span></span></div>' : '')+
           '</div>'+
@@ -1873,9 +1875,10 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       '</div>';
 
     var body = '<div class="dgrid">';
-    if(n.numeropedido)      body += diCopy('Nº Pedido', n.numeropedido);
-    if(n.pedido_numeroloja) body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
-    if(sit)                 body += '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
+    if(n.numeropedido)        body += diCopy('Nº Pedido Bling', n.numeropedido);
+    if(n.numeropedidocompra)  body += diCopy('Nº Pedido Compra (Cliente)', n.numeropedidocompra);
+    if(n.pedido_numeroloja)   body += di('Nº Loja/Marketplace', n.pedido_numeroloja);
+    if(sit)                   body += '<div class="di"><label>Situação</label><span><span class="sit-badge sit-'+sit.replace(/\s/g,'\\ ')+'">'+esc(sit)+'</span></span></div>';
     body += '</div>';
 
     body += '<div><div class="obs-label">📋 Observações</div>';
@@ -3202,6 +3205,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       '<div class="ccliente">' + esc(p.cliente || '—') + '</div>' +
       '<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">' +
         '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido ' + esc(p.numero) + '</span>' +
+        (p.numeropedidocompra ? '<span style="color:var(--ts);font-size:.7rem;font-weight:600">| PC: ' + esc(p.numeropedidocompra) + '</span>' : '') +
         sitBadgeCard(p.situacao) +
         (temNF ? ' <span class="card-sit-badge ok" style="margin-left:4px">✓ NF</span>' : '') +
       '</div>' +
@@ -3231,6 +3235,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
         '<h3 style="color:var(--eco);font-size:.85rem;margin-bottom:14px">📋 PEDIDO DE VENDA</h3>' +
         '<div class="dgrid">' +
           di('Número', p.numero) +
+          (p.numeropedidocompra ? di('Nº Pedido Compra (Cliente)', p.numeropedidocompra) : '') +
           di('Data Pedido', fmtDate(p.data)) +
           di('Data Saída', fmtDate(p.datasaida)) +
           '<div class="di"><label>Situação</label><span><span class="sit-badge sit-' + getSitClass(p.situacao) + '">' + esc(p.situacao) + '</span></span></div>' +
