@@ -723,13 +723,14 @@ app.get('/api/notas', async (req, res) => {
       limE > 0
         ? conn.execute(
             `SELECT ${COLS_FAST},
-                    COALESCE(p.numero, '')        AS numeropedido,
-                    COALESCE(p.situacao_nome, '') AS pedido_situacao,
-                    COALESCE(p.numeroloja, '')    AS pedido_numeroloja,
-                    'ecommerce'                   AS origem
+                    COALESCE(p.numero, '')               AS numeropedido,
+                    COALESCE(p.numeropedidocompra, '')   AS numeropedidocompra,
+                    COALESCE(p.situacao_nome, '')        AS pedido_situacao,
+                    COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
+                    'ecommerce'                          AS origem
              FROM \`bling_nfe_saida_detalhes_ecommerce\` n
              LEFT JOIN \`bling_pedidos_venda_detalhes_ecommerce\` p
-               ON p.notafiscal_id = n.numero
+               ON p.notafiscal_id = n.id
              WHERE n.dataemissao BETWEEN ? AND ?
              ORDER BY n.dataemissao DESC LIMIT ${limE} OFFSET ${offE}`,
             [d1, d2]
@@ -739,12 +740,13 @@ app.get('/api/notas', async (req, res) => {
         ? conn.execute(
             `SELECT ${COLS_FAST},
                     COALESCE(p.numero, '')               AS numeropedido,
+                    COALESCE(p.numeropedidocompra, '')   AS numeropedidocompra,
                     COALESCE(p.situacao_nome, '')        AS pedido_situacao,
                     COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
                     'distribuidor'                       AS origem
              FROM \`bling_nfe_saida_detalhes_distribuicao\` n
              LEFT JOIN \`bling_pedidos_venda_detalhes_distribuicao\` p
-               ON p.notafiscal_id = n.numero
+               ON p.notafiscal_id = n.id
              WHERE n.dataemissao BETWEEN ? AND ?
              ORDER BY n.dataemissao DESC LIMIT ${limD} OFFSET ${offD}`,
             [d1, d2]
@@ -774,6 +776,7 @@ app.get('/api/notas', async (req, res) => {
       linkpdf:        r.linkpdf,
       xmlUrl:         r.xml,
       numeropedido:   r.numeropedido || null,
+      numeropedidocompra: r.numeropedidocompra || null,
       pedido_situacao: r.pedido_situacao || null,
       pedido_numeroloja: r.pedido_numeroloja || null,
       // Campos completos carregados sob demanda
@@ -823,13 +826,14 @@ app.get('/api/nota-detalhe/:id', async (req, res) => {
     const [[row]] = await conn.execute(
       `SELECT ${COLS_FULL},
               COALESCE(p.numero, '')               AS numeropedido,
+              COALESCE(p.numeropedidocompra, '')   AS numeropedidocompra,
               COALESCE(p.situacao_nome, '')        AS pedido_situacao,
               COALESCE(p.numeroloja, '')           AS pedido_numeroloja,
               ${origem === 'distribuidor' ? "COALESCE(p.observacoes,'') AS pedido_observacoes, COALESCE(p.observacoesinternas,'') AS pedido_observacoesinternas," : "'' AS pedido_observacoes, '' AS pedido_observacoesinternas,"}
               '${origem}'                          AS origem
        FROM \`bling_nfe_saida_detalhes_${tbl}\` n
        LEFT JOIN \`bling_pedidos_venda_detalhes_${tblPed}\` p
-         ON p.notafiscal_id = n.numero
+         ON p.notafiscal_id = n.id
        WHERE n.id = ?`,
       [id]
     ).catch(() => [null]);
@@ -1028,6 +1032,7 @@ function montarNota(r) {
     xmlUrl:             r.xml,
     produtos:           produtos,  // ← PRODUTOS JÁ INCLUÍDOS
     numeropedido:       numeropedido,
+    numeropedidocompra: r.numeropedidocompra || null,
     pedido_situacao:    r.pedido_situacao   || null,
     pedido_numeroloja:  r.pedido_numeroloja || null,
     pedido_observacoes: r.pedido_observacoes && r.pedido_observacoes.trim() ? r.pedido_observacoes.trim() : null,
