@@ -569,7 +569,7 @@ app.get('/api/pedidos', async (req, res) => {
     if (limE > 0) {
       const [rows] = await conn.execute(
         `SELECT 
-          id, numero, data, datasaida, situacao_nome, situacao_id,
+          id, numero, numeropedidocompra, data, datasaida, situacao_nome, situacao_id,
           contato_nome, contato_numerodocumento, contato_tipopessoa,
           total, totalprodutos, desconto_valor,
           transporte_contato_nome, transporte_frete, transporte_pesobruto,
@@ -586,7 +586,7 @@ app.get('/api/pedidos', async (req, res) => {
     if (limD > 0) {
       const [rows] = await conn.execute(
         `SELECT 
-          id, numero, data, datasaida, situacao_nome, situacao_id,
+          id, numero, numeropedidocompra, data, datasaida, situacao_nome, situacao_id,
           contato_nome, contato_numerodocumento, contato_tipopessoa,
           total, totalprodutos, desconto_valor,
           transporte_contato_nome, transporte_frete, transporte_pesobruto,
@@ -1057,6 +1057,7 @@ function montarPedido(r) {
     id:                 r.id,
     origem:             r.origem,
     numero:             r.numero,
+    numeropedidocompra: r.numeropedidocompra || null,
     data:               r.data ? new Date(r.data).toISOString() : null,
     datasaida:          r.datasaida ? new Date(r.datasaida).toISOString() : null,
     situacao:           r.situacao_nome,
