@@ -57,12 +57,15 @@
   .sinput:focus{border-color:var(--bdrf);box-shadow:0 0 0 3px var(--acg)}
   .rcount{font-size:.78rem;color:var(--tm);white-space:nowrap;margin-left:auto}
   .grid{display:block;position:relative;min-height:100px}
-  #virtual-spacer{position:relative;width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;padding:0}
+  #virtual-spacer{position:relative;width:100%;display:grid !important;grid-template-columns:repeat(auto-fill,minmax(240px,1fr)) !important;gap:14px !important;padding:0}
   .grp-hdr{grid-column:1/-1;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);padding:8px 4px 4px;border-bottom:1px solid var(--bdr);margin-top:8px;contain:layout style;width:100%;box-sizing:border-box}
   .card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;cursor:pointer;transition:all var(--t);position:relative;overflow:hidden;contain:layout style paint;box-sizing:border-box}
   
+  /* Modo Card (grid) - padrão */
+  .grid.view-card #virtual-spacer{display:grid !important;grid-template-columns:repeat(auto-fill,minmax(240px,1fr)) !important;gap:14px !important}
+  
   /* Visualização em lista */
-  .grid.view-list #virtual-spacer{display:flex;flex-direction:column;gap:8px}
+  .grid.view-list #virtual-spacer{display:flex !important;flex-direction:column !important;gap:8px !important;grid-template-columns:none !important}
   .grid.view-list .card{width:100%;max-width:none}
   @keyframes cardIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
   .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
@@ -1109,16 +1112,16 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     // Adicionar ao array filtrado
     filteredNotas = filteredNotas.concat(novasFiltradas);
     G('rcount').textContent = allNotas.length + ' nota' + (allNotas.length !== 1 ? 's' : '');
-    // Adicionar ao _renderList e ao grid diretamente
-    var grid = G('grid');
-    var sentinel = grid.lastElementChild;
+    // Adicionar ao _renderList e ao VIRTUAL SPACER (não ao grid diretamente!)
+    var spacer = document.getElementById('virtual-spacer');
+    if(!spacer) return; // Se não existe spacer, não fazer nada
+    
     var frag = document.createDocumentFragment();
     novasFiltradas.forEach(function(n){
       _renderList.push({type:'card',nota:n});
       frag.appendChild(buildCard(n, cols));
     });
-    if(sentinel) grid.insertBefore(frag, sentinel);
-    else grid.appendChild(frag);
+    spacer.appendChild(frag);
     console.log('[NF] Append: '+novasFiltradas.length+' cards adicionados | total grid: '+_renderList.length);
   }
 
