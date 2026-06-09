@@ -866,7 +866,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   G('btnPanel').onclick=function(){G('panel').classList.toggle('collapsed');};
 
   // -- Modo de Visualização -----------------------------------
-  function setViewMode(mode){
+  window.setViewMode = function(mode){
     _viewMode = mode; // 'card' ou 'list'
     
     // Atualizar botões ativos
@@ -880,7 +880,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     
     // Re-renderizar com novo modo
     renderCards();
-  }
+  };
 
   // -- Função de filtro (definida ANTES dos event listeners) --
   // Será sobrescrita mais abaixo com a lógica completa de filtros
@@ -1135,13 +1135,9 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     }, 200);
   };
 
-  // -- Render cards com lazy load -----------------------------
-  // -- Render cards com VIRTUAL SCROLLING (janela deslizante) ----
-  var _renderList=[], _renderIdx=0, _renderBatch=200, _renderObs=null;
+  // -- Render cards com RENDERIZAÇÃO INCREMENTAL (não-bloqueante) ----
+  var _renderList=[], _renderIdx=0, _renderBatch=150, _renderObs=null;
   var _renderIdleTimeout = null;
-  var _visibleWindow = { start: 0, end: 0 }; // Janela de cards visíveis no DOM
-  var _maxVisibleCards = 500; // Máximo de cards no DOM simultaneamente
-  var _cardHeight = 180; // Altura aproximada de um card em pixels
   var _viewMode = 'card'; // 'card' ou 'list'
 
   function renderCards(){
@@ -1157,7 +1153,6 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     // Limpeza
     grid.textContent='';
     _renderIdx=0;
-    _visibleWindow = { start: 0, end: 0 };
     if(_renderObs){_renderObs.disconnect();_renderObs=null;}
     if(_renderIdleTimeout){clearTimeout(_renderIdleTimeout);_renderIdleTimeout=null;}
 
@@ -1166,7 +1161,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       return;
     }
 
-    // Preparar lista completa (mas só renderizar janela)
+    // Preparar lista completa
     _renderList=[];
     var groups=groupNotas(filteredNotas,grp);
     groups.forEach(function(g){
@@ -1174,74 +1169,66 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
       g.notas.forEach(function(n){_renderList.push({type:'card',nota:n});});
     });
 
-    // Criar container (sem altura fixa, deixar grid fluir)
+    // Criar container com grid
     var spacer = document.createElement('div');
     spacer.id = 'virtual-spacer';
     grid.appendChild(spacer);
 
-    // Renderizar primeira janela
-    renderWindow(cols, grid);
+    // Renderizar primeira leva imediatamente (prioritário)
+    renderBatch(cols, spacer, true);
 
-    // Observer para detectar scroll e renderizar janela visível
-    var scrollContainer = grid.closest('.main') || window;
-    var lastScrollTime = 0;
-    var scrollHandler = function(){
-      var now = Date.now();
-      if(now - lastScrollTime < 100) return; // Throttle 100ms
-      lastScrollTime = now;
-      requestAnimationFrame(function(){ renderWindow(cols, grid); });
-    };
-    scrollContainer.addEventListener('scroll', scrollHandler, { passive: true });
+    // Renderizar o resto incrementalmente
+    scheduleNextBatch(cols, spacer);
     
-    console.log('[Render] renderCards() setup concluido em '+(Date.now()-t0)+'ms | lista:', _renderList.length, 'itens | virtual scrolling ativo');
+    console.log('[Render] renderCards() setup concluido em '+(Date.now()-t0)+'ms | lista:', _renderList.length, 'itens | renderização incremental ativa');
   }
 
-  function renderWindow(cols, grid){
-    var spacer = document.getElementById('virtual-spacer');
-    if(!spacer) return;
-
-    // Calcular viewport
-    var scrollTop = (grid.closest('.main') || document.documentElement).scrollTop || 0;
-    var viewportHeight = window.innerHeight;
-    
-    // Calcular índices visíveis (com margem extra para pré-renderizar)
-    var startIdx = Math.max(0, Math.floor(scrollTop / _cardHeight) - 50);
-    var endIdx = Math.min(_renderList.length, Math.ceil((scrollTop + viewportHeight) / _cardHeight) + 50);
-    
-    // Limitar janela máxima
-    if(endIdx - startIdx > _maxVisibleCards){
-      endIdx = startIdx + _maxVisibleCards;
-    }
-
-    // Se janela não mudou significativamente, não fazer nada
-    if(Math.abs(startIdx - _visibleWindow.start) < 20 && Math.abs(endIdx - _visibleWindow.end) < 20){
-      return;
-    }
-
-    console.log('[Render] renderWindow: '+startIdx+' -> '+endIdx+' | viewport:', scrollTop, '->', scrollTop + viewportHeight);
-
-    // Limpar cards antigos
-    var existingCards = spacer.querySelectorAll('.card, .grp-hdr');
-    existingCards.forEach(function(card){ card.remove(); });
-
-    // Renderizar nova janela (SEM posicionamento absoluto - deixar grid fluir)
+  function renderBatch(cols, spacer, isFirst){
+    var batchSize = isFirst ? 200 : _renderBatch; // Primeira leva maior
+    var endIdx = Math.min(_renderIdx + batchSize, _renderList.length);
     var frag = document.createDocumentFragment();
-    for(var i=startIdx; i<endIdx; i++){
+    
+    for(var i = _renderIdx; i < endIdx; i++){
       var item = _renderList[i];
       var el;
-      if(item.type==='hdr'){
+      if(item.type === 'hdr'){
         el = document.createElement('div');
-        el.className='grp-hdr';
-        el.textContent=item.label;
+        el.className = 'grp-hdr';
+        el.textContent = item.label;
       } else {
         el = buildCard(item.nota, cols);
       }
-      // Não aplicar position absolute - deixar CSS grid posicionar
       frag.appendChild(el);
     }
     
     spacer.appendChild(frag);
-    _visibleWindow = { start: startIdx, end: endIdx };
+    _renderIdx = endIdx;
+    
+    if(isFirst){
+      console.log('[Render] Primeira leva renderizada: ' + endIdx + ' itens');
+    }
+    
+    return _renderIdx < _renderList.length; // Retorna true se ainda há mais para renderizar
+  }
+
+  function scheduleNextBatch(cols, spacer){
+    if(_renderIdx >= _renderList.length) return; // Tudo renderizado
+    
+    // Usar requestIdleCallback para não bloquear a UI
+    if(window.requestIdleCallback){
+      _renderIdleTimeout = requestIdleCallback(function(deadline){
+        while(deadline.timeRemaining() > 0 && _renderIdx < _renderList.length){
+          if(!renderBatch(cols, spacer, false)) break;
+        }
+        scheduleNextBatch(cols, spacer); // Agendar próximo lote
+      }, { timeout: 1000 });
+    } else {
+      // Fallback para navegadores sem requestIdleCallback
+      _renderIdleTimeout = setTimeout(function(){
+        renderBatch(cols, spacer, false);
+        scheduleNextBatch(cols, spacer);
+      }, 16); // ~60fps
+    }
   }
 
   function buildCard(n,cols){
