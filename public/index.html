@@ -52,9 +52,9 @@
   .sinput{flex:1;min-width:220px;padding:10px 14px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--tp);font-size:.88rem;outline:none;transition:border-color var(--t),box-shadow var(--t)}
   .sinput:focus{border-color:var(--bdrf);box-shadow:0 0 0 3px var(--acg)}
   .rcount{font-size:.78rem;color:var(--tm);white-space:nowrap;margin-left:auto}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-  .grp-hdr{grid-column:1/-1;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);padding:8px 4px 4px;border-bottom:1px solid var(--bdr);margin-top:8px}
-  .card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;cursor:pointer;transition:all var(--t);position:relative;overflow:hidden;animation:cardIn .25s ease both}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;contain:layout style paint}
+  .grp-hdr{grid-column:1/-1;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);padding:8px 4px 4px;border-bottom:1px solid var(--bdr);margin-top:8px;contain:layout style}
+  .card{background:var(--bgc);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;cursor:pointer;transition:all var(--t);position:relative;overflow:hidden;animation:cardIn .25s ease both;contain:layout style paint;will-change:transform}
   @keyframes cardIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
   .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
   .card.ecommerce::before{background:var(--eco)}
@@ -1103,7 +1103,9 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   };
 
   // -- Render cards com lazy load -----------------------------
-  var _renderList=[], _renderIdx=0, _renderBatch=120, _renderObs=null;
+  // -- Render cards com lazy load + otimizações de performance ----
+  var _renderList=[], _renderIdx=0, _renderBatch=200, _renderObs=null; // Batch maior: 120 -> 200
+  var _renderIdleTimeout = null;
 
   function renderCards(){
     console.log('[Render] renderCards() iniciado | filteredNotas:', filteredNotas.length);
@@ -1116,6 +1118,7 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     grid.textContent='';
     _renderIdx=0;
     if(_renderObs){_renderObs.disconnect();_renderObs=null;}
+    if(_renderIdleTimeout){clearTimeout(_renderIdleTimeout);_renderIdleTimeout=null;}
 
     if(!filteredNotas.length){
       grid.innerHTML='<div class="empty"><div class="empty-icon">&#x1F4CB;</div><p>Nenhuma nota encontrada.</p></div>';
@@ -1136,12 +1139,24 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     renderLote(cols, grid);
 
     _renderObs=new IntersectionObserver(function(entries){
-      if(entries[0].isIntersecting) renderLote(cols, grid);
-    },{rootMargin:'600px'});
+      if(entries[0].isIntersecting) renderLoteIdle(cols, grid);
+    },{rootMargin:'800px'}); // Aumentado: 600px -> 800px
     _renderObs.observe(sentinel);
     console.log('[Render] renderCards() setup concluido em '+(Date.now()-t0)+'ms | lista:', _renderList.length, 'itens');
   }
 
+  // Renderiza usando requestIdleCallback para não travar
+  function renderLoteIdle(cols, grid){
+    if(_renderIdleTimeout) return; // Já tem um agendado
+    if(window.requestIdleCallback){
+      window.requestIdleCallback(function(){ renderLote(cols, grid); }, {timeout: 100});
+    } else {
+      _renderIdleTimeout = setTimeout(function(){ 
+        _renderIdleTimeout = null;
+        renderLote(cols, grid); 
+      }, 0);
+    }
+  }
 
   function renderLote(cols, grid){
     var fim=Math.min(_renderIdx+_renderBatch, _renderList.length);
@@ -1168,22 +1183,37 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
     var d=document.createElement('div');
     d.className='card '+n.origem;
     
+    // Cache de strings para evitar recálculo
     var ol=n.origem==='ecommerce'?'🛒 E-commerce':'🏭 Distribuidor';
-    d.innerHTML=
-      (cols.has('origem')?'<div class="cbadge '+n.origem+'">'+ol+'</div>':'')+
-      (cols.has('cliente')?'<div class="ccliente">'+esc(n.cliente||'—')+'</div>':'')+
-      (cols.has('numero')?'<div class="cnumero">NF '+esc(n.numero||'—')+' — Série '+esc(n.serie||'1')+(n.finnfe==='2'?' <span class="badge-reversa">↩ Reversa</span>':'')+' </div>':'')+
-      (n.numeropedido?'<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">'+
-        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido '+esc(n.numeropedido)+'</span>'+
-        (n.numeropedidocompra?'<span style="color:var(--ts);font-size:.7rem;font-weight:600">| PC: '+esc(n.numeropedidocompra)+'</span>':'')+
-        sitBadgeCard(n.pedido_situacao)+
-        (n.tray_cupom_nome?' <span class="badge-cupom" title="Cupom: '+esc(n.tray_cupom_nome)+(n.tray_cupom_valor?' — R\$ '+parseFloat(n.tray_cupom_valor).toFixed(2):'')+'">📍</span>':'')+
-      '</div>':'')+
-      (cols.has('valor')?'<div class="cvalor">'+brl(n.valor)+'</div>':'')+
-      '<div class="cmeta">'+
-        (cols.has('data')?'<span class="cdata">'+fmtDate(n.dataemissao)+'</span>':'')+
-        (cols.has('transp')?'<span class="ctransp" title="'+esc(n.transportadora||'')+'">'+esc(n.transportadora||'—')+'</span>':'')+
-      '</div>';
+    
+    // Construir HTML otimizado (menos concatenações)
+    var html = [];
+    if(cols.has('origem')) html.push('<div class="cbadge ',n.origem,'">',ol,'</div>');
+    if(cols.has('cliente')) html.push('<div class="ccliente">',esc(n.cliente||'—'),'</div>');
+    if(cols.has('numero')){
+      html.push('<div class="cnumero">NF ',esc(n.numero||'—'),' — Série ',esc(n.serie||'1'));
+      if(n.finnfe==='2') html.push(' <span class="badge-reversa">↩ Reversa</span>');
+      html.push('</div>');
+    }
+    if(n.numeropedido){
+      html.push('<div class="cnumero" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">',
+        '<span style="color:var(--ac);font-size:.75rem;font-weight:700">📋 Pedido ',esc(n.numeropedido),'</span>');
+      if(n.numeropedidocompra) html.push('<span style="color:var(--ts);font-size:.7rem;font-weight:600">| PC: ',esc(n.numeropedidocompra),'</span>');
+      html.push(sitBadgeCard(n.pedido_situacao));
+      if(n.tray_cupom_nome){
+        html.push(' <span class="badge-cupom" title="Cupom: ',esc(n.tray_cupom_nome));
+        if(n.tray_cupom_valor) html.push(' — R$ ',parseFloat(n.tray_cupom_valor).toFixed(2));
+        html.push('">📍</span>');
+      }
+      html.push('</div>');
+    }
+    if(cols.has('valor')) html.push('<div class="cvalor">',brl(n.valor),'</div>');
+    html.push('<div class="cmeta">');
+    if(cols.has('data')) html.push('<span class="cdata">',fmtDate(n.dataemissao),'</span>');
+    if(cols.has('transp')) html.push('<span class="ctransp" title="',esc(n.transportadora||''),'">',esc(n.transportadora||'—'),'</span>');
+    html.push('</div>');
+    
+    d.innerHTML = html.join('');
     d.onclick=function(e){
       e.stopPropagation();
       abrirModal(n);
@@ -1433,10 +1463,27 @@ body{background:radial-gradient(1200px 600px at 80% -10%, rgba(92,107,192,.10), 
   });
   function getCols(){var s=new Set();document.querySelectorAll('#colTogs input:checked').forEach(function(c){s.add(c.dataset.c);});return s;}
 
-  // -- Helpers ------------------------------------------------
-  function brl(v){var n=parseFloat(v);return isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
-  function fmtDate(v){if(!v)return'—';var d=new Date(v);return isNaN(d.getTime())?v:d.toLocaleDateString('pt-BR');}
-  function fpc(v){return({0:'Emitente',1:'Destinatério',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'—';}
+  // -- Helpers com cache para performance --------------------
+  var _brlCache = new Map(), _dateCache = new Map();
+  
+  function brl(v){
+    if(_brlCache.has(v)) return _brlCache.get(v);
+    var n=parseFloat(v);
+    var result = isNaN(n)?'—':n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    if(_brlCache.size < 500) _brlCache.set(v, result);
+    return result;
+  }
+  
+  function fmtDate(v){
+    if(!v)return'—';
+    if(_dateCache.has(v)) return _dateCache.get(v);
+    var d=new Date(v);
+    var result = isNaN(d.getTime())?v:d.toLocaleDateString('pt-BR');
+    if(_dateCache.size < 500) _dateCache.set(v, result);
+    return result;
+  }
+  
+  function fpc(v){return({0:'Emitente',1:'Destinatário',2:'Terceiros',9:'Sem frete'})[String(v)]||v||'—';}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function di(l,v){return'<div class="di"><label>'+l+'</label><span>'+esc(String(v||'—'))+'</span></div>';}
   function diV(l,v){return'<div class="di"><label>'+l+'</label><span class="vd">'+v+'</span></div>';}
